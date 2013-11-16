@@ -19,15 +19,17 @@ Una volta effettuara la clone possiamo effettuare le seguenti operazioni:
 -pull: per aggiornare la nostra repository locale dalla remota.(Il github lo fa in automatico)
 
 COME FARE IL COMMIT SU REPOSITORY REMOTO
-Per prima cose bisogna andare all interno della cartella dove abbiamo il repository. Se modifichiamo una file esistente per fare il commit bisogna digitare:
+Per prima cose bisogna andare all interno della cartella dove abbiamo il repository.
+-Se modifichiamo una file esistente per fare il commit bisogna digitare:
 git pull : questo serve per sincronizzarci con il repository remoto consiglio di farlo ogni volta che iniziamo a modificare qualcosa.(Ps la gui lo fa in automatico)
 git commit -a :per fare il commit in locale ci aprirà un editor per scrivere il messaggio del commit
 git push : serve per postare i nostri cambiamenti al repository remoto
 
-Se invece creiamo nuovi file e/o cartelle:
+-Se invece creiamo nuovi file e/o cartelle:
 git pull : questo serve per sincronizzarci con il repository remoto consiglio di farlo ogni volta che iniziamo a modificare qualcosa.(Ps la gui lo fa in automatico)
 git add nomefile/nomecartella : comando per inserire il file nella lista dei commit.
 git commit : per effettuare il commit
 git push : per inserire il nostro file sul repository remoto.
 
 Spero vi sia utile
+NB: moficare i file solo dal github non tramite dropbox.
