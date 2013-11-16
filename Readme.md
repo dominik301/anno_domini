@@ -19,16 +19,18 @@ Regole
 
 Funzionamento generale del sistema
 ==================================
-1) Registrazione presso un server centrale della partita di un giocatore_0
-2) Registrazione degli altri giocatore_1...giocatore_n (con n fissato all'inizio dal giocatore_0) e quindi inizio partita una volta raggiunto n.
-3) La sequenza di arrivo dei giocatori determina i turni di gioco.
-4) giocatore_0 inizia la partita mettendo sul tavolo l'evento iniziale (evento_0) preso dalla pila del mazzo e completa il suo turno buttando sul tavolo da gioco una carta della sua mano.
+Un server di registrazione permette sia la creazione che la partecipazione a partite da parte dei giocatori (che devono esserci precedentemente iscritti). 
+Il server gestisce più di una partita e ogni giocatore può iscriversi ad una sola partita.
+Quando il numero di giocatori 'n' (precedentemente stabili dal creatore della partita) viene raggiunto, allora il server notifica l'evento al giocatore che ha creato la partita informandolo che può iniziare la sessione di gioco.
+La sequenza di partecipazione ad una partita determina anche i turni della sessione di gioco.
+Una volta avviata una sessione di gioco si seguono le regole. 
+*continuare la descrizione del sistema mano a mano che viene implementata la parte distribuita*
 
 Architettura del sistema
 ========================
--Server centrale di registrazione (scritto in python)
--I giocatori sono composti dal una parte di server (python) e da una client (linguaggi browser)
--
+* Server centrale di registrazione (scritto in python)
+* Giocatori: composti da una parte server (python) e da un client (linguaggi browser)
+
 
 Messaggi scambiati
 ==================
