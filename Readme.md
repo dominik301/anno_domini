@@ -1,4 +1,4 @@
-Anno Domini
+STEFANO è GAY Anno Domini
 ===========
 
 Anno domini è un gioco di carte: consiste nel collocare le carte dei giocatori in una linea temporale a seconda dell'evento.
