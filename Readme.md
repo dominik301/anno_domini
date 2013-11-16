@@ -38,8 +38,7 @@ Messaggi scambiati
 | createGames() | a client | the server | unicast | un client intende creare una nuova partita |
 | joinGame() | a client | the server | unicast | un client intende partecipare ad una partita |
 | startGame() | the server | some clients | broadcast | quando il server capisce che una partita può cominciare (raggiungimento del numero di giocatori prestabilito) allora fa cominciare la partita
-| sendCards() | a client | all other clients partecipating in the game | broadcast |
-il client che ha creato la partita invia agli altri partecipanti il le carte delle loro mani e il mazzo di carte rimanenti del banco |
+| sendCards() | a client | all other clients partecipating in the game | broadcast | il client che ha creato la partita invia agli altri partecipanti il le carte delle loro mani e il mazzo di carte rimanenti del banco |
 | playFirstCard() | a client | all other clients partecipating in the game | broadcast |
 il client che ha creato la partita mette sul tavolo la prima carta del gioco e la comunica a tutti gli altri giocatori |
 | playCard() | a client | all other clients partecipating in the game | broadcast | un giocatore gioca una carta dalla propria mano mettendola sul banco |
