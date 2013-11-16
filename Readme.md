@@ -24,7 +24,7 @@ Il server gestisce più di una partita e ogni giocatore può iscriversi ad una s
 Quando il numero di giocatori 'n' (precedentemente stabili dal creatore della partita) viene raggiunto, allora il server notifica l'evento al giocatore che ha creato la partita informandolo che può iniziare la sessione di gioco.
 La sequenza di partecipazione ad una partita determina anche i turni della sessione di gioco.
 Una volta avviata una sessione di gioco si seguono le regole. 
-*continuare la descrizione del sistema mano a mano che viene implementata la parte distribuita*
+_continuare la descrizione del sistema mano a mano che viene implementata la parte distribuita_
 
 Architettura del sistema
 ========================
