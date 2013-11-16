@@ -1,0 +1,19 @@
+Dopo la registrazione su github.com,dopo aver comunicato l'username a stefano (che ci aggiunge alla lista collaborators) possiamo iniziare ad usare il github.
+Per prima cosa bisogna scaricare la gui per github dal sito.Durante l'installazione del git verrà chiesto di istallare i command-line tools,secondo me conviene installarlo poichè ci consentira di gestirlo al meglio.
+
+Quindi ci sono due modi per gestire il nostro repository:
+-Interfaccia grafica
+-Terminale
+
+Piccolo riassunto su come funziona il git:
+Per prima cosa bisogna iscriversi al repository a cui collaboriamo. Per copiare il repository remoto in locale bisogna effettuare una clone che ci restituirà il repository da gestire in locale. Una volta effettuara la clone possiamo effettuare le seguenti operazioni:
+-commit: per fare il commit delle nostre modifiche in locale.
+-push: per sottomettere le nostre modifiche al repository remoto.
+-pull: per aggiornare la nostra repository locale dalla remota.(Il github lo fa in automatico)
+
+Come fare un commit dal locale:
+Per prima cose bisogna andare all interno della cartella dove abbiamo il repository. Se modifichiamo una file esistente per fare il commit bisogna digitare:
+git commit -a :per fare il commit in locale ed aprirà un editor per scrivere il messaggio del commit
+git push : serve per postare i nostri cambiamenti al repository remoto
+
+Se invece creiamo nuovi file e/o cartelle 
