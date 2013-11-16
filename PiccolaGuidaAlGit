@@ -31,5 +31,5 @@ git add nomefile/nomecartella : comando per inserire il file nella lista dei com
 git commit : per effettuare il commit
 git push : per inserire il nostro file sul repository remoto.
 
-Spero vi sia utile
+Spero vi sia utile.
 NB: moficare i file solo dal github non tramite dropbox.
