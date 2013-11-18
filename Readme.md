@@ -53,3 +53,7 @@ Messaggi scambiati
 | createPlayer() | a client | the server | unicast | un client richiede al server la creazione del profilo di giocatore |
 | sendGames() | the server | a client | unicast | il server invia al client richiedente la lista di partite disponibili |
 | playerCreationResponce() | the server | a client | unicast | il server invia l'esito della creazione di un giocatore |  
+| createPlayer() | | | | |
+| sendGames() | | | | |
+| playerCreationResponse() | | | | |
+| cancelSubscription() | | | | |
