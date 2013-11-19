@@ -1,6 +1,6 @@
-import json
-
-class Game():
+#!../flask/bin/python
+from flask import jsonify
+class Game:
 
    """A game rappresentation"""
 
@@ -28,8 +28,9 @@ class Game():
    			self.p_list.append(player)
 
    def to_json(self):
-   		return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+   		return jsonify(game_id = self.game_id, creator = self.creator, player_n = self.player_n, p_list = self.p_list )
 
 if __name__ == "__main__":
 	a_game = Game(11,"stefano",5)
+	print a_game.__dict__
 	print a_game
