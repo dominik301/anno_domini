@@ -26,6 +26,8 @@ class Game:
    def add_player(self, player):
    		if len(self.p_list) < self.player_n:
    			self.p_list.append(player)
+   		else:
+   			ValueError("The game is full")
 
    def to_json(self):
    		return jsonify(game_id = self.game_id, creator = self.creator, player_n = self.player_n, p_list = self.p_list )
