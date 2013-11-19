@@ -1,6 +1,7 @@
-#!flask/bin/python
-from flask import request
-class Player():
+#!../flask/bin/python
+from flask import request,jsonify
+
+class Player:
 
    """A Player rappresentation"""
 
@@ -16,6 +17,8 @@ class Player():
    		str = "Player: username:%s,ip:%s" %(self.username,self.ip)
    		return str
 
+   def to_json(self):
+         return jsonify(username = self.username, ip = self.ip)
+
 if __name__ == "__main__":
 	a_player = Player("vincenzo")
-	print a_player
