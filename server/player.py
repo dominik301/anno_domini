@@ -14,7 +14,7 @@ class Player:
          self.ip = request.remote_addr
 
    def __str__(self):
-   		str = "Player: username:%s,ip:%s" %(self.username,self.ip)
+   		str = "Player_username: %s, ip: %s" %(self.username, self.ip)
    		return str
 
    def to_json(self):
