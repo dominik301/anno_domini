@@ -1,4 +1,4 @@
-#!../flask/bin/python
+#!../framework/bin/python
 from flask import request,jsonify
 
 class Player:

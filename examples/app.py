@@ -1,4 +1,4 @@
-#!flask/bin/python
+#!../framework/bin/python
 from flask import Flask, abort, jsonify, make_response, request
 from flask.ext.httpauth import HTTPBasicAuth
 

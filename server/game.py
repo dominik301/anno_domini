@@ -1,4 +1,4 @@
-#!../flask/bin/python
+#!../framework/bin/python
 from flask import jsonify
 from flask import Flask
 from player import *

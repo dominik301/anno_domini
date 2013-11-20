@@ -1,4 +1,4 @@
-#!../flask/bin/python
+#!../framework/bin/python
 from game import *
 from flask import Flask
 from flask import jsonify
