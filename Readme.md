@@ -39,7 +39,7 @@ Architettura del sistema
 Messaggi scambiati
 ==================
 | Msg | SentBy | RcvBy | Type |Crud| Description |
-|-----|:------:|:-----:|:----:|---:||------------:|
+|-----|:------:|:-----:|:----:|:--:|:-----------:|
 | getGames() | a client | the server | unicast | un client desidera ricevere la lista di partite pubbliche disponibili sul server |
 | createGames() | a client | the server | unicast | un client intende creare una nuova partita |
 | joinGame() | a client | the server | unicast | un client intende partecipare ad una partita |
