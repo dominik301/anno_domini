@@ -12,7 +12,7 @@ _games_ = {}
 _players_ = {}
 
 """index of games"""
-index =0
+index = 0
 
 def print_players():
 	for item in _players_:
@@ -40,13 +40,13 @@ def create_p():
 
 @app.route('/createGame', methods = ['POST'])
 def create_g():
+	global index 
 	if not request.json or not 'username' in request.json or not 'n_players' in request.json:
 		abort(400)
-	global index 
-	index = index +1
 	if _players_.has_key(request.json['username']):
 		new_g = Game(index,_players_[request.json['username']],request.json['n_players'])
 		_games_[index] = new_g
+		index = index + 1
 		print_games()
 	else:
 		abort(400)
