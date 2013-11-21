@@ -2,12 +2,13 @@
 from flask import jsonify
 from flask import Flask
 from player import *
+import json
 
 class Game:
 
    """A game rappresentation"""
 
-   def __init__(self, game_id=-1, creator="", player_n=0, p_list=[]):
+   def __init__(self, game_id=-1, creator=None, player_n=0, p_list=[]):
    		self.game_id = game_id
    		self.creator = creator
    		self.p_list = []
@@ -43,12 +44,11 @@ class Game:
    			ValueError("The game is full")
 
    def to_json(self):
-   		return jsonify(game_id = self.game_id, creator = self.creator, player_n = self.player_n, p_list = self.p_list )
+         return jsonify(game_id = self.game_id, creator = json.dumps(vars(self.creator)), player_n = self.player_n, p_list = json.dumps(self.p_list, default=lambda o: o.__dict__) )
 
 if __name__ == "__main__":
 	app = Flask(__name__)
 	with app.test_request_context():
 		a_player = Player("Stefano")
 		a_game = Game(11, a_player, 5)
-		a_game.add_player(Player("Vincenzo"))
-		print a_game 
+		a_game.add_player(Player("Vincenzo")) 

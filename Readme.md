@@ -41,7 +41,7 @@ Api Rest
 | Msg | SentBy | RcvBy | Type |Crud | Description |
 |-----|:------:|:-----:|:----:|:---:|------------:|
 | getGames() | a client | the server | unicast | GET |un client desidera ricevere la lista di partite pubbliche disponibili sul server |
-| createGames() | a client | the server | unicast | POST |un client intende creare una nuova partita |
+| createGame() | a client | the server | unicast | POST |un client intende creare una nuova partita |
 | joinGame() | a client | the server | unicast | PUT |un client intende partecipare ad una partita |
 | startGame() | the server | some clients | broadcast | PUT | quando il server capisce che una partita può cominciare (raggiungimento del numero di giocatori prestabilito) allora fa cominciare la partita
 | sendCards() | a client | all other clients partecipating in the game | broadcast | PUT | il client che ha creato la partita invia agli altri partecipanti il le carte delle loro mani e il mazzo di carte rimanenti del banco |
