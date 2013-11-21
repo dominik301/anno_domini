@@ -2,6 +2,7 @@
 from flask import jsonify
 from flask import Flask
 from player import *
+import json
 
 class Game:
 
@@ -43,7 +44,7 @@ class Game:
    			ValueError("The game is full")
 
    def to_json(self):
-   		return jsonify(game_id = self.game_id, creator = self.creator, player_n = self.player_n, p_list = self.p_list )
+   		return jsonify(game_id = self.game_id, creator = self.creator.to_json() , player_n = self.player_n, p_list = json.dumps(self.p_list, default=lambda o: o.__dict__) )
 
 if __name__ == "__main__":
 	app = Flask(__name__)
@@ -51,4 +52,4 @@ if __name__ == "__main__":
 		a_player = Player("Stefano")
 		a_game = Game(11, a_player, 5)
 		a_game.add_player(Player("Vincenzo"))
-		print a_game 
+		print a_game.to_json()
