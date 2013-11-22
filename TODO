@@ -1,0 +1,9 @@
+* [TEST] richieste multiple al server anno domini
+* implementazione della DELETE per consentire ai giocatori di cancellarsi da una partita a cui si sono iscritti
+* aggiungere un booleano per capire se una partita è già cominciata o meno (su game.py) [FATTO]
+* aggiungere un contatore per ogni giocatore nel server per controllare a quante partite si è iscritto un giocatore (per ora facciamo al massimo una, se prova ad iscriversi ad un altra torniamo un msg di errore).
+	* viene settato ad 1 dal server quando un giocatore si iscrive ad una partita
+	* viene settato a 0 se il giocatore iscritto effettua una DELETE
+	* viene settato a 0 dopo che una partita finisce?!
+	* il creatore di una partita ha automaticamente settato a 1 il contatore
+* di volta in volta vanno sistemati i messaggi di errore ritornati dal server, aborto(400) è poco significativo

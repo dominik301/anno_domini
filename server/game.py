@@ -8,7 +8,7 @@ class Game:
 
    """A game rappresentation"""
 
-   def __init__(self, game_id=-1, creator=None, player_n=0, p_list=[]):
+   def __init__(self, game_id=-1, creator=None, player_n=0, started=False, p_list=[]):
    		self.game_id = game_id
    		self.creator = creator
    		self.p_list = []
@@ -42,6 +42,12 @@ class Game:
    			self.p_list.append(player)
    		else:
    			ValueError("The game is full")
+
+   def start_game(self):
+   		if self.p_list == self.player_number:
+   			self.started = True
+   		else:
+   			print "the can't be started\n"
 
    def to_json(self):
          return jsonify(game_id = self.game_id, creator = json.dumps(vars(self.creator)), player_n = self.player_n, p_list = json.dumps(self.p_list, default=lambda o: o.__dict__) )

@@ -6,7 +6,7 @@ class Player:
 
    """A Player rappresentation"""
 
-   def __init__(self, username):
+   def __init__(self, username=None, subscribed_games=0):
          if username == "":
             raise ValueError("no username")
          else:
@@ -15,11 +15,11 @@ class Player:
          self.ip = request.remote_addr
 
    def __str__(self):
-   		str = "Player_username: %s, ip: %s" %(self.username, self.ip)
+   		str = "Player_username: %s, ip: %s, subscribed_games: %d" %(self.username, self.ip, self.subscribed_games)
    		return str
 
    def to_json(self):
-         return jsonify(username = self.username, ip = self.ip)
+         return jsonify(username = self.username, ip = self.ip, games_n = self.subscribed_games)
 
 if __name__ == "__main__":
 	a_player = Player("vincenzo")
