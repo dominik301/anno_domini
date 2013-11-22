@@ -54,3 +54,11 @@ Api Rest
 | sendGames() | the server | a client | unicast | POST | il server invia al client richiedente la lista di partite disponibili |
 | playerCreationResponce() | the server | a client | unicast | ? | il server invia l'esito della creazione di un giocatore |  
 | cancelSubscription() | a client | the server | unicast | DELETE | il client invia un messaggio al server di uscita dalla partita |
+
+ToDoList
+==================
+- [ ] a task list item
+- [ ] list syntax required
+- [ ] normal **formatting**, @mentions, #1234 refs
+- [ ] incomplete
+- [x] completed
