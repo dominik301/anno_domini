@@ -53,10 +53,7 @@ class Game:
    			raise ValueError("The game is full")
 
    def start_game(self):
-   		if self.p_list == self.player_number:
-   			self.started = True
-   		else:
-   			print "the can't be started\n"
+   		self.started = True
 
    def to_json(self):
          return jsonify(game_id = self.game_id, creator = json.dumps(vars(self.creator)), player_n = self.player_n, p_list = json.dumps(self.p_list, default=lambda o: o.__dict__) )
