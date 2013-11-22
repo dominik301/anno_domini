@@ -17,3 +17,8 @@ Per lunedì
 [Roberto] : createPlayer, createGame
 [Vincenzo] : joinGame, startGame
 [Stefano] : sendCards, playFirstCard
+
+STRUTTURE DATI NECESSARIE
+* mazzo = lista
+* banco = lista
+* carte in mano = lista
