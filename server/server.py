@@ -54,18 +54,17 @@ def create_g():
 		abort(400)
 	return new_g.to_json(), 201
 
-@app.route('/joinGame/<int:game_id>/<string:username>', methods = ['PUT'])
-def join_g(game_id, username):
-	if game_id not in _games_:
-		return "game_id: " +str(game_id)+ " not found\n", 400
-	if username not in _players_:
-		return "username: " +username+ " not found\n", 400
-	if _players_[username].subscribed_games != 0:
+@app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
+def join_g(username, game_id):
+	#Controllo che username e game_id sono stati passati correttamente
+	if username not in _players_ or game_id not in _games_:
 		abort(400)
-	_games_[game_id].p_list.append(_players_[username])
-	_r_str = username + " has succefully joined the game " + game_id + "\n"
-	return _r_str, 201 
-
+	player = _players_[username]
+	try:
+		_games_[game_id].add_player(player)
+		return "Game joined\n", 200
+	except ValueError:
+		abort(400)
 
 if __name__ == '__main__':
 	app.debug = True

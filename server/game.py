@@ -39,9 +39,18 @@ class Game:
 
    def add_player(self, player):
    		if len(self.p_list) < self.player_n:
-   			self.p_list.append(player)
+			#Controllo che il player non sia gia presente nella lista
+			found = False
+			for x in self.p_list:
+				if player.username == x.username:
+					found = True
+					break
+			if not found:
+				self.p_list.append(player)
+			else:
+				 raise ValueError("The player is already subscripted")
    		else:
-   			ValueError("The game is full")
+   			raise ValueError("The game is full")
 
    def start_game(self):
    		if self.p_list == self.player_number:
