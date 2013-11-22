@@ -62,9 +62,11 @@ def join_g(username, game_id):
 	player = _players_[username]
 	try:
 		_games_[game_id].add_player(player)
-		return "Game joined\n", 200
 	except ValueError:
 		abort(400)
+	if _games_[game_id].player_n == len(_games_[game_id].p_list):
+		_games_[game_id].start_game()
+	return "Game joined\n", 200
 
 if __name__ == '__main__':
 	app.debug = True
