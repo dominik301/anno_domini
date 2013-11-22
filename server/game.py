@@ -48,7 +48,7 @@ class Game:
 			if not found:
 				self.p_list.append(player)
 			else:
-				 raise ValueError("The player is already subscripted")
+				raise ValueError("The player is already subscripted")
    		else:
    			raise ValueError("The game is full")
 

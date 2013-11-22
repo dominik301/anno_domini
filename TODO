@@ -6,4 +6,4 @@
 	* viene settato a 0 se il giocatore iscritto effettua una DELETE
 	* viene settato a 0 dopo che una partita finisce?!
 	* il creatore di una partita ha automaticamente settato a 1 il contatore
-* di volta in volta vanno sistemati i messaggi di errore ritornati dal server, aborto(400) è poco significativo
+* di volta in volta vanno sistemati i messaggi di errore ritornati dal server, abort(400) è poco significativo
