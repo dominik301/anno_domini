@@ -16,5 +16,9 @@ def create_p():
 def create_g():
 	return "permette ad un giocatore di creare una partita"
 
+@app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
+def join_g(username,game_id):
+	return requests.put("http://localhost:5000/joinGame/username/game_id")
+
 r = requests.get('http://localhost:5000/')
 print(r.text)

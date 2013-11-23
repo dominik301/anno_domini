@@ -66,8 +66,10 @@ def join_g(username, game_id):
 		abort(400)
 	if _games_[game_id].player_n == len(_games_[game_id].p_list):
 		_games_[game_id].start_game()
+		return "la partita puo iniziare\n",200		
 	return "Game joined\n", 200
 
 if __name__ == '__main__':
 	app.debug = True
-	app.run()
+	app.run("172.16.30.1")
+	#app.run()
