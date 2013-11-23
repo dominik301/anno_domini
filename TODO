@@ -1,9 +1,24 @@
 * [TEST] richieste multiple al server anno domini
 * implementazione della DELETE per consentire ai giocatori di cancellarsi da una partita a cui si sono iscritti
 * aggiungere un booleano per capire se una partita è già cominciata o meno (su game.py) [FATTO]
-* aggiungere un contatore per ogni giocatore nel server per controllare a quante partite si è iscritto un giocatore (per ora facciamo al massimo una, se prova ad iscriversi ad un altra torniamo un msg di errore).
-	* viene settato ad 1 dal server quando un giocatore si iscrive ad una partita
-	* viene settato a 0 se il giocatore iscritto effettua una DELETE
-	* viene settato a 0 dopo che una partita finisce?!
-	* il creatore di una partita ha automaticamente settato a 1 il contatore
-* di volta in volta vanno sistemati i messaggi di errore ritornati dal server, aborto(400) è poco significativo
+* di volta in volta vanno sistemati i messaggi di errore ritornati dal server, abort(400) è poco significativo
+
+Per lunedì
+* createPlayer: il clien richiama il servizio createPlayer nel server, il server deve restituire l'elenco delle partite. [url:/createplayer,meth:POST]
+* createGame: il client richiama il servizo createGame del server e il server restituisce l'elenco delle partite aggiornato [url:/creategame,meth:POST]
+* joinGame: il client richiama il servizio di iscrizione ad una partita già esistente sul server, quest gli restituisce una conferma di iscrizione. [url:/joingame,meth:PUT]
+* startGame: il server richiama il servizio start_game inviando la lista dei giocatori. [url:/startgame,meth:PUT]
+	* se sei il creatore e gestisci la start_game: 
+		1) Distribuisci le carte (con opportune randomizzazioni)
+		2) imposta il banco e invia il banco e il mazzo
+* sendCards: il creatore invia le carte da gioco agli altri giocatori. [url:/cards,meth:PUT]
+* playFirstCard: imposta il banco e invia il banco e il mazzo. [url:/table,meth:PUT]
+
+[Roberto] : createPlayer, createGame
+[Vincenzo] : joinGame, startGame
+[Stefano] : sendCards, playFirstCard
+
+STRUTTURE DATI NECESSARIE
+* mazzo = lista
+* banco = lista
+* carte in mano = lista
