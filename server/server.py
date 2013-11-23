@@ -1,6 +1,6 @@
 #!../framework/bin/python
 from game import *
-from flask import Flask, jsonify, abort
+from flask import Flask, jsonify, abort,redirect,request
 from player import *
 
 app = Flask(__name__)
@@ -73,7 +73,11 @@ def join_g(username, game_id):
 	except UserSubscriptionException:
 		return "User is already subscripted\n", 400
 	if game.player_n == len(game.p_list):
-		game.start_game() 
+		game.start_game()
+		ip = request.remote_addr
+		for player in game.p_list:
+			return "http://"+player.ip+"/start_Game"
+		#return redirect("http://172.16.30.135:5000/")
 	return "Game joined\n", 200
 
 @app.route('/unsubscribe/<string:username>/<int:game_id>', methods = ['DELETE'])
