@@ -89,5 +89,5 @@ def unsubscribe(username, game_id):
 
 if __name__ == '__main__':
 	app.debug = True
-	app.run("172.16.30.1")
-	#app.run()
+	#app.run("172.16.30.1")
+	app.run()
