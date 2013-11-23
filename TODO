@@ -16,9 +16,10 @@ Per lunedì
 
 [Roberto] : createPlayer, createGame
 [Vincenzo] : joinGame, startGame
-[Stefano] : sendCards, playFirstCard
+[Stefano] : *sendCards implementata con dati di testing sia per quanto riguarda le carte che i giocatori*, playFirstCard
 
 STRUTTURE DATI NECESSARIE
 * mazzo = lista
 * banco = lista
 * carte in mano = lista
+* serve una classe carta da gioco?
