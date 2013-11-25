@@ -71,9 +71,14 @@ def join_g(username, game_id):
 	except UserSubscriptionException:
 		return "User is already subscripted\n", 400
 	if game.player_n == len(game.p_list):
-		game.start_game()
-		return game.p_list
-	return "Game joined\n", 200
+		for i in game.p_list:
+			if not i.username == username:
+				url = "http://"+i['ip']+":5000/startGame"
+				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+				r = requests.post(url, json.dumps(game.p_list, default=lambda o: o.__dict__), headers=headers)
+		return json.dumps(game.p_list, default=lambda o: o.__dict__),201
+	else :
+		return "Game joined\n", 200
 
 @app.route('/unsubscribe/<string:username>/<int:game_id>', methods = ['DELETE'])
 def unsubscribe(username, game_id):
