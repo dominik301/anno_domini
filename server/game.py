@@ -44,7 +44,7 @@ class Game:
 
 	"""A game representation"""
 
-	def __init__(self, game_id=-1, creator=None, player_n=0, started=False, p_list=[]):
+	def __init__(self, game_id=-1, creator=None, player_n=0, p_list=[]):
 		self.game_id = game_id
    		self.creator = creator
    		self.p_list = []
@@ -83,10 +83,6 @@ class Game:
 			self.p_list.remove(player)
 		else:
 			raise UserNotFoundException("The player is not subscripted")
-
-	def start_game(self):
-   		self.started = True
-		#TODO implementare l'invio dei messaggi ai nodi del SD per iniziare la partita
 
 	def to_json(self):
 		return jsonify(game_id = self.game_id, creator = json.dumps(vars(self.creator)), player_n = self.player_n, p_list = json.dumps(self.p_list, default=lambda o: o.__dict__) )
