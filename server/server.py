@@ -55,7 +55,7 @@ def create_g(username, n_players):
 		index = index + 1
 	else:
 		return "Unknown username\n", 400
-	return index, 201 
+	return str(index), 201 
 
 @app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
 def join_g(username, game_id):
@@ -72,10 +72,10 @@ def join_g(username, game_id):
 		return "User is already subscripted\n", 400
 	if game.player_n == len(game.p_list):
 		for i in game.p_list:
-			if not i.username == username:
-				url = "http://"+i['ip']+":5000/startGame"
+			if i.username != username:
+				url = "http://"+i.ip+":5001/startGame"
 				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-				r = requests.post(url, json.dumps(game.p_list, default=lambda o: o.__dict__), headers=headers)
+				r = requests.put(url, json.dumps(game.p_list, default=lambda o: o.__dict__), headers=headers)
 		return json.dumps(game.p_list, default=lambda o: o.__dict__),201
 	else :
 		return "Game joined\n", 200
@@ -95,4 +95,4 @@ def unsubscribe(username, game_id):
 
 if __name__ == '__main__':
 	app.debug = True
-	app.run()
+	app.run('0.0.0.0')
