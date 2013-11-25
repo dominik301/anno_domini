@@ -21,7 +21,7 @@ server_port = 5000
 
 @app.route("/")
 def hello():
-	return "sono il server_player_0\n"
+	return "sono il server_player ip: " + server_ip + " porta: " + str(server_port) + "\n"
 
 
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
