@@ -23,12 +23,13 @@ Un server di registrazione permette sia la creazione che la partecipazione a par
 
 Il server gestisce più di una partita e ogni giocatore può iscriversi ad una sola partita.
 
-Quando il numero di giocatori 'n' (precedentemente stabili dal creatore della partita) viene raggiunto, allora il server notifica l'evento al giocatore che ha creato la partita informandolo che può iniziare la sessione di gioco.
+Dopo che in giocare ha creato una partita, gli altri giocatori possono prendere parte a quella partita iscrivendosi ad essa.
 La sequenza di partecipazione ad una partita determina anche i turni della sessione di gioco.
+Quando il numero di giocatori 'n' (precedentemente stabili dal creatore della partita) viene raggiunto, allora il server invia a tutti i partecipanti della partita una lista contenente username e ip di tutti i giocatori per notificare l'inizio della partita.
+
+Il creatore della partita,dopo aver ricevuto la lista dei giocatori,crea il mazzo,distribuisce 7 carte ad ogni giocatore,mette una carta sul banco per iniziare il gioco,invia il banco in broadcast e infine fa il broadcast del mazzo.
 
 Una volta avviata una sessione di gioco si seguono le regole. 
-
-_Continuare la descrizione del sistema mano a mano che viene implementata la parte distribuita_
 
 Architettura del sistema
 ========================
@@ -43,8 +44,8 @@ Api Rest
 | getGames() | a client | the server | unicast | GET |un client desidera ricevere la lista di partite pubbliche disponibili sul server |
 | createGame() | a client | the server | unicast | POST |un client intende creare una nuova partita |
 | joinGame() | a client | the server | unicast | PUT |un client intende partecipare ad una partita |
-| startGame() | the server | some clients | broadcast | PUT | quando il server capisce che una partita può cominciare (raggiungimento del numero di giocatori prestabilito) allora fa cominciare la partita
-| sendCards() | a client | all other clients partecipating in the game | broadcast | PUT | il client che ha creato la partita invia agli altri partecipanti il le carte delle loro mani e il mazzo di carte rimanenti del banco |
+| startGame() | the server | some clients | broadcast | PUT | quando il server capisce che una partita può cominciare (raggiungimento del numero di giocatori prestabilito) allora fa cominciare la partita e invia a tutti la lista dei partecipanti
+| sendCards() | a client | all other clients partecipating in the game | broadcast | PUT | il client che ha creato la partita invia agli altri partecipanti le carte delle loro mani e il mazzo di carte rimanenti |
 | playFirstCard() | a client | all other clients partecipating in the game | broadcast | PUT | il client che ha creato la partita mette sul tavolo la prima carta del gioco e la comunica a tutti gli altri giocatori |
 | playCard() | a client | all other clients partecipating in the game | broadcast | PUT | un giocatore gioca una carta dalla propria mano mettendola sul banco |
 | sendToken() | a client | next client in the turn | unicast | PUT | il giocatore che termina il proprio turno passa il token al giocatore del turno successivo |
