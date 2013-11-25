@@ -12,8 +12,8 @@ for j in range(0,20):
 #le carte sul tavolo
 table = []
 
-#lista di giocatori per il testing
-players = ["stefano","vincenzo","roberto"]
+#lista di giocatori 
+players = []
 
 app = Flask(__name__)
 server_ip = "0.0.0.0"
@@ -42,7 +42,14 @@ def create_g(username, n_players):
 
 @app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
 def join_g(username,game_id):
-	return requests.put("http://localhost:5000/joinGame/username/game_id")
+	req = requests.put("http://"+server_ip+":"+server_port+"/joinGame/"+username+"/"+str (game_id))
+	try : 
+		req.json()#quando il server mi restituisce la lista
+	except :
+		return req.text#se non sono l'ultimo
+	global players
+	players = json.loads(req.text)
+	return "ok"
 
 #invia una lista di carte ad un giocatore, per ora ci sono solo stampe di debug
 def send_c(cards, player):
