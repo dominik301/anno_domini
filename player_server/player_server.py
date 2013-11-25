@@ -4,11 +4,11 @@ import json
 import random
 from flask import Flask, jsonify, request, abort
 from game_card import *
+from deck import *
 
 #mazzo
-deck = []
-for j in range(0,20):
-	deck.append( Game_Card(j, "e_" + str(j), j) )
+deck = Deck
+
 #le carte sul tavolo
 table = []
 
