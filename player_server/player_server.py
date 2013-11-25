@@ -43,14 +43,8 @@ def create_g(username, n_players):
 @app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
 def join_g(username,game_id):
 	req = requests.put("http://"+server_ip+":5000/joinGame/"+username+"/"+str(game_id))
-	try : 
-		req.json() #quando il server mi restituisce la lista
-	except :
-		return req.text,req.status_code #se non sono l'ultimo
-	global players
-	players = json.loads(req.text) #Restituisce lista di dizionari: ogni dizionario corrisponde a un player
-	return "",200
-
+	return req.text,req.status_code #se non sono l'ultimo
+	
 @app.route('/startGame', methods = ['PUT'])
 def start_g():
 	global players
@@ -106,7 +100,7 @@ def playFirstCard():
 def try_ports():
 	global server_port
 	try:
-		app.run(server_ip, server_port)
+		app.run(server_ip, server_port, threaded = True)
 		return True
 	except:
 		server_port += 1
