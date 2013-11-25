@@ -1,11 +1,13 @@
 #!../framework/bin/python
-class Game_Card:
+import json
+class Game_Card():
 	"""A game card reppresentation"""
 
-	def __init__(self,year=-1, event=None):
-		if (year >= 0 and year <= 2013) and event != None:
+	def __init__(self,year=-1, event=None, card_id=-1):
+		if (year >= 0 and year <= 2013) and event != None and card_id > -1:
 			self.year = year
 			self.event = event
+			self.card_id = card_id
 		else:
 			raise ValueError("Can't creat the game card: bad year event or empy event")
 
