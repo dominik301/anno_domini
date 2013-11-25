@@ -55,9 +55,7 @@ def create_g(username, n_players):
 		index = index + 1
 	else:
 		return "Unknown username\n", 400
-	return new_g.to_json(), 201 
-	#TODO Perche restituire il json con tutto il game? Bisognerebbe restituire solo l'ID del game.
-	#[Stefano] non lo so poi ci ragioniamo quando siamo insieme
+	return index, 201 
 
 @app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
 def join_g(username, game_id):
