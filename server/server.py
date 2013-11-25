@@ -74,10 +74,7 @@ def join_g(username, game_id):
 		return "User is already subscripted\n", 400
 	if game.player_n == len(game.p_list):
 		game.start_game()
-		ip = request.remote_addr
-		for player in game.p_list:
-			return "http://"+player.ip+"/start_Game"
-		#return redirect("http://172.16.30.135:5000/")
+		return game.p_list
 	return "Game joined\n", 200
 
 @app.route('/unsubscribe/<string:username>/<int:game_id>', methods = ['DELETE'])
