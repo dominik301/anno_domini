@@ -30,6 +30,10 @@ def print_games():
 
 @app.route("/")
 def hello():
+	print "Sono in hello\n"
+	while True:
+		x=1
+	print "Fine hello\n"
 	return "sono il server di anno domini\n"
 
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
