@@ -16,7 +16,10 @@ Per lunedì
 
 [Roberto] : createPlayer, createGame
 [Vincenzo] : joinGame, startGame
-[Stefano] : *sendCards implementata con dati di testing sia per quanto riguarda le carte che i giocatori*, playFirstCard
+[Stefano] : {
+			- *sendCards implementata con dati di testing sia per quanto riguarda le carte che i giocatori*, playFirstCard
+			- nella start game
+			}
 
 STRUTTURE DATI NECESSARIE
 * mazzo = lista
