@@ -129,13 +129,10 @@ def playCard(card_id,card_pos):
 	print "mano dopo la giocata"
 	for x in hand :
 		print x
-	port = 5001
 	for users in players:
-		url = "http://"+users.ip+":"+str(port)+"/playedCard"
-	#url = "http://127.0.0.1:5001/playedCard"
+		url = "http://"+users['ip']+":"+str(users['porta'])+"/playedCard"
 		headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 		r = requests.put(url, data=json.dumps({"year":cardToSend.year,"event":cardToSend.event,"card_id":cardToSend.card_id,"card_pos":card_pos}), headers=headers)
-		port = port+1
 	return "ok"
 
 @app.route('/playedCard',methods = ['PUT'])
