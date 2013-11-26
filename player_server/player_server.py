@@ -30,9 +30,6 @@ hand.append(carta1)
 hand.append(carta2)
 hand.append(carta3)
 
-#creatore del gioco
-creator = False
-
 app = Flask(__name__)
 server_ip = "127.0.0.1"
 server_port = 5000
@@ -56,8 +53,6 @@ def create_p(username):
 def create_g(username, n_players):
 	if username != "" and n_players >=0:
 		req = requests.post("http://"+server_ip+":5000/createGame/"+username+"/"+str(n_players))
-		if req.status_code == 201:
-			creator = True
 		return "", req.status_code
 	else:
 		return "",400
@@ -73,8 +68,6 @@ def start_g():
 	global players
 	players = request.json #Restituisce lista di dizionari: ogni dizionario corrisponde a un player
 	print players
-	if creator:
-		print "Devi iniziare a giocare!"
 	return "", 200
 
 #invia una lista di carte ad un giocatore, per ora ci sono solo stampe di debug
