@@ -2,6 +2,7 @@
 from game import *
 from flask import Flask, jsonify, abort,redirect,request
 from player import *
+import json
 
 app = Flask(__name__)
 
@@ -19,11 +20,18 @@ index = 0
 def get_players():
 	players_dict = dict((_players_.get(player).username, _players_.get(player).ip, _players_.get(player).porta) for player in _players_)
 	return jsonify(players_dict)
-	return "",200
 
 @app.route("/gameList", methods = ['GET'])
 def get_games():
-	return json.dumps(_games_)
+	game_dict = {}
+	for game in _games_:
+		#print _games_.get(game).to_json()
+		creator = _games_.get(game).creator.username
+		player_number = _games_.get(game).player_n
+		p_list = dict((player.username, player.ip) for player in _games_.get(game).p_list)
+		game_dict[_games_.get(game).game_id] = json.dumps( { 'creator' : creator, 'player_number' : player_number, 'p_list' : p_list } )
+	print game_dict
+	return jsonify(game_dict)
 
 #only for testing
 @app.route("/printGames", methods = ['GET'])
