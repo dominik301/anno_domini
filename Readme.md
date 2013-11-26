@@ -23,7 +23,7 @@ Un server di registrazione permette sia la creazione che la partecipazione a par
 
 Il server gestisce più di una partita e ogni giocatore può iscriversi ad una sola partita.
 
-Dopo che in giocare ha creato una partita, gli altri giocatori possono prendere parte a quella partita iscrivendosi ad essa.
+Dopo che un giocare ha creato una partita, gli altri giocatori possono prendere parte a quella partita iscrivendosi ad essa.
 La sequenza di partecipazione ad una partita determina anche i turni della sessione di gioco.
 Quando il numero di giocatori 'n' (precedentemente stabili dal creatore della partita) viene raggiunto, allora il server invia a tutti i partecipanti della partita una lista contenente username e ip di tutti i giocatori per notificare l'inizio della partita.
 

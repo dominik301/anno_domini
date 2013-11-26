@@ -1,19 +1,19 @@
 #!../framework/bin/python
 from flask import request, jsonify
+import json
 import requests
 
 class Player:
 
 	"""A Player representation"""
 
-	def __init__(self, username=None):
-		if username == "":
-			raise ValueError("no username")
+	def __init__(self, username=None, ip=""):
+		if username == "" or ip == "":
+			raise ValueError("no username or missing ip")
 		else:
 			self.username = username
 			#request.remote_addr mi ritorna l'ip del client che richiede il servizio libreria flask
-			self.ip = request.remote_addr
-
+			self.ip = ip
 	def __str__(self):
 		str = "Player_username: %s, ip: %s" %(self.username, self.ip)
 		return str

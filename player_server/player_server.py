@@ -16,7 +16,7 @@ table = []
 players = []
 
 app = Flask(__name__)
-server_ip = "0.0.0.0"
+server_ip = "127.0.0.1"
 server_port = 5000
 
 @app.route("/")
@@ -43,7 +43,7 @@ def create_g(username, n_players):
 @app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
 def join_g(username,game_id):
 	req = requests.put("http://"+server_ip+":5000/joinGame/"+username+"/"+str(game_id))
-	return req.text,req.status_code #se non sono l'ultimo
+	return req.text,req.status_code
 	
 @app.route('/startGame', methods = ['PUT'])
 def start_g():

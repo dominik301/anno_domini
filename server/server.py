@@ -15,11 +15,15 @@ _players_ = {}
 index = 0
 
 #only for testing
-@app.route("/printPlayers", methods = ['GET'])
-def print_players():
-	for item in _players_:
-		print _players_[item].username + " " + _players_[item].ip
+@app.route("/playerList", methods = ['GET'])
+def get_players():
+	players_dict = dict((_players_.get(player).username, _players_.get(player).ip) for player in _players_)
+	return jsonify(players_dict)
 	return "",200
+
+@app.route("/gameList", methods = ['GET'])
+def get_games():
+	return json.dumps(_games_)
 
 #only for testing
 @app.route("/printGames", methods = ['GET'])
@@ -34,7 +38,7 @@ def hello():
 
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
 def create_p(username):
-	new_p = Player(username)
+	new_p = Player(username, str(request.remote_addr))
 	if new_p.username not in _players_:
 		_players_[new_p.username] = new_p
 	else:
@@ -96,4 +100,4 @@ def unsubscribe(username, game_id):
 
 if __name__ == '__main__':
 	app.debug = True
-	app.run('0.0.0.0', threaded = True)
+	app.run('127.0.0.1', threaded = True)
