@@ -42,11 +42,13 @@ def hello():
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
 def create_p(username):
 	if username != "":
-		req = requests.post("http://"+server_ip+":5000/createPlayer/"+username)
+		porta = request.host[request.host.find(':') + 1 :]
+		req = requests.post("http://"+server_ip+":5000/createPlayer/"+username+"/"+porta)
 		return "", req.status_code
 	else:
 		return "",400
 
+#Eliminare parametro username??
 @app.route('/createGame/<string:username>/<int:n_players>', methods = ['POST'])
 def create_g(username, n_players):
 	if username != "" and n_players >=0:
@@ -55,6 +57,7 @@ def create_g(username, n_players):
 	else:
 		return "",400
 
+#Eliminare parametro username??
 @app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
 def join_g(username,game_id):
 	req = requests.put("http://"+server_ip+":5000/joinGame/"+username+"/"+str(game_id))
@@ -64,6 +67,7 @@ def join_g(username,game_id):
 def start_g():
 	global players
 	players = request.json #Restituisce lista di dizionari: ogni dizionario corrisponde a un player
+	print players
 	return "", 200
 
 #invia una lista di carte ad un giocatore, per ora ci sono solo stampe di debug

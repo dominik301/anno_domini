@@ -21,6 +21,6 @@ class Game_Card():
 if __name__ == "__main__":
 	deck = []
 	for j in range(0,20):
-		deck.append( Game_Card(j, "e_" + str(j)) ) 
+		deck.append( Game_Card(j, "e_" + str(j), j) ) 
 	for c in deck:
 		print c

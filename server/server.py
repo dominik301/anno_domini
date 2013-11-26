@@ -18,7 +18,7 @@ index = 0
 #only for testing
 @app.route("/playerList", methods = ['GET'])
 def get_players():
-	players_dict = dict((_players_.get(player).username, _players_.get(player).ip) for player in _players_)
+	players_dict = dict((_players_.get(player).username, _players_.get(player).ip, _players_.get(player).porta) for player in _players_)
 	return jsonify(players_dict)
 
 @app.route("/gameList", methods = ['GET'])
@@ -44,9 +44,9 @@ def print_games():
 def hello():
 	return "sono il server di anno domini\n"
 
-@app.route('/createPlayer/<string:username>', methods = ['POST'])
-def create_p(username):
-	new_p = Player(username, str(request.remote_addr))
+@app.route('/createPlayer/<string:username>/<int:porta>', methods = ['POST'])
+def create_p(username,porta):
+	new_p = Player(username, str(request.remote_addr), porta)
 	if new_p.username not in _players_:
 		_players_[new_p.username] = new_p
 	else:
@@ -83,12 +83,10 @@ def join_g(username, game_id):
 	except UserSubscriptionException:
 		return "User is already subscripted\n", 400
 	if game.player_n == len(game.p_list):
-		port = 5001
 		for i in game.p_list:
-			url = "http://"+i.ip+":"+str(port)+"/startGame"
+			url = "http://"+i.ip+":"+str(i.porta)+"/startGame"
 			headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 			r = requests.put(url, json.dumps(game.p_list, default=lambda o: o.__dict__), headers=headers)
-			port = port + 1 
 		return "Game joined\n",200
 	else :
 		return "Game joined\n", 200
