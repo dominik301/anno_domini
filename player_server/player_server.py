@@ -5,15 +5,30 @@ import random
 from flask import Flask, jsonify, request, abort
 from game_card import *
 from deck import *
-
+from player import * #for testing
 #mazzo
 deck = Deck
 
+carta1 = Game_Card(1,"1",1)
+carta2 = Game_Card(2,"2",2)
+carta3 = Game_Card(3,"3",3)
+carta4 = Game_Card(4,"4",4)
+carta5 = Game_Card(5,"5",5)
+carta6 = Game_Card(6,"6",6)
+
 #le carte sul tavolo
 table = []
+table.append(carta4)
+table.append(carta5)
+table.append(carta6)
 
 #lista di giocatori 
 players = []
+#carte che ho in mano
+hand = []
+hand.append(carta1)
+hand.append(carta2)
+hand.append(carta3)
 
 #creatore del gioco
 creator = False
@@ -108,18 +123,41 @@ def playFirstCard():
 	table.append( deck.pop(random.choice(range(len(deck)))) )
 	return table
 
-#Metodo richiamato dall'utente (=browser)
-@app.route('/playCard/<int:card_id>', methods = ['PUT'])
-def playCard(card_id):
-	for x in players:
-		url = "http://" + x['ip'] + ":5000/playedCard/" + username + "/" + str(card_id)
-		r = requests.put(url)
-	return "Fine del tuo turno", 200
+#metodo richiamato dal browser per giocare una carta
+@app.route('/playCard/<int:card_id>/<int:card_pos>', methods = ['PUT'])
+def playCard(card_id,card_pos):
+	print "mano prima della giocata"
+	for x in hand :
+		print x
+	for card in hand :
+		if card.card_id == card_id :
+			cardToSend = card
+			hand.remove(card)
+	print "mano dopo la giocata"
+	for x in hand :
+		print x
+	port = 5001
+	for users in players:
+		url = "http://"+users.ip+":"+str(port)+"/playedCard"
+	#url = "http://127.0.0.1:5001/playedCard"
+		headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+		r = requests.put(url, data=json.dumps({"year":cardToSend.year,"event":cardToSend.event,"card_id":cardToSend.card_id,"card_pos":card_pos}), headers=headers)
+		port = port+1
+	return "ok"
 
-
-@app.route('/playedCard/<string:username>/<int:card_id>', methods = ['PUT'])
-def playedCard(username, card_id):
-	print "La carta ", card_id, " e' stata giocata da " , username
+@app.route('/playedCard',methods = ['PUT'])
+def playedCard():
+	print "banco prima della carta giocata"
+	for i in table:	#only for test
+		print i 	#
+	card = request.json
+	print card['event'] #only for test
+	cardtoInsert = Game_Card(card['year'],card['event'],card['card_id'])
+	table.insert(card['card_pos'],cardtoInsert)
+	print "banco dopo la carta giocata"
+	for i in table:	#only for test
+		print i 	#
+	return "ok"
 
 def try_ports():
 	global server_port
