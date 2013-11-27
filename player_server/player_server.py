@@ -5,102 +5,51 @@ import random
 from flask import Flask, jsonify, request, abort
 from game_card import *
 from deck import *
-from player import * #for testing
-
-#nome con cui mi registro al server
-my_player_name = ""
 
 #mazzo
 deck = Deck
 
-carta1 = Game_Card(1,"1",1)
-carta2 = Game_Card(2,"2",2)
-carta3 = Game_Card(3,"3",3)
-carta4 = Game_Card(4,"4",4)
-carta5 = Game_Card(5,"5",5)
-carta6 = Game_Card(6,"6",6)
-
 #le carte sul tavolo
 table = []
-table.append(carta4)
-table.append(carta5)
-table.append(carta6)
-
-#id della partita a cui si sta partecipando
-joined_game_id = -1
 
 #lista di giocatori 
-players = {}
-
-#carte che ho in mano
-hand = []
-hand.append(carta1)
-hand.append(carta2)
-hand.append(carta3)
+players = []
 
 app = Flask(__name__)
 server_ip = "127.0.0.1"
 server_port = 5000
 
-#recupera la lista dei giocatori iscritti alla partita con joined_game_id e riempie il dict players
-def get_players():
-	global players
-	if joined_game_id != -1:
-		req = requests.post("http://"+server_ip+":5000/"+str(joined_game_id)+"/players")
-		if not req.json:
-			abort(400)
-		print req.json
-		players = req
-	else:
-		raise ValueError("joined_game_id == -1")
-
 @app.route("/")
 def hello():
 	return "sono il server_player ip: " + server_ip + " porta: " + str(server_port) + "\n"
 
+
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
 def create_p(username):
-	global server_port
 	if username != "":
-		my_player_name = username
-		req = requests.post("http://"+server_ip+":5000/createPlayer/"+username+"/"+str(server_port))
+		req = requests.post("http://"+server_ip+":5000/createPlayer/"+username)
 		return "", req.status_code
 	else:
 		return "",400
 
-#Eliminare parametro username??
 @app.route('/createGame/<string:username>/<int:n_players>', methods = ['POST'])
 def create_g(username, n_players):
-	global joined_game_id
 	if username != "" and n_players >=0:
 		req = requests.post("http://"+server_ip+":5000/createGame/"+username+"/"+str(n_players))
-		joined_game_id = int(req.text)
 		return "", req.status_code
 	else:
 		return "",400
 
-#Eliminare parametro username??
 @app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
-def join_g(username, game_id):
-	global joined_game_id 
-	joined_game_id = game_id
+def join_g(username,game_id):
 	req = requests.put("http://"+server_ip+":5000/joinGame/"+username+"/"+str(game_id))
-	joined_game_id = game_id
-	if joined_game_id == -1:
-		return "bad game_id", 400
-	else:
-		return req.text,req.status_code
+	return req.text,req.status_code
 	
 @app.route('/startGame', methods = ['PUT'])
 def start_g():
 	global players
-	get_players()
-	print players
-	"""first_player = players.itervalues().next()
-	if first_player == my_player_name:
-		for p in players:
-			cards = get_randomCards()
-			sendCards(cards, p)"""
+	players = request.json #Restituisce lista di dizionari: ogni dizionario corrisponde a un player
+	return "", 200
 
 #invia una lista di carte ad un giocatore, per ora ci sono solo stampe di debug
 def send_c(cards, player):
@@ -119,15 +68,22 @@ def get_randomCards():
 		n = n + 1
 	return player_cards	
 
-def sendCards(cards=None, player=None):
-	if not cards or not player:
-		raise ValueError("player_server: sendCards called with cards or player equal to None")
-	headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+@app.route('/cards', methods = ['PUT'])
+def sendCards():
+	#lista di giocatori per il testing
+	#players = ["stefano","vincenzo","roberto"]
+	#and len( deck ) >= (20 - the_game.player_n * 3)
+	#for p in players:
+	#	send_c(get_randomCards(), p)
+
 	#crea un dizionario del deck della forma { card_id : <json dell'oggetto game_card> }
-	player_cards_dict = dict((card.card_id, vars(card)) for card in cards)
+	deck_dict = dict((card.card_id, vars(card)) for card in deck)
+	#test di invio delle carte di un giocatore generate in modo random e rimosse dal deck
+	player_cards_dict = dict((card.card_id, vars(card)) for card in get_randomCards())
+	url = "http://localhost:5001/receiveCards"
+	headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 	r = requests.post(url, data=json.dumps(player_cards_dict), headers=headers)
-	player_url = "http://"+player.ip+":"+player.port+"/receiveCards"
-	return
+	return jsonify(player_cards_dict)
 
 @app.route('/receiveCards', methods = ['POST'])
 def rcvCards():
@@ -140,39 +96,6 @@ def rcvCards():
 def playFirstCard():
 	table.append( deck.pop(random.choice(range(len(deck)))) )
 	return table
-
-#metodo richiamato dal browser per giocare una carta
-@app.route('/playCard/<int:card_id>/<int:card_pos>', methods = ['PUT'])
-def playCard(card_id,card_pos):
-	print "mano prima della giocata"
-	for x in hand :
-		print x
-	for card in hand :
-		if card.card_id == card_id :
-			cardToSend = card
-			hand.remove(card)
-	print "mano dopo la giocata"
-	for x in hand :
-		print x
-	for users in players:
-		url = "http://"+users['ip']+":"+str(users['porta'])+"/playedCard"
-		headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-		r = requests.put(url, data=json.dumps({"year":cardToSend.year,"event":cardToSend.event,"card_id":cardToSend.card_id,"card_pos":card_pos}), headers=headers)
-	return "ok"
-
-@app.route('/playedCard',methods = ['PUT'])
-def playedCard():
-	print "banco prima della carta giocata"
-	for i in table:	#only for test
-		print i 	#
-	card = request.json
-	print card['event'] #only for test
-	cardtoInsert = Game_Card(card['year'],card['event'],card['card_id'])
-	table.insert(card['card_pos'],cardtoInsert)
-	print "banco dopo la carta giocata"
-	for i in table:	#only for test
-		print i 	#
-	return "ok"
 
 def try_ports():
 	global server_port
