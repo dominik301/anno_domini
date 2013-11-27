@@ -30,7 +30,6 @@ table.append(carta6)
 joined_game_id = -1
 
 #lista di giocatori 
-
 players = {}
 
 #carte che ho in mano
@@ -53,7 +52,7 @@ def get_players():
 		print req.json
 		players = req
 	else:
-		raise ValueError("joined_game_id == 1")
+		raise ValueError("joined_game_id == -1")
 
 @app.route("/")
 def hello():
@@ -61,11 +60,10 @@ def hello():
 
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
 def create_p(username):
+	global server_port
 	if username != "":
 		my_player_name = username
-		#perchè il + 1?
-		porta = request.host[request.host.find(':') + 1 :]
-		req = requests.post("http://"+server_ip+":5000/createPlayer/"+username+"/"+porta)
+		req = requests.post("http://"+server_ip+":5000/createPlayer/"+username+"/"+str(server_port))
 		return "", req.status_code
 	else:
 		return "",400
@@ -81,11 +79,12 @@ def create_g(username, n_players):
 
 #Eliminare parametro username??
 @app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
-def join_g(username,game_id):
-	global joined_game_id
+def join_g(username, game_id):
+	global joined_game_id = game_id
+	joined_game_id = 
 	req = requests.put("http://"+server_ip+":5000/joinGame/"+username+"/"+str(game_id))
 	joined_game_id = game_id
-	if joined_game_id == 1:
+	if joined_game_id == -1:
 		return "bad game_id", 400
 	else:
 		return req.text,req.status_code
@@ -93,6 +92,7 @@ def join_g(username,game_id):
 @app.route('/startGame', methods = ['PUT'])
 def start_g():
 	global players
+	get_players()
 	first_player = players.itervalues().next()
 	if first_player == my_player_name:
 		for p in players:
