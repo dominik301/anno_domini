@@ -131,9 +131,16 @@ def playCard(card_id,card_pos):
 		print x
 	for users in players:
 		url = "http://"+users['ip']+":"+str(users['porta'])+"/playedCard"
-		headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-		r = requests.put(url, data=json.dumps({"year":cardToSend.year,"event":cardToSend.event,"card_id":cardToSend.card_id,"card_pos":card_pos}), headers=headers)
+		url = url + "/" + str(cardToSend.year) + "/" + str(cardToSend.event) + "/" + str(cardToSend.card_id) + "/" + str(cardToSend.card_pos)
+		#headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+		#r = requests.put(url, data=json.dumps({"year":cardToSend.year,"event":cardToSend.event,"card_id":cardToSend.card_id,"card_pos":card_pos}), headers=headers)
+		r = requests.put(url)
 	return "ok"
+
+#metodo richiamato da un altro nodo per comunicare la carta giocata
+@app.route('/playedCard/<int:year>/<string:event>/<int:card_id>/<int:position>', methods = ['PUT'])
+def playedCard2(year, event, card_id, position):
+	print "qualcuno ha giocato la carta: %d %s %d %d",year, event, card_id, position
 
 @app.route('/playedCard',methods = ['PUT'])
 def playedCard():
