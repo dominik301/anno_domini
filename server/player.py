@@ -15,6 +15,7 @@ class Player:
 			#request.remote_addr mi ritorna l'ip del client che richiede il servizio libreria flask
 			self.ip = ip
 			self.port = port
+
 	def __str__(self):
 		str = "Player_username: %s, ip: %s, port: %d" %(self.username, self.ip, self.port)
 		return str
