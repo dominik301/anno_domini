@@ -58,16 +58,34 @@ def join_g(game_id):
 @app.route('/startGame', methods = ['PUT'])
 def start_g():
 	global players
+	global hand
+	global table
 	players = request.json #Restituisce lista di dizionari: ogni dizionario corrisponde a un player
 	if players[0]['username'] == my_player_name:
 		hand = get_randomCards()
+		table.append(deck.pop(0))
 		for p in players:
 			if p['username'] != my_player_name:
-				print "invio a: "+ p['username']+ " le carte ",
+				print "invio a: "+ p['username']+ " le carte "
 				cards = get_randomCards()
-				url = "http://"+p['ip']+":"+str(p['porta'])+"/receiveCards"
 				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+
+				#invio le carte da gioco ai giocatori
+				url = "http://"+p['ip']+":"+str(p['porta'])+"/receiveCards"
 				r = requests.post(url, json.dumps(cards, default=lambda o: o.__dict__), headers=headers)
+
+				#invio il tavolo da gioco ai giocatori
+				url = "http://"+p['ip']+":"+str(p['porta'])+"/receiveTable"
+				s = requests.post(url, json.dumps(table, default=lambda o: o.__dict__), headers=headers)
+
+				#invio il mazzo ai giocatori
+				url = "http://"+p['ip']+":"+str(p['porta'])+"/receiveDeck"
+				s = requests.post(url, json.dumps(deck, default=lambda o: o.__dict__), headers=headers)
+	print "la mia mano"
+	for m in hand:
+		print m
+	print "il tabolo"
+	print table
 	return "", 200
 
 #genera le carte da gioco iniziali di un giocatore rimuovendole dal deck
@@ -81,23 +99,6 @@ def get_randomCards():
 		n = n + 1
 	return player_cards	
 
-@app.route('/cards', methods = ['PUT'])
-def sendCards():
-	#lista di giocatori per il testing
-	#players = ["stefano","vincenzo","roberto"]
-	#and len( deck ) >= (20 - the_game.player_n * 3)
-	#for p in players:
-	#	send_c(get_randomCards(), p)
-
-	#crea un dizionario del deck della forma { card_id : <json dell'oggetto game_card> }
-	deck_dict = dict((card.card_id, vars(card)) for card in deck)
-	#test di invio delle carte di un giocatore generate in modo random e rimosse dal deck
-	player_cards_dict = dict((card.card_id, vars(card)) for card in get_randomCards())
-	url = "http://localhost:5001/receiveCards"
-	headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-	r = requests.post(url, data=json.dumps(player_cards_dict), headers=headers)
-	return jsonify(player_cards_dict)
-
 @app.route('/receiveCards', methods = ['POST'])
 def rcvCards():
 	print "Ricevo carte"
@@ -108,6 +109,35 @@ def rcvCards():
 		card = Game_Card(h['year'],h['event'],h['card_id'])
 		hand.append(card)
 	for c in hand:
+		print c
+	return "",200
+
+@app.route('/receiveTable', methods = ['POST'])
+def rcvTable():
+	print "Ricevo tavolo"
+	if not request.json:
+		abort(400)
+	table_json = request.json
+	for t in table_json:
+		card = Game_Card(t['year'],t['event'],t['card_id'])
+		table.append(card)
+	for c in table:
+		print c
+	return "",200
+
+@app.route('/receiveDeck', methods = ['POST'])
+def rcvDeck():
+	global deck
+	print "Ricevo deck"
+	if not request.json:
+		abort(400)
+	deck_json = request.json
+	tmp_deck = []
+	for d_card in deck_json:
+		card = Game_Card(d_card['year'],d_card['event'],d_card['card_id'])
+		tmp_deck.append(card)
+	deck = tmp_deck
+	for c in deck:
 		print c
 	return "",200
 
