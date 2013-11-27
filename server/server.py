@@ -18,23 +18,8 @@ index = 0
 #only for testing
 @app.route("/playerList", methods = ['GET'])
 def get_players():
-	#players_dict = dict((_players_.get(player).username, _players_.get(player).ip, _players_.get(player).port) for player in _players_)
-	players_dict = {}
-	for player in _players_:
-		players_dict[_players_.get(player).username] = json.dumps( { 'ip' : _players_.get(player).ip, 'port' : _players_.get(player).port } )
+	players_dict = dict((_players_.get(player).username, _players_.get(player).ip) for player in _players_)
 	return jsonify(players_dict)
-
-@app.route("/<int:game_id>/players", methods = ['GET'])
-def get_game_players(game_id):
-	players_list = None
-	players_dict = None
-	if game_id in _games_:
-		players_list = _games_.get(game_id).p_list
-	players_dict = dict( (p.username, {'ip':p.ip, 'port':p.port}) for p in players_list )
-	if players_dict != None:
-		return jsonify(players_dict)
-	else:
-		return "",400
 
 @app.route("/gameList", methods = ['GET'])
 def get_games():
@@ -43,7 +28,7 @@ def get_games():
 		#print _games_.get(game).to_json()
 		creator = _games_.get(game).creator.username
 		player_number = _games_.get(game).player_n
-		p_list = dict((player.username, {'ip':player.ip, 'port':player.port}) for player in _games_.get(game).p_list)
+		p_list = dict((player.username, player.ip) for player in _games_.get(game).p_list)
 		game_dict[_games_.get(game).game_id] = json.dumps( { 'creator' : creator, 'player_number' : player_number, 'p_list' : p_list } )
 	print game_dict
 	return jsonify(game_dict)
@@ -59,9 +44,9 @@ def print_games():
 def hello():
 	return "sono il server di anno domini\n"
 
-@app.route('/createPlayer/<string:username>/<int:port>', methods = ['POST'])
-def create_p(username, port):
-	new_p = Player(username, str(request.remote_addr), port)
+@app.route('/createPlayer/<string:username>', methods = ['POST'])
+def create_p(username):
+	new_p = Player(username, str(request.remote_addr))
 	if new_p.username not in _players_:
 		_players_[new_p.username] = new_p
 	else:
@@ -82,7 +67,7 @@ def create_g(username, n_players):
 		index = index + 1
 	else:
 		return "Unknown username\n", 400
-	return str(index-1) 
+	return str(index), 201 
 
 @app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
 def join_g(username, game_id):
@@ -98,10 +83,12 @@ def join_g(username, game_id):
 	except UserSubscriptionException:
 		return "User is already subscripted\n", 400
 	if game.player_n == len(game.p_list):
+		port = 5001
 		for i in game.p_list:
-			url = "http://"+i.ip+":"+str(i.port)+"/startGame"
+			url = "http://"+i.ip+":"+str(port)+"/startGame"
 			headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 			r = requests.put(url, json.dumps(game.p_list, default=lambda o: o.__dict__), headers=headers)
+			port = port + 1 
 		return "Game joined\n",200
 	else :
 		return "Game joined\n", 200
