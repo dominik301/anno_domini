@@ -24,6 +24,17 @@ app = Flask(__name__)
 server_ip = "127.0.0.1"
 server_port = 5000
 
+#INIZIALIZZAZIONI PER TESTING
+carta1 = Game_Card(1,"1",1)
+carta2 = Game_Card(2,"2",2)
+carta3 = Game_Card(3,"3",3)
+carta4 = Game_Card(4,"4",4)
+carta5 = Game_Card(5,"5",5)
+carta6 = Game_Card(6,"6",6)
+table.append(carta4)
+table.append(carta5)
+table.append(carta6)
+
 @app.route("/")
 def hello():
 	return "sono il server_player ip: " + server_ip + " porta: " + str(server_port) + "\n"
@@ -66,7 +77,7 @@ def start_g():
 		table.append(deck.pop(0))
 		for p in players:
 			if p['username'] != my_player_name:
-				print "invio a: "+ p['username']+ " le carte "
+
 				cards = get_randomCards()
 				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
@@ -149,35 +160,50 @@ def playFirstCard():
 #metodo richiamato dal browser per giocare una carta
 @app.route('/playCard/<int:card_id>/<int:card_pos>', methods = ['PUT'])
 def playCard(card_id,card_pos):
-	print "mano prima della giocata"
+	print "mano prima della giocata:"
 	for x in hand :
-		print x
+		print " ",x
 	for card in hand :
 		if card.card_id == card_id :
 			cardToSend = card
 			hand.remove(card)
+			break
+	else:
+		return "carta con id sconosciuto", 400
 	print "mano dopo la giocata"
 	for x in hand :
-		print x
+		print " ",x
 	for users in players:
 		url = "http://"+users['ip']+":"+str(users['porta'])+"/playedCard"
-		headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-		r = requests.put(url, data=json.dumps({"year":cardToSend.year,"event":cardToSend.event,"card_id":cardToSend.card_id,"card_pos":card_pos}), headers=headers)
+		url = url + "/" + my_player_name + "/" + str(cardToSend.year) + "/" + str(cardToSend.event) + "/" + str(cardToSend.card_id) + "/" + str(card_pos)
+		#headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+		#r = requests.put(url, data=json.dumps({"year":cardToSend.year,"event":cardToSend.event,"card_id":cardToSend.card_id,"card_pos":card_pos}), headers=headers)
+		r = requests.put(url)
 	return "ok"
 
-@app.route('/playedCard',methods = ['PUT'])
-def playedCard():
+#metodo richiamato da un altro nodo per comunicare la carta giocata
+#l'username serve perche' nel test in localhost l'ip e' sempre lo stesso e non si riesce a riconoscere gli utenti
+@app.route('/playedCard/<string:username>/<int:year>/<string:event>/<int:card_id>/<int:position>', methods = ['PUT'])
+def playedCard(username, year, event, card_id, position):
 	print "banco prima della carta giocata"
 	for i in table:	#only for test
-		print i 	#
-	card = request.json
-	print card['event'] #only for test
-	cardtoInsert = Game_Card(card['year'],card['event'],card['card_id'])
-	table.insert(card['card_pos'],cardtoInsert)
+		print " ",i 	#
+	cardToInsert = Game_Card(year, event, card_id)
+	table.insert(position, cardToInsert)
 	print "banco dopo la carta giocata"
 	for i in table:	#only for test
-		print i 	#
-	return "ok"
+		print " ",i 	#
+	# Controllo se ora e' il mio turno
+	for x in players: #players e' una lista di dizionari
+		if x['username'] == username:
+			if players[(players.index(x)+1) % len(players)]['username']==my_player_name:
+				#e' il mio turno
+				print "DEVO GIOCARE IO!"
+			break
+	else:
+		print "Non ho trovato il giocatore"
+		return "", 400
+	return "", 200
 
 def try_ports():
 	global server_port
