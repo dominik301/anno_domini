@@ -24,17 +24,6 @@ app = Flask(__name__)
 server_ip = "127.0.0.1"
 server_port = 5000
 
-#INIZIALIZZAZIONI PER TESTING
-carta1 = Game_Card(1,"1",1)
-carta2 = Game_Card(2,"2",2)
-carta3 = Game_Card(3,"3",3)
-carta4 = Game_Card(4,"4",4)
-carta5 = Game_Card(5,"5",5)
-carta6 = Game_Card(6,"6",6)
-table.append(carta4)
-table.append(carta5)
-table.append(carta6)
-
 @app.route("/")
 def hello():
 	return "sono il server_player ip: " + server_ip + " porta: " + str(server_port) + "\n"
@@ -92,11 +81,10 @@ def start_g():
 				#invio il mazzo ai giocatori
 				url = "http://"+p['ip']+":"+str(p['porta'])+"/receiveDeck"
 				s = requests.post(url, json.dumps(deck, default=lambda o: o.__dict__), headers=headers)
+		#Richiamare la funzione della GUI per la prima giocata
 	print "la mia mano"
 	for m in hand:
 		print m
-	print "il tabolo"
-	print table
 	return "", 200
 
 #genera le carte da gioco iniziali di un giocatore rimuovendole dal deck
@@ -148,8 +136,8 @@ def rcvDeck():
 		card = Game_Card(d_card['year'],d_card['event'],d_card['card_id'])
 		tmp_deck.append(card)
 	deck = tmp_deck
-	for c in deck:
-		print c
+	#for c in deck:
+	#	print c
 	return "",200
 
 @app.route('/initTable', methods = ['PUT'])
