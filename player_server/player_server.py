@@ -9,26 +9,16 @@ from player import * #for testing
 #mazzo
 deck = Deck
 
-carta1 = Game_Card(1,"1",1)
-carta2 = Game_Card(2,"2",2)
-carta3 = Game_Card(3,"3",3)
-carta4 = Game_Card(4,"4",4)
-carta5 = Game_Card(5,"5",5)
-carta6 = Game_Card(6,"6",6)
+#il mio nome
+my_player_name = ""
 
 #le carte sul tavolo
 table = []
-table.append(carta4)
-table.append(carta5)
-table.append(carta6)
 
 #lista di giocatori 
 players = []
 #carte che ho in mano
 hand = []
-hand.append(carta1)
-hand.append(carta2)
-hand.append(carta3)
 
 app = Flask(__name__)
 server_ip = "127.0.0.1"
@@ -41,40 +31,44 @@ def hello():
 
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
 def create_p(username):
+	global my_player_name
 	if username != "":
 		porta = request.host[request.host.find(':') + 1 :]
 		req = requests.post("http://"+server_ip+":5000/createPlayer/"+username+"/"+porta)
+		my_player_name = username
 		return "", req.status_code
 	else:
 		return "",400
 
 #Eliminare parametro username??
-@app.route('/createGame/<string:username>/<int:n_players>', methods = ['POST'])
-def create_g(username, n_players):
-	if username != "" and n_players >=0:
-		req = requests.post("http://"+server_ip+":5000/createGame/"+username+"/"+str(n_players))
+@app.route('/createGame/<int:n_players>', methods = ['POST'])
+def create_g(n_players):
+	if my_player_name != "" and n_players >=0:
+		req = requests.post("http://"+server_ip+":5000/createGame/"+my_player_name+"/"+str(n_players))
 		return "", req.status_code
 	else:
 		return "",400
 
 #Eliminare parametro username??
-@app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
-def join_g(username,game_id):
-	req = requests.put("http://"+server_ip+":5000/joinGame/"+username+"/"+str(game_id))
+@app.route('/joinGame/<int:game_id>', methods = ['PUT'])
+def join_g(game_id):
+	req = requests.put("http://"+server_ip+":5000/joinGame/"+my_player_name+"/"+str(game_id))
 	return req.text,req.status_code
 	
 @app.route('/startGame', methods = ['PUT'])
 def start_g():
 	global players
 	players = request.json #Restituisce lista di dizionari: ogni dizionario corrisponde a un player
-	print players
+	if players[0]['username'] == my_player_name:
+		hand = get_randomCards()
+		for p in players:
+			if p['username'] != my_player_name:
+				print "invio a: "+ p['username']+ " le carte ",
+				cards = get_randomCards()
+				url = "http://"+p['ip']+":"+str(p['porta'])+"/receiveCards"
+				headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+				r = requests.post(url, json.dumps(cards, default=lambda o: o.__dict__), headers=headers)
 	return "", 200
-
-#invia una lista di carte ad un giocatore, per ora ci sono solo stampe di debug
-def send_c(cards, player):
-	print player + " received:\n",
-	for c in cards:
-		print c
 
 #genera le carte da gioco iniziali di un giocatore rimuovendole dal deck
 def get_randomCards():
@@ -106,12 +100,18 @@ def sendCards():
 
 @app.route('/receiveCards', methods = ['POST'])
 def rcvCards():
+	print "Ricevo carte"
 	if not request.json:
 		abort(400)
-	print request.json
-	return jsonify(request.json)
+	hand_json = request.json
+	for h in hand_json:
+		card = Game_Card(h['year'],h['event'],h['card_id'])
+		hand.append(card)
+	for c in hand:
+		print c
+	return "",200
 
-@app.route('/table', methods = ['PUT'])
+@app.route('/initTable', methods = ['PUT'])
 def playFirstCard():
 	table.append( deck.pop(random.choice(range(len(deck)))) )
 	return table

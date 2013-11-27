@@ -12,6 +12,6 @@
 #curl -i http://127.0.0.1:5000/playerList
 
 curl -i -X POST http://127.0.0.1:5001/createPlayer/pippo
-curl -i -X POST http://127.0.0.1:5001/createGame/pippo/2
+curl -i -X POST http://127.0.0.1:5001/createGame/2
 curl -i -X POST http://127.0.0.1:5002/createPlayer/pluto
-curl -i -X PUT http://127.0.0.1:5002/joinGame/pluto/0
+curl -i -X PUT http://127.0.0.1:5002/joinGame/0
