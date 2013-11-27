@@ -30,7 +30,7 @@ def get_game_players(game_id):
 	players_dict = None
 	if game_id in _games_:
 		players_list = _games_.get(game_id).p_list
-	players_dict = dict( (p.username, p.ip) for p in players_list )
+	players_dict = dict( (p.username, {'ip':p.ip, 'port':p.port}) for p in players_list )
 	if players_dict != None:
 		return jsonify(players_dict)
 	else:
@@ -82,7 +82,7 @@ def create_g(username, n_players):
 		index = index + 1
 	else:
 		return "Unknown username\n", 400
-	return str(index), 201 
+	return str(index-1) 
 
 @app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
 def join_g(username, game_id):

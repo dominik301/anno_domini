@@ -71,8 +71,10 @@ def create_p(username):
 #Eliminare parametro username??
 @app.route('/createGame/<string:username>/<int:n_players>', methods = ['POST'])
 def create_g(username, n_players):
+	global joined_game_id
 	if username != "" and n_players >=0:
 		req = requests.post("http://"+server_ip+":5000/createGame/"+username+"/"+str(n_players))
+		joined_game_id = int(req.text)
 		return "", req.status_code
 	else:
 		return "",400
@@ -80,8 +82,8 @@ def create_g(username, n_players):
 #Eliminare parametro username??
 @app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
 def join_g(username, game_id):
-	global joined_game_id = game_id
-	joined_game_id = 
+	global joined_game_id 
+	joined_game_id = game_id
 	req = requests.put("http://"+server_ip+":5000/joinGame/"+username+"/"+str(game_id))
 	joined_game_id = game_id
 	if joined_game_id == -1:
@@ -93,11 +95,12 @@ def join_g(username, game_id):
 def start_g():
 	global players
 	get_players()
-	first_player = players.itervalues().next()
+	print players
+	"""first_player = players.itervalues().next()
 	if first_player == my_player_name:
 		for p in players:
 			cards = get_randomCards()
-			sendCards(cards, p)
+			sendCards(cards, p)"""
 
 #invia una lista di carte ad un giocatore, per ora ci sono solo stampe di debug
 def send_c(cards, player):
