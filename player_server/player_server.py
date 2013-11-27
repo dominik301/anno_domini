@@ -5,7 +5,6 @@ import random
 from flask import Flask, jsonify, request, abort
 from game_card import *
 from deck import *
-from player import * #for testing
 
 #nome con cui mi registro al server
 my_player_name = ""
