@@ -21,6 +21,18 @@ def get_players():
 	players_dict = dict((_players_.get(player).username, _players_.get(player).ip) for player in _players_)
 	return jsonify(players_dict)
 
+@app.route("/<int:game_id>/players", methods = ['GET'])
+def get_game_players(game_id):
+	players_list = None
+	players_dict = None
+	if game_id in _games_:
+		players_list = _games_.get(game_id).p_list
+	players_dict = dict( (p.username, p.ip) for p in players_list )
+	if players_dict != None:
+		return jsonify(players_dict)
+	else:
+		return "",400
+
 @app.route("/gameList", methods = ['GET'])
 def get_games():
 	game_dict = {}
