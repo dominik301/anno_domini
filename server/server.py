@@ -67,7 +67,7 @@ def create_g(username, n_players):
 		index = index + 1
 	else:
 		return "Unknown username\n", 400
-	return str(index), 201 
+	return str(index-1), 201 
 
 @app.route('/joinGame/<string:username>/<int:game_id>', methods = ['PUT'])
 def join_g(username, game_id):
@@ -98,6 +98,7 @@ def unsubscribe(username, game_id):
 		return "Player or game not found", 400
 	try:
 		_games_[game_id].remove_player(_players_[username])
+		print _games_[game_id].p_list
 	except UserNotFoundException:
 		return "User not subscripted to the specified game", 400
 	except CreatorUnsubscriptionException:
