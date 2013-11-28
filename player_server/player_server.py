@@ -17,23 +17,16 @@ table = []
 
 #lista di giocatori 
 players = []
+
+#id del gioco
+game_id = 0
+
 #carte che ho in mano
 hand = []
 
 app = Flask(__name__)
 server_ip = "127.0.0.1"
 server_port = 5000
-
-#INIZIALIZZAZIONI PER TESTING
-carta1 = Game_Card(1,"1",1)
-carta2 = Game_Card(2,"2",2)
-carta3 = Game_Card(3,"3",3)
-carta4 = Game_Card(4,"4",4)
-carta5 = Game_Card(5,"5",5)
-carta6 = Game_Card(6,"6",6)
-table.append(carta4)
-table.append(carta5)
-table.append(carta6)
 
 @app.route("/")
 def hello():
@@ -51,21 +44,30 @@ def create_p(username):
 	else:
 		return "",400
 
-#Eliminare parametro username??
 @app.route('/createGame/<int:n_players>', methods = ['POST'])
 def create_g(n_players):
 	if my_player_name != "" and n_players >=0:
 		req = requests.post("http://"+server_ip+":5000/createGame/"+my_player_name+"/"+str(n_players))
+		global game_id
+		game_id = int(req.text)
 		return "", req.status_code
 	else:
 		return "",400
 
-#Eliminare parametro username??
-@app.route('/joinGame/<int:game_id>', methods = ['PUT'])
-def join_g(game_id):
-	req = requests.put("http://"+server_ip+":5000/joinGame/"+my_player_name+"/"+str(game_id))
+@app.route('/joinGame/<int:id_game>', methods = ['PUT'])
+def join_g(id_game):
+	req = requests.put("http://"+server_ip+":5000/joinGame/"+my_player_name+"/"+str(id_game))
+	global game_id
+	game_id = id_game
 	return req.text,req.status_code
 	
+@app.route('/unsubscribe', methods = ['DELETE'])
+def unsubscribe():
+	if len(players) == 0:
+		global game_id
+		req = requests.delete("http://"+server_ip+":5000/unsubscribe/"+my_player_name+"/"+str(game_id))
+		return "", req.status_code
+
 @app.route('/startGame', methods = ['PUT'])
 def start_g():
 	global players
@@ -92,6 +94,7 @@ def start_g():
 				#invio il mazzo ai giocatori
 				url = "http://"+p['ip']+":"+str(p['porta'])+"/receiveDeck"
 				s = requests.post(url, json.dumps(deck, default=lambda o: o.__dict__), headers=headers)
+		#Richiamare la funzione della GUI per la prima giocata
 	print "la mia mano"
 	for m in hand:
 		print m
@@ -102,12 +105,10 @@ def start_g():
 #genera le carte da gioco iniziali di un giocatore rimuovendole dal deck
 def get_randomCards():
 	global deck
-	n = 0
 	player_cards = []
 	#sto usando dei magic number (20 che sarebbe la grandezza del mazzo di prova e 3 la mano dei giocatori), come si definiscono le costanti in python
-	while n < 3 :
+	for n in range (0,6) :
 		player_cards.append( deck.pop(random.choice(range(len(deck)))) )
-		n = n + 1
 	return player_cards	
 
 @app.route('/receiveCards', methods = ['POST'])
@@ -148,8 +149,8 @@ def rcvDeck():
 		card = Game_Card(d_card['year'],d_card['event'],d_card['card_id'])
 		tmp_deck.append(card)
 	deck = tmp_deck
-	for c in deck:
-		print c
+	#for c in deck:
+	#	print c
 	return "",200
 
 @app.route('/initTable', methods = ['PUT'])
@@ -196,8 +197,9 @@ def playedCard(username, year, event, card_id, position):
 	# Controllo se ora e' il mio turno
 	for x in players: #players e' una lista di dizionari
 		if x['username'] == username:
-			if players[(players.index(x)+1) % len(players)]['username']==my_player_name:
-				#e' il mio turno
+			x['n_cards'] = str(int(x['n_cards']) - 1)
+			if players[(players.index(x)+1) % len(players)]['username'] == my_player_name:
+				#e' il mio turno: richimare il metodo della GUI per avvisare il giocatore
 				print "DEVO GIOCARE IO!"
 			break
 	else:
