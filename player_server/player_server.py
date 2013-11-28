@@ -6,6 +6,7 @@ from flask import Flask, jsonify, request, abort
 from game_card import *
 from deck import *
 from player import * #for testing
+
 #mazzo
 deck = Deck
 
@@ -38,7 +39,7 @@ def create_p(username):
 	global my_player_name
 	if username != "":
 		porta = request.host[request.host.find(':') + 1 :]
-		req = requests.post("http://"+server_ip+":5000/createPlayer/"+username+"/"+porta)
+		req = requests.post("http://"+server_ip+":5000/createPlayer/"+username+"/"+str(server_port))
 		my_player_name = username
 		return "", req.status_code
 	else:
@@ -107,7 +108,7 @@ def get_randomCards():
 	global deck
 	player_cards = []
 	#sto usando dei magic number (20 che sarebbe la grandezza del mazzo di prova e 3 la mano dei giocatori), come si definiscono le costanti in python
-	for n in range (0,6) :
+	for n in range (0,7) :
 		player_cards.append( deck.pop(random.choice(range(len(deck)))) )
 	return player_cards	
 
@@ -171,7 +172,7 @@ def playCard(card_id,card_pos):
 			break
 	else:
 		return "carta con id sconosciuto", 400
-	print "mano dopo la giocata"
+	print "mano dopo la giocata (",len(hand),")"
 	for x in hand :
 		print " ",x
 	for users in players:
@@ -198,7 +199,10 @@ def playedCard(username, year, event, card_id, position):
 	for x in players: #players e' una lista di dizionari
 		if x['username'] == username:
 			x['n_cards'] = str(int(x['n_cards']) - 1)
-			if players[(players.index(x)+1) % len(players)]['username'] == my_player_name:
+			print "IL GIOCATORE PRECEDENTE HA ORA ", x['n_cards'], " CARTE"
+			if int(x['n_cards']) == 0:
+				print "IL GIOCO E' FINITO!"
+			elif players[(players.index(x)+1) % len(players)]['username'] == my_player_name:
 				#e' il mio turno: richimare il metodo della GUI per avvisare il giocatore
 				print "DEVO GIOCARE IO!"
 			break
