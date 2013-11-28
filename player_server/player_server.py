@@ -95,7 +95,7 @@ def start_g():
 	print "la mia mano"
 	for m in hand:
 		print m
-	print "il tabolo"
+	print "il tavolo"
 	print table
 	return "", 200
 
