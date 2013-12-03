@@ -17,10 +17,3 @@ sh joinGame.sh boh 0 #400
 sh joinGame.sh ale 0
 sh joinGame.sh ste 0
 sh joinGame.sh fra 0 #400
-sh unsubscribe.sh ale 0
-sh unsubscribe.sh ale 0
-sh unsubscribe.sh ste 2
-sh unsubscribe.sh boh 0
-sh unsubscribe.sh rob 0
-sh unsubscribe.sh ste 0
-sh unsubscribe.sh vin 0
