@@ -31,6 +31,8 @@ server_port = 5000
 
 @app.route("/")
 def hello():
+	req=requests.post('http://localhost:5010/')
+	print req.status_code
 	return "sono il server_player ip: " + server_ip + " porta: " + str(server_port) + "\n"
 
 
@@ -38,7 +40,6 @@ def hello():
 def create_p(username):
 	global my_player_name
 	if username != "":
-		porta = request.host[request.host.find(':') + 1 :]
 		req = requests.post("http://"+server_ip+":5000/createPlayer/"+username+"/"+str(server_port))
 		my_player_name = username
 		return "", req.status_code
@@ -47,7 +48,7 @@ def create_p(username):
 
 @app.route('/createGame/<int:n_players>', methods = ['POST'])
 def create_g(n_players):
-	if my_player_name != "" and n_players >=0:
+	if my_player_name != "" and n_players >=1:
 		req = requests.post("http://"+server_ip+":5000/createGame/"+my_player_name+"/"+str(n_players))
 		global game_id
 		game_id = int(req.text)
@@ -65,7 +66,6 @@ def join_g(id_game):
 @app.route('/unsubscribe', methods = ['DELETE'])
 def unsubscribe():
 	if len(players) == 0:
-		global game_id
 		req = requests.delete("http://"+server_ip+":5000/unsubscribe/"+my_player_name+"/"+str(game_id))
 		return "", req.status_code
 
@@ -77,7 +77,7 @@ def start_g():
 	players = request.json #Restituisce lista di dizionari: ogni dizionario corrisponde a un player
 	if players[0]['username'] == my_player_name:
 		hand = get_randomCards()
-		table.append(deck.pop(0))
+		table.append(deck.pop(random.choice(range(len(deck)))))
 		for p in players:
 			if p['username'] != my_player_name:
 
@@ -92,15 +92,19 @@ def start_g():
 				url = "http://"+p['ip']+":"+str(p['porta'])+"/receiveTable"
 				s = requests.post(url, json.dumps(table, default=lambda o: o.__dict__), headers=headers)
 
-				#invio il mazzo ai giocatori
+		#invio il mazzo ai giocatori
+		for p in players:
+			if p['username'] != my_player_name:
 				url = "http://"+p['ip']+":"+str(p['porta'])+"/receiveDeck"
-				s = requests.post(url, json.dumps(deck, default=lambda o: o.__dict__), headers=headers)
+				t = requests.post(url, json.dumps(deck, default=lambda o: o.__dict__), headers=headers)
 		#Richiamare la funzione della GUI per la prima giocata
-	print "la mia mano"
+
+	print "\nLa mia mano"
 	for m in hand:
-		print m
-	print "il tavolo"
-	print table
+		print "ID="+str(m.card_id)+" Y="+str(m.year)
+	print "\nIl tavolo"
+	for x in table:
+		print "ID="+str(x.card_id)+" Y="+str(x.year)
 	return "", 200
 
 #genera le carte da gioco iniziali di un giocatore rimuovendole dal deck
@@ -122,7 +126,7 @@ def rcvCards():
 		card = Game_Card(h['year'],h['event'],h['card_id'])
 		hand.append(card)
 	for c in hand:
-		print c
+		print "ID="+str(c.card_id)+" Y="+str(c.year)
 	return "",200
 
 @app.route('/receiveTable', methods = ['POST'])
@@ -135,7 +139,7 @@ def rcvTable():
 		card = Game_Card(t['year'],t['event'],t['card_id'])
 		table.append(card)
 	for c in table:
-		print c
+		print "ID="+str(c.card_id)+" Y="+str(c.year)
 	return "",200
 
 @app.route('/receiveDeck', methods = ['POST'])
@@ -150,66 +154,129 @@ def rcvDeck():
 		card = Game_Card(d_card['year'],d_card['event'],d_card['card_id'])
 		tmp_deck.append(card)
 	deck = tmp_deck
+	print "Il mazzo ha", str(len(deck)), "carte"
 	#for c in deck:
 	#	print c
 	return "",200
 
-@app.route('/initTable', methods = ['PUT'])
-def playFirstCard():
-	table.append( deck.pop(random.choice(range(len(deck)))) )
-	return table
-
 #metodo richiamato dal browser per giocare una carta
 @app.route('/playCard/<int:card_id>/<int:card_pos>', methods = ['PUT'])
 def playCard(card_id,card_pos):
-	print "mano prima della giocata:"
-	for x in hand :
-		print " ",x
 	for card in hand :
 		if card.card_id == card_id :
 			cardToSend = card
 			hand.remove(card)
 			break
 	else:
-		return "carta con id sconosciuto", 400
-	print "mano dopo la giocata (",len(hand),")"
+		return "Carta con id sconosciuto", 400
+	print "\nMano dopo la giocata (",len(hand),")"
 	for x in hand :
-		print " ",x
-	for users in players:
-		url = "http://"+users['ip']+":"+str(users['porta'])+"/playedCard"
+		print "ID="+str(x.card_id)+" Y="+str(x.year)
+	#Invio il messaggio della giocata a tutti gli altri giocatori
+	for user in players:
+		url = "http://"+user['ip']+":"+str(user['porta'])+"/playedCard"
 		url = url + "/" + my_player_name + "/" + str(cardToSend.year) + "/" + str(cardToSend.event) + "/" + str(cardToSend.card_id) + "/" + str(card_pos)
-		#headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
-		#r = requests.put(url, data=json.dumps({"year":cardToSend.year,"event":cardToSend.event,"card_id":cardToSend.card_id,"card_pos":card_pos}), headers=headers)
-		r = requests.put(url)
+		r = requests.put(url) #TODO: da' sempre "ok" come esito?! vedere se una delle put da errore e restituire 400
 	return "ok"
 
 #metodo richiamato da un altro nodo per comunicare la carta giocata
 #l'username serve perche' nel test in localhost l'ip e' sempre lo stesso e non si riesce a riconoscere gli utenti
 @app.route('/playedCard/<string:username>/<int:year>/<string:event>/<int:card_id>/<int:position>', methods = ['PUT'])
 def playedCard(username, year, event, card_id, position):
-	print "banco prima della carta giocata"
-	for i in table:	#only for test
-		print " ",i 	#
 	cardToInsert = Game_Card(year, event, card_id)
 	table.insert(position, cardToInsert)
-	print "banco dopo la carta giocata"
+	print "\nBanco dopo la carta giocata"
 	for i in table:	#only for test
-		print " ",i 	#
-	# Controllo se ora e' il mio turno
+		print "ID="+str(i.card_id)+" Y="+str(i.year)
+	
+	#Aggiorno il numero delle carte del player e controllo se e' il mio turno
 	for x in players: #players e' una lista di dizionari
 		if x['username'] == username:
 			x['n_cards'] = str(int(x['n_cards']) - 1)
-			print "IL GIOCATORE PRECEDENTE HA ORA ", x['n_cards'], " CARTE"
-			if int(x['n_cards']) == 0:
-				print "IL GIOCO E' FINITO!"
+			print "\nIl giocatore", x['username'], "ha ora", x['n_cards'], "carte"
+			if x['n_cards'] == "0": #Auto-dubito (ATTENZIONE: avviene localmente in tutti i nodi senza scambio di msg)
+				returned = doubted(players[ ((players.index(x) + 1) % len(players)) ]['username'])
+				if returned[0]=="Fine":
+					print "\n IL GIOCO E' FINITO! IL VINCITORE E'" + x['username'] + "\n"
+					return "", 200
 			elif players[(players.index(x)+1) % len(players)]['username'] == my_player_name:
-				#e' il mio turno: richimare il metodo della GUI per avvisare il giocatore
-				print "DEVO GIOCARE IO!"
+				print "\n>>> DEVO GIOCARE IO!!! <<<\n"
 			break
 	else:
 		print "Non ho trovato il giocatore"
 		return "", 400
 	return "", 200
+
+#Metodo invocato dall'utente in locale (browser)
+@app.route('/doubt', methods = ['PUT'])
+def doubt():
+	if len(table) < 2:
+		return "", 400
+	for x in players: #lo invia anche a se' stesso
+			url = "http://" + x['ip'] + ":" + str(x['porta']) + "/doubted/" + my_player_name
+			r = requests.put(url)
+	return "", 200
+
+#Metodo che fa il pop di n carte dal mazzo e le restituisce come lista
+def pesca(n):
+	pescate = []
+	for i in range(0,n):
+		pescate.append(deck.pop(0))
+	return pescate
+
+#Metodo invocato dal nodo che dubita
+@app.route('/doubted/<string:username>', methods = ['PUT'])
+def doubted(username): #il param. e' l'username di chi invia il messaggio
+	global table
+	myIndex = -1
+	doubterIndex = -1
+	for user in players:
+		if user['username'] == my_player_name:
+			myIndex = players.index(user)
+		if user['username'] == username:
+			doubterIndex = players.index(user)
+		if myIndex > -1 and doubterIndex > -1: #inutile continuare a cercare
+			break
+	prevIndex = doubterIndex - 1
+	if prevIndex == -1:
+		prevIndex = len(players) - 1
+	
+	for i in range(0, len(table) - 1):
+		if table[i].year > table[i+1].year:
+			#Il dubbio era fondato: si penalizza il precedente nella mano
+			print "\nDubitato bene: carta ",table[i].card_id, " viene dopo ", table[i+1].card_id
+			penalizatedIndex = prevIndex
+			penalization = 3
+			nextPlayerIndex = doubterIndex
+			break
+	else:
+		#Dubitato male
+		print "\nDubitato male"
+		#Puo' essere che il gioco sia finito (siamo in auto-dubito e l'ultimo player ha 0 carte)
+		if int(players[prevIndex]['n_cards']) == 0:
+			return "Fine", 200
+		#Gioco non finito: colui che ha dubitato deve essere penalizzato
+		penalizatedIndex = doubterIndex
+		penalization = 2
+		nextPlayerIndex = (doubterIndex + 1) % len(players)
+	pescate = pesca(penalization)
+	if penalizatedIndex == myIndex:  #il penalizzato inserisce le carte nella mano
+		for c in pescate:
+			hand.append(c)
+		print "Ho pescato " + str(penalization) + " carte: la mia mano"
+		for c in hand:
+			print "ID="+str(c.card_id)+" Y="+str(c.year)
+	#Tutti i giocatori aggiornano il counter delle carte del penalizzato
+	players[penalizatedIndex]['n_cards'] = str(int(players[penalizatedIndex]['n_cards']) + penalization)
+	#In ogni caso (sia dubitato bene, sia male) resetto il tavolo
+	table = []
+	table.append(deck.pop(0))
+	print "Il mazzo ha", str(len(deck)), "carte"
+	print "Nuovo tavolo: ID=" + str(table[0].card_id) + " Y=" + str(table[0].year)
+	#Verifico se e' il mio turno
+	if myIndex == nextPlayerIndex:
+		print "\n>>> DEVO GIOCARE IO!!! <<<\n"
+	return "",200
 
 def try_ports():
 	global server_port
@@ -226,15 +293,3 @@ if __name__ == "__main__":
 	server_started = try_ports()
 	while not server_started:
 		server_started = try_ports()
-	
-
-"""	sendCards()
-	print "deck dopo aver distribuito 9 carte"
-	for deck_c in deck:
-		print deck_c
-	print "playFirstCard: "
-	for c in playFirstCard():
-		print "table_card: " + str(c)"""
-#r = requests.get('http://localhost:5000/')
-#print(r.text)
-
