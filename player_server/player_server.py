@@ -4,6 +4,7 @@ import requests
 import json
 import random
 from flask import Flask, jsonify, request, abort, render_template
+import sys
 from game_card import *
 from game import *
 from deck import *
@@ -11,6 +12,7 @@ from player import * #for testing
 from datetime import timedelta
 from flask import make_response,current_app
 from functools import update_wrapper
+from threading import *
 
 #mazzo
 deck = Deck
@@ -30,11 +32,65 @@ game_id = 0
 #carte che ho in mano
 hand = []
 
+#indice dei turni, mi serve per capire chi e' crashato
+turn_index_lock = Lock()
+turn_index_lock.acquire()
+turn_index = 0
+turn_index_lock.release()
+
 app = Flask(__name__)
 server_ip = "127.0.0.1"
 server_port = 5000
 my_ip = "127.0.0.1"
 my_port = 5001
+
+def _timer():
+	return Timer(150.0, time_out)
+
+timer_threads = []	
+
+def reset_timer():
+	global player_timer
+	print "resetto il timer"
+	player_timer.cancel()
+	player_timer = _timer()
+	timer_threads.append(player_timer)
+	player_timer.start()
+
+def time_out():
+	global time_out_counter
+	global turn_index
+	counter_lock.acquire()
+	time_out_counter += 1
+	counter_lock.release()
+	print "giocatori rimasti: " + str(len(players) - time_out_counter)
+	if len(players) - time_out_counter < 3:
+		#nota bene: uso range(0,len(timer_threads)-1) perche' non riesco a fare la join del thread corrente
+		for i in range(0,len(timer_threads)-1):
+			timer_threads[i].cancel()
+			timer_threads[i].join()
+			print timer_threads[i]
+		return
+	print "TIMEOUT: doveva giocare il giocatore del turno: " + str(turn_index)
+	turn_index_lock.acquire()
+	turn_index += 1
+	turn_index_lock.release()
+	print "Ora deve giocare il giocatore di indice: " + str(turn_index)
+	reset_timer()
+
+#timer (corrente: viene di volta in volta rinnovato con i reset) di ogni giocatore
+player_timer = _timer()
+timer_threads.append(player_timer)
+
+#contatore di time out
+counter_lock = Lock()
+counter_lock.acquire()
+time_out_counter = 0
+counter_lock.release()
+
+@app.route("/playersLeft")
+def playerLeft():
+	return str(len(players) - time_out_counter)
 
 @app.route("/")
 def hello():
@@ -144,7 +200,11 @@ def start_g():
 	print "\nIl tavolo"
 	for x in table:
 		print "ID="+str(x.card_id)+" Y="+str(x.year)
-	return "", 200 #Non c'e' bisogno di testo: la risposta va al registrar server
+
+	player_timer.start()
+
+	return "", 200
+
 
 #genera le carte da gioco iniziali di un giocatore rimuovendole dal deck
 def get_randomCards():
@@ -216,13 +276,16 @@ def playCard(card_id,card_pos):
 	for user in players:
 		url = "http://"+user['ip']+":"+str(user['porta'])+"/playedCard"
 		url = url + "/" + my_player_name + "/" + str(cardToSend.year) + "/" + str(cardToSend.event) + "/" + str(cardToSend.card_id) + "/" + str(card_pos)
-		r = requests.put(url)
-	return "", 200
+		r = requests.put(url) #TODO: da' sempre "ok" come esito?! vedere se una delle put da errore e restituire 400
+	return "ok"
 
 #Metodo invocato da un altro player_server
 #L'username serve perche' nel test in localhost l'ip e' sempre lo stesso e non si riesce a riconoscere gli utenti
 @app.route('/playedCard/<string:username>/<int:year>/<string:event>/<int:card_id>/<int:position>', methods = ['PUT'])
 def playedCard(username, year, event, card_id, position):
+	#la prima cosa che faccio e' resettare il timer del timeout
+	global turn_index
+	reset_timer()
 	cardToInsert = Game_Card(year, event, card_id)
 	table.insert(position, cardToInsert)
 	print "\nBanco dopo la carta giocata"
@@ -232,6 +295,9 @@ def playedCard(username, year, event, card_id, position):
 	#Aggiorno il numero delle carte del player e controllo se e' il mio turno
 	for x in players: #players e' una lista di dizionari
 		if x['username'] == username:
+			turn_index_lock.acquire()
+			turn_index = ((players.index(x) + 1) % len(players))
+			turn_index_lock.release()
 			x['n_cards'] = str(int(x['n_cards']) - 1)
 			print "\nIl giocatore", x['username'], "ha ora", x['n_cards'], "carte"
 			if x['n_cards'] == "0": #Auto-dubito (ATTENZIONE: avviene localmente in tutti i nodi senza scambio di msg)
@@ -239,7 +305,7 @@ def playedCard(username, year, event, card_id, position):
 				if returned[0]=="End":
 					print "\n IL GIOCO E' FINITO! IL VINCITORE E' " + x['username'] + "\n"
 					return "", 200
-			elif players[(players.index(x)+1) % len(players)]['username'] == my_player_name:
+			elif players[turn_index]['username'] == my_player_name:
 				print "\n>>> DEVO GIOCARE IO!!! <<<\n"
 			break
 	else:
@@ -266,6 +332,7 @@ def pesca(n):
 #Metodo invocato dal nodo che dubita
 @app.route('/doubted/<string:username>', methods = ['PUT'])
 def doubted(username): #il param. e' l'username di chi invia il messaggio
+	reset_timer()
 	global table
 	myIndex = -1
 	doubterIndex = -1
@@ -326,6 +393,7 @@ def try_ports():
 		my_port += 1
 		print "Eccezione! Provo la porta: " + str(my_port)
 		return False
+
 
 if __name__ == "__main__":
 	if len(sys.argv) == 1:
