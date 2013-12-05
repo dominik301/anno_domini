@@ -1,4 +1,5 @@
 #!../framework/bin/python
+import sys
 import requests
 import json
 import random
@@ -36,6 +37,8 @@ turn_index_lock.release()
 app = Flask(__name__)
 server_ip = "127.0.0.1"
 server_port = 5000
+my_ip = "127.0.0.1"
+my_port = 5001
 
 def _timer():
 	return Timer(150.0, time_out)
@@ -87,42 +90,46 @@ def playerLeft():
 
 @app.route("/")
 def hello():
-	return "sono il server_player ip: " + server_ip + " porta: " + str(server_port) + "\n"
+	return "Sono il server_player: IP: " + my_ip + " porta: " + str(my_port) + "\n", 200
 
-
+#Metodo invocato dal browser web
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
 def create_p(username):
 	global my_player_name
 	if username != "":
-		req = requests.post("http://"+server_ip+":5000/createPlayer/"+username+"/"+str(server_port))
+		req = requests.post("http://"+server_ip+":"+str(server_port)+"/createPlayer/"+username+"/"+str(my_port))
 		my_player_name = username
-		return "", req.status_code
+		return req.text, req.status_code
 	else:
-		return "",400
+		return "Username cannot be empty",400
 
+#Metodo invocato dal browser web
 @app.route('/createGame/<int:n_players>', methods = ['POST'])
 def create_g(n_players):
 	if my_player_name != "" and n_players >=1:
-		req = requests.post("http://"+server_ip+":5000/createGame/"+my_player_name+"/"+str(n_players))
+		req = requests.post("http://"+server_ip+":"+str(server_port)+"/createGame/"+my_player_name+"/"+str(n_players))
 		global game_id
 		game_id = int(req.text)
-		return "", req.status_code
+		return req.text, req.status_code
 	else:
-		return "",400
+		return "Username cannot be empty and number of players cannot be less than 1",400
 
+#Metodo invocato dal browser web
 @app.route('/joinGame/<int:id_game>', methods = ['PUT'])
 def join_g(id_game):
-	req = requests.put("http://"+server_ip+":5000/joinGame/"+my_player_name+"/"+str(id_game))
+	req = requests.put("http://"+server_ip+":"+str(server_port)+"/joinGame/"+my_player_name+"/"+str(id_game))
 	global game_id
 	game_id = id_game
-	return req.text,req.status_code
-	
+	return req.text, req.status_code
+
+#Metodo invocato dal browser web
 @app.route('/unsubscribe', methods = ['DELETE'])
 def unsubscribe():
 	if len(players) == 0:
-		req = requests.delete("http://"+server_ip+":5000/unsubscribe/"+my_player_name+"/"+str(game_id))
-		return "", req.status_code
+		req = requests.delete("http://"+server_ip+":"+str(server_port)+"/unsubscribe/"+my_player_name+"/"+str(game_id))
+		return req.text, req.status_code
 
+#Metodo invocato dal registrar server
 @app.route('/startGame', methods = ['PUT'])
 def start_g():
 	global players
@@ -164,6 +171,7 @@ def start_g():
 
 	return "", 200
 
+
 #genera le carte da gioco iniziali di un giocatore rimuovendole dal deck
 def get_randomCards():
 	global deck
@@ -173,24 +181,26 @@ def get_randomCards():
 		player_cards.append( deck.pop(random.choice(range(len(deck)))) )
 	return player_cards	
 
+#Metodo invocato dal player_server creator
 @app.route('/receiveCards', methods = ['POST'])
 def rcvCards():
 	print "Ricevo carte"
 	if not request.json:
-		abort(400)
+		return "There is no data in http header", 400
 	hand_json = request.json
 	for h in hand_json:
 		card = Game_Card(h['year'],h['event'],h['card_id'])
 		hand.append(card)
 	for c in hand:
 		print "ID="+str(c.card_id)+" Y="+str(c.year)
-	return "",200
+	return "", 200 
 
+#Metodo invocato dal player_server creator
 @app.route('/receiveTable', methods = ['POST'])
 def rcvTable():
 	print "Ricevo tavolo"
 	if not request.json:
-		abort(400)
+		return "There is no data in http header", 400
 	table_json = request.json
 	for t in table_json:
 		card = Game_Card(t['year'],t['event'],t['card_id'])
@@ -199,12 +209,13 @@ def rcvTable():
 		print "ID="+str(c.card_id)+" Y="+str(c.year)
 	return "",200
 
+#Metodo invocato dal player_server creator
 @app.route('/receiveDeck', methods = ['POST'])
 def rcvDeck():
 	global deck
 	print "Ricevo deck"
 	if not request.json:
-		abort(400)
+		return "There is no data in http header", 400
 	deck_json = request.json
 	tmp_deck = []
 	for d_card in deck_json:
@@ -212,11 +223,9 @@ def rcvDeck():
 		tmp_deck.append(card)
 	deck = tmp_deck
 	print "Il mazzo ha", str(len(deck)), "carte"
-	#for c in deck:
-	#	print c
 	return "",200
 
-#metodo richiamato dal browser per giocare una carta
+#Metodo richiamato dal browser per giocare una carta
 @app.route('/playCard/<int:card_id>/<int:card_pos>', methods = ['PUT'])
 def playCard(card_id,card_pos):
 	for card in hand :
@@ -234,11 +243,10 @@ def playCard(card_id,card_pos):
 		url = "http://"+user['ip']+":"+str(user['porta'])+"/playedCard"
 		url = url + "/" + my_player_name + "/" + str(cardToSend.year) + "/" + str(cardToSend.event) + "/" + str(cardToSend.card_id) + "/" + str(card_pos)
 		r = requests.put(url) #TODO: da' sempre "ok" come esito?! vedere se una delle put da errore e restituire 400
-
 	return "ok"
 
-#metodo richiamato da un altro nodo per comunicare la carta giocata
-#l'username serve perche' nel test in localhost l'ip e' sempre lo stesso e non si riesce a riconoscere gli utenti
+#Metodo invocato da un altro player_server
+#L'username serve perche' nel test in localhost l'ip e' sempre lo stesso e non si riesce a riconoscere gli utenti
 @app.route('/playedCard/<string:username>/<int:year>/<string:event>/<int:card_id>/<int:position>', methods = ['PUT'])
 def playedCard(username, year, event, card_id, position):
 	#la prima cosa che faccio e' resettare il timer del timeout
@@ -260,15 +268,14 @@ def playedCard(username, year, event, card_id, position):
 			print "\nIl giocatore", x['username'], "ha ora", x['n_cards'], "carte"
 			if x['n_cards'] == "0": #Auto-dubito (ATTENZIONE: avviene localmente in tutti i nodi senza scambio di msg)
 				returned = doubted(players[ ((players.index(x) + 1) % len(players)) ]['username'])
-				if returned[0]=="Fine":
-					print "\n IL GIOCO E' FINITO! IL VINCITORE E'" + x['username'] + "\n"
+				if returned[0]=="End":
+					print "\n IL GIOCO E' FINITO! IL VINCITORE E' " + x['username'] + "\n"
 					return "", 200
 			elif players[turn_index]['username'] == my_player_name:
 				print "\n>>> DEVO GIOCARE IO!!! <<<\n"
 			break
 	else:
-		print "Non ho trovato il giocatore"
-		return "", 400
+		return "Player not found", 400
 	return "", 200
 
 #Metodo invocato dall'utente in locale (browser)
@@ -319,7 +326,7 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 		print "\nDubitato male"
 		#Puo' essere che il gioco sia finito (siamo in auto-dubito e l'ultimo player ha 0 carte)
 		if int(players[prevIndex]['n_cards']) == 0:
-			return "Fine", 200
+			return "End", 200
 		#Gioco non finito: colui che ha dubitato deve essere penalizzato
 		penalizatedIndex = doubterIndex
 		penalization = 2
@@ -344,17 +351,24 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	return "",200
 
 def try_ports():
-	global server_port
+	global my_port
 	try:
-		app.run(server_ip, server_port, threaded = True)
+		app.run(my_ip, my_port, threaded = True)
 		return True
 	except:
-		server_port += 1
-		print "eccezione! provo la porta: " + str(server_port)
+		my_port += 1
+		print "Eccezione! Provo la porta: " + str(my_port)
 		return False
 
 
 if __name__ == "__main__":
+	if len(sys.argv) == 1:
+		my_ip = "127.0.0.1"
+	elif len(sys.argv) == 2:
+		my_ip = sys.argv[1]
+	else:
+		print "Usage:", sys.argv[0], "<public IP>"
+		exit(1)
 	app.debug = True
 	server_started = try_ports()
 	while not server_started:

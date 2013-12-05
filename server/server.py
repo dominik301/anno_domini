@@ -1,4 +1,5 @@
 #!../framework/bin/python
+import sys
 from game import *
 from flask import Flask, jsonify, abort,redirect,request
 from player import *
@@ -87,9 +88,7 @@ def join_g(username, game_id):
 			url = "http://"+i.ip+":"+str(i.porta)+"/startGame"
 			headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 			r = requests.put(url, json.dumps(game.p_list, default=lambda o: o.__dict__), headers=headers)
-		return "Game joined\n",200
-	else :
-		return "Game joined\n", 200
+	return "Game joined\n",200
 
 @app.route('/unsubscribe/<string:username>/<int:game_id>', methods = ['DELETE'])
 def unsubscribe(username, game_id):
@@ -107,4 +106,10 @@ def unsubscribe(username, game_id):
 
 if __name__ == '__main__':
 	app.debug = True
-	app.run('127.0.0.1', threaded = True)
+	if len(sys.argv) == 1:
+		app.run("127.0.0.1", threaded = True)
+	elif len(sys.argv) == 2:
+		app.run(sys.argv[1], threaded = True)
+	else:
+		print "Usage:", sys.argv[0], "<public IP>"
+		exit(1)
