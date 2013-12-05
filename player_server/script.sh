@@ -8,5 +8,3 @@ sh createPlayer.sh $4 player4
 sh createGame.sh $1 4
 sh joinGame.sh $2 0
 sh joinGame.sh $3 0
-sh joinGame.sh $4 0
-

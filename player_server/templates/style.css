@@ -1,0 +1,128 @@
+/* Add some margin to the page and set a default font and colour */
+ 
+body {
+  margin: 30px;
+  font-family: "Georgia", serif;
+  line-height: 1.8em;
+  color: #333;
+}
+ 
+/* Give headings their own font */
+ 
+h1, h2, h3, h4 {
+  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+ 
+/* Main content area */
+ 
+#content {
+  margin: 80px 70px;
+  text-align: center;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+ /* Slots for final card positions */
+ 
+#cardSlots {
+  margin: 50px auto 0 auto;
+  background: #ddf;
+  overflow: auto;
+}
+ 
+/* The initial pile of unsorted cards */
+ 
+#cardPile {
+  margin: 0 auto;
+  background: #ffd;
+}
+ 
+#cardPile {
+  width: 910px;
+  height: 120px;
+  padding: 20px;
+  border: 2px solid #333;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  -moz-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
+  -webkit-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
+  box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
+}
+#cardSlots{
+  width: 910px;
+  height: auto;
+  padding: 20px;
+  border: 2px solid #333;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  -moz-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
+  -webkit-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
+  box-shadow: 0 0 .3em rgba(0, 0, 0, .8);} 
+/* Individual cards and slots */
+#cardPile div {
+  float: left;
+  width: 58px;
+  height: 78px;
+  padding: 10px;
+  padding-top: 40px;
+  padding-bottom: 0;
+  border: 2px solid #333;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  margin: 0 0 0 10px;
+  background: #fff;
+}
+#cardSlots div.ui-droppable{
+  float: left;
+  width: 56px;
+  height: 76px;
+  padding: 10px;
+  padding-top: 40px;
+  padding-bottom: 0;
+  border-style: dashed;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  margin: 0 0 0 10px;
+  background: #fff;
+}
+div#primacarta{
+  float: left;
+  width: 58px;
+  height: 78px;
+  padding: 10px;
+  padding-top: 40px;
+  padding-bottom: 0;
+  border: 2px solid #333;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  margin: 0 0 0 10px;
+  background: darkgrey;
+}
+ 
+#cardSlots div:first-child, #cardPile div:first-child {
+  margin-left: 0;
+}
+ 
+#cardSlots div.hovered {
+  background: #aaa;
+}
+ 
+#cardPile div {
+  background: #666;
+  color: #fff;
+  font-size: 15px;
+  text-shadow: 0 0 3px #000;
+}
+ 
+#cardPile div.ui-draggable-dragging {
+  -moz-box-shadow: 0 0 .5em rgba(0, 0, 0, .8);
+  -webkit-box-shadow: 0 0 .5em rgba(0, 0, 0, .8);
+  box-shadow: 0 0 .5em rgba(0, 0, 0, .8);
+}
+ 
+}

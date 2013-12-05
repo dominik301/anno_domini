@@ -3,10 +3,14 @@ import sys
 import requests
 import json
 import random
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, render_template
 from game_card import *
+from game import *
 from deck import *
 from player import * #for testing
+from datetime import timedelta
+from flask import make_response,current_app
+from functools import update_wrapper
 
 #mazzo
 deck = Deck
@@ -34,8 +38,22 @@ my_port = 5001
 
 @app.route("/")
 def hello():
-	return "Sono il server_player: IP: " + my_ip + " porta: " + str(my_port) + "\n", 200
+	print "Sono il server_player: IP: " + my_ip + " porta: " + str(my_port) + "\n", 200
+	return render_template("prova.html")
 
+@app.route("/banco")
+def return_table():
+	return json.dumps(table, default=lambda o: o.__dict__)
+
+@app.route("/mano")
+def return_hand():
+	return json.dumps(hand, default=lambda o: o.__dict__)
+#metodo per il polling
+@app.route("/gameStatus")
+def game_status():
+	if len(hand) == 0 and len(table) == 0 :
+		return jsonify({'status' : 0})
+	return jsonify({'status' : 1})
 #Metodo invocato dal browser web
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
 def create_p(username):
@@ -47,6 +65,22 @@ def create_p(username):
 	else:
 		return "Username cannot be empty",400
 
+@app.route('/gamesList', methods = ['GET'])
+def gameList():
+	games = []
+	req = requests.get("http://"+server_ip+":5000/gameList")
+	#se ritorna una lista vuota....
+	if req.text == "[]" :
+		return jsonify({'zero': 0})
+		return "There is no data in http header", 400
+	games_json = req.json()
+	print req.json()
+	for h in games_json:
+		print "IL CREATORE E "+h['creator']['username']
+		creator = Player(h['creator']['username'],"0.0.0.0")
+		game = Game(h['game_id'],creator,h['player_n'],h['p_list'])
+		games.append(game)
+	return json.dumps(games, default=lambda o: o.__dict__)
 #Metodo invocato dal browser web
 @app.route('/createGame/<int:n_players>', methods = ['POST'])
 def create_g(n_players):

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+ 
+<title>A jQuery Drag-and-Drop Number Cards Game</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<link rel="stylesheet" type="text/css" href={{ url_for('static', filename='style.css') }}>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"></script>
+ 
+<script type="text/javascript">
+$( init );
+var banco = new Array()
+function init() {
+  // Create the pile of shuffled cards  
+}
+//funzione che chiedeIlBanco al serverino sottostante e lo mostra nella GUI
+function chiediBanco() {
+  alert("chiedi banco")
+  $.ajax({
+    url: 'http://localhost:5001/banco',
+    type: "GET",
+    dataType: "json",
+    success: function (data) {
+      banco = data
+      flag = false
+      $('#cardSlots').html('');
+        for (var i=0; i<banco.length;i++){
+          if (flag ==false){
+            $('<div>' + i + '</div>').data( 'number', i ).appendTo( '#cardSlots' ).droppable( {
+              accept: '#cardPile div',
+              hoverClass: 'hovered',
+              drop: handleCardDrop
+            });
+            $('<div>' + banco[i].event + '</div>').data( 'number', i).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
+            z = i+1
+            $('<div>' + z + '</div>').data( 'number', z ).appendTo( '#cardSlots' ).droppable( {
+              accept: '#cardPile div',
+              hoverClass: 'hovered',
+              drop: handleCardDrop
+              });
+            var flag = true;
+          }
+          else if(flag == true) {
+            alert("else")
+            $('<div>' + banco[i].event + '</div>').data( 'number', i ).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
+            y=i+1
+            $('<div>' + y + '</div>').data( 'number', y).appendTo( '#cardSlots' ).droppable( {
+              accept: '#cardPile div',
+              hoverClass: 'hovered',
+              drop: handleCardDrop
+            });
+          }
+        } 
+    }
+  });
+}
+
+  function chiediMano(){
+    $.ajax({
+  url: 'http://localhost:5001/mano',
+  type: "GET",
+  dataType: "json",
+  success: function (data) {
+    numbers = data
+    for ( var i=0; i<numbers.length; i++ ) {
+      $('<div>' + numbers[i].event + '</div>').data( 'card_id', numbers[i].card_id ).attr( 'id', 'card'+numbers[i] ).appendTo( '#cardPile' ).draggable( {
+      containment: '#content',
+      stack: '#cardPile div',
+      cursor: 'move',
+      revert: true
+    } );
+  }
+}
+})
+}
+function handleCardDrop( event, ui ) {
+    ui.draggable.draggable( 'disable' );
+    $(this).droppable( 'disable' );
+    ui.draggable.position( { of: $(this), my: 'left top', at: 'left top' } );
+    ui.draggable.draggable( 'option', 'revert', false );
+    alert($(this).data( 'number' ))
+    alert(ui.draggable.data( 'card_id' ))
+  } 
+  </script>
+ 
+</head>
+<body>
+ <table align="center" id="form">
+ <form method="post" >
+  <tr>
+    <td colspan="2" align="center"><b>Registrazione al servizio<br>Tutti i campi sono obbligatori</b></td>
+  </tr>
+  <tr>
+    <td><b>Nome</b></td>
+    <td><input type="text" name="nome" id="inputtext"></td>
+  </tr><tr><td> <input type="button" value="Submit" id="submit"></td><td> <input type="button" value="Reset" id="reset"></td></tr></table>
+</form>
+<div id="creap" style="display: none;" align="center">
+    <table id="creapartita">
+      <tr><td>Numero di giocatori</td><td><input type='text' id='n_players'></td>
+    </table>
+    <input type='button' id='createG' value='createGame'>
+  </div>
+<div id="partite" style="display: none;" align="center">
+  </div>
+<div id="content">
+ 
+  <div id="cardPile" style="display: none;"> </div>
+  <div id="cardSlots" style="display: none;"> </div>
+ 
+  
+ </div>
+ <script>
+ $( "#reset" ).click(function() {
+    $("#inputtext").val("")
+});
+ $( "#submit" ).click(function() {
+    var bla = $("#inputtext").val();  
+    $.ajax({
+    url: 'http://localhost:5001/createPlayer/'+bla,
+    type: "POST",
+    dataType: "text",
+    success: function (data) {
+      alert(data)
+      $("#form").hide()
+      showGames()
+      $("#partite").show()
+    }
+  })
+});
+function showGames(){
+    var games   
+    $.ajax({
+    url: 'http://localhost:5001/gamesList',
+    type: "GET",
+    dataType: "json",
+    success: function (data) {
+      games = data
+      if (games['zero'] == 0) {
+        $('#partite').html('');
+        $('#partite').html('<h2>non ci sono partite</h2><input type="button" id="createGame" value="createGame">');
+        $("#createGame").click(function() {
+          alert("ciao");
+          $("#creap").show();
+          $("#partite").hide();
+        });
+      }
+      else{
+        $('#partite').html('');
+        $('#partite').html('<table id="mytable"><tr><td>ID</td><td>CREATOR</td><td>PLAYER_N</td></tr></table><input type="button" id="createGame" value="createGame">');
+        $("#createGame").click(function() {
+          alert("ciao");
+          $("#creap").show();
+          $("#partite").hide();
+        });
+        for ( var i=0; i<games.length; i++ ) {
+          $('#mytable tr:last').after("<tr><td><a onclick=joinGames("+games[i].game_id+")>"+games[i].game_id+"</a></td><td>"+games[i].creator.username+"</td><td>"+games[i].player_n+"</td></tr>");
+      }
+    }
+    }
+  })
+}
+$( "#createG" ).click(function() {
+    var nplayers = $("#n_players").val();
+    $.ajax({
+    url: 'http://localhost:5001/createGame/'+nplayers,
+    type: "POST",
+    dataType: "text",
+    success: function (data) {
+      alert(data)
+      $("#creap").hide()
+      $("#partite").show()
+      pollingAjax();
+    }
+  })
+});
+function joinGames(game_id){
+  $.ajax({
+    url: 'http://localhost:5001/joinGame/'+game_id,
+    type: "PUT",
+    dataType: "text",
+    success: function (data) {
+      pollingAjax(); 
+    }
+  });
+}
+function pollingAjax(){
+  $('#partite').html('');
+      $('#partite').html('<h2>ATTENDERE INIZIO PARTITA...</h2>');
+      var my_delay = 1000;
+      var termina;
+      $(function() {
+        callAjax();
+      });
+      var varajax;
+      function callAjax() {
+        varajax = $.ajax({
+            cache: false,
+            url: 'http://localhost:5001/gameStatus',        
+            dataType: 'json',  
+            success: function(data) {
+              setTimeout(callAjax, my_delay);
+              if(data['status'] == 1){
+                 termina = data['status'];
+                 chiediBanco();
+                 chiediMano();
+                 $("#cardPile").show()
+                 $("#cardSlots").show()
+              }
+            }
+        });
+        if (termina==1){
+          varajax.abort();
+        }
+      }
+}
+ </script>
+</body>
+</html>

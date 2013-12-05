@@ -24,15 +24,19 @@ def get_players():
 
 @app.route("/gameList", methods = ['GET'])
 def get_games():
-	game_dict = {}
+	game_list = [] 
+	index = 0
+	if len(_games_) == 0 :
+		return json.dumps(game_list, default=lambda o: o.__dict__)
 	for game in _games_:
-		#print _games_.get(game).to_json()
 		creator = _games_.get(game).creator.username
 		player_number = _games_.get(game).player_n
-		p_list = dict((player.username, player.ip) for player in _games_.get(game).p_list)
-		game_dict[_games_.get(game).game_id] = json.dumps( { 'creator' : creator, 'player_number' : player_number, 'p_list' : p_list } )
-	print game_dict
-	return jsonify(game_dict)
+		player = Player(creator,"10.0.0.1")
+		new_g = Game(index, player, player_number)
+		game_list.append(new_g)
+		index = index + 1
+	print game_list
+	return json.dumps(game_list, default=lambda o: o.__dict__)
 
 #only for testing
 @app.route("/printGames", methods = ['GET'])
@@ -52,7 +56,7 @@ def create_p(username,porta):
 		_players_[new_p.username] = new_p
 	else:
 		return "Username already chosen\n", 400
-	return "", 201
+	return "Registrato", 201
 
 @app.route('/createGame/<string:username>/<int:n_players>', methods = ['POST'])
 def create_g(username, n_players):
