@@ -45,42 +45,43 @@ my_ip = "127.0.0.1"
 my_port = 5001
 
 def _timer():
-	return Timer(150.0, time_out)
-
-timer_threads = []	
+	return Timer(5.0, time_out)
 
 def reset_timer():
 	global player_timer
 	print "resetto il timer"
 	player_timer.cancel()
 	player_timer = _timer()
-	timer_threads.append(player_timer)
 	player_timer.start()
 
 def time_out():
 	global time_out_counter
 	global turn_index
+
+	#lock
 	counter_lock.acquire()
 	time_out_counter += 1
 	counter_lock.release()
+	#unlock
+
 	print "giocatori rimasti: " + str(len(players) - time_out_counter)
 	if len(players) - time_out_counter < 3:
-		#nota bene: uso range(0,len(timer_threads)-1) perche' non riesco a fare la join del thread corrente
-		for i in range(0,len(timer_threads)-1):
-			timer_threads[i].cancel()
-			timer_threads[i].join()
-			print timer_threads[i]
+		print "troppi pochi giocatori la partita non puo' andare avanti"
 		return
+
 	print "TIMEOUT: doveva giocare il giocatore del turno: " + str(turn_index)
+
+	#lock
 	turn_index_lock.acquire()
 	turn_index += 1
 	turn_index_lock.release()
+	#unlock
+
 	print "Ora deve giocare il giocatore di indice: " + str(turn_index)
 	reset_timer()
 
 #timer (corrente: viene di volta in volta rinnovato con i reset) di ogni giocatore
 player_timer = _timer()
-timer_threads.append(player_timer)
 
 #contatore di time out
 counter_lock = Lock()
@@ -396,14 +397,19 @@ def try_ports():
 
 
 if __name__ == "__main__":
-	if len(sys.argv) == 1:
-		my_ip = "127.0.0.1"
-	elif len(sys.argv) == 2:
-		my_ip = sys.argv[1]
-	else:
-		print "Usage:", sys.argv[0], "<public IP>"
-		exit(1)
-	app.debug = True
-	server_started = try_ports()
-	while not server_started:
+	#try:
+		if len(sys.argv) == 1:
+			my_ip = "127.0.0.1"
+		elif len(sys.argv) == 2:
+			my_ip = sys.argv[1]
+		else:
+			print "Usage:", sys.argv[0], "<public IP>"
+			exit(1)
+		app.debug = True
 		server_started = try_ports()
+		while not server_started:
+			server_started = try_ports()
+		print "back to main"
+		os._exit(1)
+	#except KeyboardInterrupt:
+		#os._exit(1)

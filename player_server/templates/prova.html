@@ -18,7 +18,7 @@ function init() {
 function chiediBanco() {
   alert("chiedi banco")
   $.ajax({
-    url: 'http://localhost:5001/banco',
+    url: 'http://localhost:'+ player_server_port +'/banco',
     type: "GET",
     dataType: "json",
     success: function (data) {
@@ -58,7 +58,7 @@ function chiediBanco() {
 
   function chiediMano(){
     $.ajax({
-  url: 'http://localhost:5001/mano',
+  url: 'http://localhost:'+ player_server_port +'/mano',
   type: "GET",
   dataType: "json",
   success: function (data) {
@@ -94,7 +94,7 @@ function handleCardDrop( event, ui ) {
   <tr>
     <td><b>Nome</b></td>
     <td><input type="text" name="nome" id="inputtext"></td>
-  </tr><tr><td> <input type="button" value="Submit" id="submit"></td><td> <input type="button" value="Reset" id="reset"></td></tr></table>
+  </tr><tr><td> <input type="button" value="Registrati" id="submit"></td><!--<td><input type="button" value="Reset" id="reset"></td>--></tr></table>
 </form>
 <div id="creap" style="display: none;" align="center">
     <table id="creapartita">
@@ -112,27 +112,34 @@ function handleCardDrop( event, ui ) {
   
  </div>
  <script>
+ var player_server_port = location.port;
  $( "#reset" ).click(function() {
     $("#inputtext").val("")
 });
  $( "#submit" ).click(function() {
     var bla = $("#inputtext").val();  
     $.ajax({
-    url: 'http://localhost:5001/createPlayer/'+bla,
+    url: 'http://localhost:'+ player_server_port +'/createPlayer/'+bla,
     type: "POST",
     dataType: "text",
     success: function (data) {
-      alert(data)
+      console.log(data)
       $("#form").hide()
       showGames()
       $("#partite").show()
+    },
+    error: function(xhr, textStatus, errorThrown){
+      if( textStatus == "error" )
+       $("#inputtext").css({'background-color' : 'lightcoral'});
+       console.log(textStatus);
+       //console.log(errorThrown)
     }
   })
 });
 function showGames(){
     var games   
     $.ajax({
-    url: 'http://localhost:5001/gamesList',
+    url: 'http://localhost:'+ player_server_port +'/gamesList',
     type: "GET",
     dataType: "json",
     success: function (data) {
@@ -141,7 +148,6 @@ function showGames(){
         $('#partite').html('');
         $('#partite').html('<h2>non ci sono partite</h2><input type="button" id="createGame" value="createGame">');
         $("#createGame").click(function() {
-          alert("ciao");
           $("#creap").show();
           $("#partite").hide();
         });
@@ -150,7 +156,6 @@ function showGames(){
         $('#partite').html('');
         $('#partite').html('<table id="mytable"><tr><td>ID</td><td>CREATOR</td><td>PLAYER_N</td></tr></table><input type="button" id="createGame" value="createGame">');
         $("#createGame").click(function() {
-          alert("ciao");
           $("#creap").show();
           $("#partite").hide();
         });
@@ -164,7 +169,7 @@ function showGames(){
 $( "#createG" ).click(function() {
     var nplayers = $("#n_players").val();
     $.ajax({
-    url: 'http://localhost:5001/createGame/'+nplayers,
+    url: 'http://localhost:'+ player_server_port +'/createGame/'+nplayers,
     type: "POST",
     dataType: "text",
     success: function (data) {
@@ -177,7 +182,7 @@ $( "#createG" ).click(function() {
 });
 function joinGames(game_id){
   $.ajax({
-    url: 'http://localhost:5001/joinGame/'+game_id,
+    url: 'http://localhost:'+ player_server_port +'/joinGame/'+game_id,
     type: "PUT",
     dataType: "text",
     success: function (data) {
@@ -197,7 +202,7 @@ function pollingAjax(){
       function callAjax() {
         varajax = $.ajax({
             cache: false,
-            url: 'http://localhost:5001/gameStatus',        
+            url: 'http://localhost:'+ player_server_port +'/gameStatus',        
             dataType: 'json',  
             success: function(data) {
               setTimeout(callAjax, my_delay);
