@@ -16,14 +16,14 @@ function init() {
 }
 //funzione che chiedeIlBanco al serverino sottostante e lo mostra nella GUI
 function chiediBanco() {
-  alert("chiedi banco")
+  console.log("chiedi banco")
   $.ajax({
-    url: 'http://localhost:5001/banco',
+    url: 'http://localhost:'+player_server_port+'/banco',
     type: "GET",
     dataType: "json",
     success: function (data) {
-      banco = data
-      flag = false
+      var banco = data;
+      var flag = false;
       $('#cardSlots').html('');
         for (var i=0; i<banco.length;i++){
           if (flag ==false){
@@ -39,10 +39,10 @@ function chiediBanco() {
               hoverClass: 'hovered',
               drop: handleCardDrop
               });
-            var flag = true;
+            flag = true;
           }
           else if(flag == true) {
-            alert("else")
+            console.log("else")
             $('<div>' + banco[i].event + '</div>').data( 'number', i ).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
             y=i+1
             $('<div>' + y + '</div>').data( 'number', y).appendTo( '#cardSlots' ).droppable( {
@@ -57,8 +57,9 @@ function chiediBanco() {
 }
 
   function chiediMano(){
+  $('#cardPile').html('');
     $.ajax({
-  url: 'http://localhost:5001/mano',
+  url: 'http://localhost:'+player_server_port+'/mano',
   type: "GET",
   dataType: "json",
   success: function (data) {
@@ -79,8 +80,9 @@ function handleCardDrop( event, ui ) {
     $(this).droppable( 'disable' );
     ui.draggable.position( { of: $(this), my: 'left top', at: 'left top' } );
     ui.draggable.draggable( 'option', 'revert', false );
-    alert($(this).data( 'number' ))
-    alert(ui.draggable.data( 'card_id' ))
+    playCard(ui.draggable.data( 'card_id' ),$(this).data( 'number' ))
+    console.log($(this).data( 'number' ))
+    console.log(ui.draggable.data( 'card_id' ))
   } 
   </script>
  
@@ -112,17 +114,18 @@ function handleCardDrop( event, ui ) {
   
  </div>
  <script>
+ var player_server_port = location.port
  $( "#reset" ).click(function() {
     $("#inputtext").val("")
 });
  $( "#submit" ).click(function() {
     var bla = $("#inputtext").val();  
     $.ajax({
-    url: 'http://localhost:5001/createPlayer/'+bla,
+    url: 'http://localhost:'+player_server_port+'/createPlayer/'+bla,
     type: "POST",
     dataType: "text",
     success: function (data) {
-      alert(data)
+      console.log(data)
       $("#form").hide()
       showGames()
       $("#partite").show()
@@ -132,7 +135,7 @@ function handleCardDrop( event, ui ) {
 function showGames(){
     var games   
     $.ajax({
-    url: 'http://localhost:5001/gamesList',
+    url: 'http://localhost:'+player_server_port+'/gamesList',
     type: "GET",
     dataType: "json",
     success: function (data) {
@@ -141,7 +144,7 @@ function showGames(){
         $('#partite').html('');
         $('#partite').html('<h2>non ci sono partite</h2><input type="button" id="createGame" value="createGame">');
         $("#createGame").click(function() {
-          alert("ciao");
+          console.log("ciao");
           $("#creap").show();
           $("#partite").hide();
         });
@@ -150,7 +153,7 @@ function showGames(){
         $('#partite').html('');
         $('#partite').html('<table id="mytable"><tr><td>ID</td><td>CREATOR</td><td>PLAYER_N</td></tr></table><input type="button" id="createGame" value="createGame">');
         $("#createGame").click(function() {
-          alert("ciao");
+          console.log("ciao");
           $("#creap").show();
           $("#partite").hide();
         });
@@ -164,28 +167,39 @@ function showGames(){
 $( "#createG" ).click(function() {
     var nplayers = $("#n_players").val();
     $.ajax({
-    url: 'http://localhost:5001/createGame/'+nplayers,
+    url: 'http://localhost:'+player_server_port+'/createGame/'+nplayers,
     type: "POST",
     dataType: "text",
     success: function (data) {
-      alert(data)
+      console.log(data)
       $("#creap").hide()
       $("#partite").show()
-      pollingAjax();
+      pollingAjaxsg();
     }
   })
 });
 function joinGames(game_id){
   $.ajax({
-    url: 'http://localhost:5001/joinGame/'+game_id,
+    url: 'http://localhost:'+player_server_port+'/joinGame/'+game_id,
     type: "PUT",
     dataType: "text",
     success: function (data) {
-      pollingAjax(); 
+      pollingAjaxsg(); 
     }
   });
 }
-function pollingAjax(){
+function playCard(card_id,position){
+  $.ajax({
+    url: 'http://localhost:'+player_server_port+'/playCard/'+card_id+'/'+position,
+    type: "PUT",
+    dataType: "text",
+    success: function (data) {
+      pollingAjaxtr();
+    }
+  });
+  chiediMano()
+}
+function pollingAjaxsg(){
   $('#partite').html('');
       $('#partite').html('<h2>ATTENDERE INIZIO PARTITA...</h2>');
       var my_delay = 1000;
@@ -197,7 +211,7 @@ function pollingAjax(){
       function callAjax() {
         varajax = $.ajax({
             cache: false,
-            url: 'http://localhost:5001/gameStatus',        
+            url: 'http://localhost:'+player_server_port+'/gameStatus',        
             dataType: 'json',  
             success: function(data) {
               setTimeout(callAjax, my_delay);
@@ -205,8 +219,38 @@ function pollingAjax(){
                  termina = data['status'];
                  chiediBanco();
                  chiediMano();
-                 $("#cardPile").show()
-                 $("#cardSlots").show()
+                 $("#cardPile").show();
+                 $("#cardSlots").show();
+                 pollingAjaxtr();
+              }
+            }
+        });
+        if (termina==1){
+          varajax.abort();
+        }
+      }
+}
+function pollingAjaxtr(){
+  $('#partite').html('');
+      $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
+      var my_delay = 1000;
+      var termina;
+      $(function() {
+        callAjax();
+      });
+      var varajax;
+      function callAjax() {
+        varajax = $.ajax({
+            cache: false,
+            url: 'http://localhost:'+player_server_port+'/turnStatus',        
+            dataType: 'json',  
+            success: function(data) {
+              setTimeout(callAjax, my_delay);
+              chiediBanco()
+              if(data['turn'] == 1){
+                 termina = data['turn'];
+                 $('#partite').html('');
+                 $('#partite').html('<h2>E IL TUO TURNO</h2>');
               }
             }
         });

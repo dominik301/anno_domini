@@ -32,6 +32,9 @@ game_id = 0
 #carte che ho in mano
 hand = []
 
+#variabile per il turno
+my_turn = False;
+
 #indice dei turni, mi serve per capire chi e' crashato
 turn_index_lock = Lock()
 turn_index_lock.acquire()
@@ -110,6 +113,12 @@ def game_status():
 	if len(hand) == 0 and len(table) == 0 :
 		return jsonify({'status' : 0})
 	return jsonify({'status' : 1})
+
+@app.route("/turnStatus")
+def turn_status():
+	if not my_turn:
+		return jsonify({'turn' : 0})
+	return jsonify({'turn' : 1})
 #Metodo invocato dal browser web
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
 def create_p(username):
@@ -169,8 +178,10 @@ def start_g():
 	global players
 	global hand
 	global table
+	global my_turn
 	players = request.json #Restituisce lista di dizionari: ogni dizionario corrisponde a un player
 	if players[0]['username'] == my_player_name:
+		my_turn = True
 		hand = get_randomCards()
 		table.append(deck.pop(random.choice(range(len(deck)))))
 		for p in players:
@@ -262,6 +273,7 @@ def rcvDeck():
 #Metodo richiamato dal browser per giocare una carta
 @app.route('/playCard/<int:card_id>/<int:card_pos>', methods = ['PUT'])
 def playCard(card_id,card_pos):
+	global my_turn
 	for card in hand :
 		if card.card_id == card_id :
 			cardToSend = card
@@ -273,6 +285,7 @@ def playCard(card_id,card_pos):
 	for x in hand :
 		print "ID="+str(x.card_id)+" Y="+str(x.year)
 	#Invio il messaggio della giocata a tutti gli altri giocatori
+	my_turn = False
 	for user in players:
 		url = "http://"+user['ip']+":"+str(user['porta'])+"/playedCard"
 		url = url + "/" + my_player_name + "/" + str(cardToSend.year) + "/" + str(cardToSend.event) + "/" + str(cardToSend.card_id) + "/" + str(card_pos)
@@ -285,6 +298,7 @@ def playCard(card_id,card_pos):
 def playedCard(username, year, event, card_id, position):
 	#la prima cosa che faccio e' resettare il timer del timeout
 	global turn_index
+	global my_turn
 	reset_timer()
 	cardToInsert = Game_Card(year, event, card_id)
 	table.insert(position, cardToInsert)
@@ -307,6 +321,7 @@ def playedCard(username, year, event, card_id, position):
 					return "", 200
 			elif players[turn_index]['username'] == my_player_name:
 				print "\n>>> DEVO GIOCARE IO!!! <<<\n"
+				my_turn = True
 			break
 	else:
 		return "Player not found", 400
@@ -334,6 +349,7 @@ def pesca(n):
 def doubted(username): #il param. e' l'username di chi invia il messaggio
 	reset_timer()
 	global table
+	global my_turn
 	myIndex = -1
 	doubterIndex = -1
 	for user in players:
@@ -382,6 +398,7 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	#Verifico se e' il mio turno
 	if myIndex == nextPlayerIndex:
 		print "\n>>> DEVO GIOCARE IO!!! <<<\n"
+		my_turn = True
 	return "",200
 
 def try_ports():
