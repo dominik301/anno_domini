@@ -68,6 +68,7 @@ def time_out():
 	#unlock
 
 	print "giocatori rimasti: " + str(len(players) - time_out_counter)
+
 	if len(players) - time_out_counter < 3:
 		print "troppi pochi giocatori la partita non puo' andare avanti"
 		return
@@ -314,7 +315,8 @@ def playedCard(username, year, event, card_id, position):
 			turn_index = ((players.index(x) + 1) % len(players))
 			turn_index_lock.release()
 			x['n_cards'] = str(int(x['n_cards']) - 1)
-			print "\nIl giocatore", x['username'], "ha ora", x['n_cards'], "carte"
+			#print "\nIl giocatore", x['username'], "ha ora", x['n_cards'], "carte"
+			print str(players[turn_index]['username']) + my_player_name
 			if x['n_cards'] == "0": #Auto-dubito (ATTENZIONE: avviene localmente in tutti i nodi senza scambio di msg)
 				returned = doubted(players[ ((players.index(x) + 1) % len(players)) ]['username'])
 				if returned[0]=="End":
@@ -427,6 +429,5 @@ if __name__ == "__main__":
 		while not server_started:
 			server_started = try_ports()
 		print "back to main"
-		os._exit(1)
 	#except KeyboardInterrupt:
 		#os._exit(1)
