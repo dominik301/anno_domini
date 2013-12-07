@@ -10,6 +10,7 @@
  
 <script type="text/javascript">
 $( init );
+var stopPollingGames = 0;
 var banco = new Array()
 function init() {
   // Create the pile of shuffled cards  
@@ -126,9 +127,9 @@ function handleCardDrop( event, ui ) {
     dataType: "text",
     success: function (data) {
       console.log(data)
-      $("#form").hide()
-      showGames()
-      $("#partite").show()
+      $("#form").hide();
+      showGames();
+      $("#partite").show();
     },
     error: function(xhr, textStatus, errorThrown){
       if( textStatus == "error" )
@@ -139,12 +140,19 @@ function handleCardDrop( event, ui ) {
   })
 });
 function showGames(){
-    var games   
-    $.ajax({
-    url: 'http://localhost:'+ player_server_port +'/gamesList',
-    type: "GET",
-    dataType: "json",
+    var games
+    var my_delay = 1000;
+      $(function() {
+        callAjax();
+      });
+    var varajax;
+    function callAjax(){
+    varajax = $.ajax({
+      url: 'http://localhost:'+ player_server_port +'/gamesList',
+      type: "GET",
+      dataType: "json",
     success: function (data) {
+      setTimeout(callAjax, my_delay);
       games = data
       if (games['zero'] == 0) {
         $('#partite').html('');
@@ -169,9 +177,14 @@ function showGames(){
     }
     }
   })
+  if (stopPollingGames == 1){
+    varajax.abort();
+  }
+  }
 }
 $( "#createG" ).click(function() {
     var nplayers = $("#n_players").val();
+    stopPollingGames = 1;
     $.ajax({
     url: 'http://localhost:'+ player_server_port +'/createGame/'+nplayers,
     type: "POST",
@@ -185,6 +198,7 @@ $( "#createG" ).click(function() {
   })
 });
 function joinGames(game_id){
+  stopPollingGames = 1;
   $.ajax({
     url: 'http://localhost:'+ player_server_port +'/joinGame/'+game_id,
     type: "PUT",
@@ -240,7 +254,6 @@ function pollingAjaxtr(){
   $('#partite').html('');
       $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
       var my_delay = 1000;
-      var termina;
       $(function() {
         callAjax();
       });
@@ -254,15 +267,15 @@ function pollingAjaxtr(){
               setTimeout(callAjax, my_delay);
               chiediBanco()
               if(data['turn'] == 1){
-                 termina = data['turn'];
                  $('#partite').html('');
                  $('#partite').html('<h2>E IL TUO TURNO</h2>');
               }
+              else{
+                 $('#partite').html('');
+                 $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
+              }
             }
         });
-        if (termina==1){
-          varajax.abort();
-        }
       }
 }
  </script>

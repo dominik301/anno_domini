@@ -60,7 +60,8 @@ def reset_timer():
 def time_out():
 	global time_out_counter
 	global turn_index
-
+	global my_turn
+	global players
 	#lock
 	counter_lock.acquire()
 	time_out_counter += 1
@@ -68,6 +69,9 @@ def time_out():
 	#unlock
 
 	print "giocatori rimasti: " + str(len(players) - time_out_counter)
+
+	if players[turn_index]['username'] == my_player_name and my_turn == True:
+		my_turn = False
 
 	if len(players) - time_out_counter < 3:
 		print "troppi pochi giocatori la partita non puo' andare avanti"
@@ -80,7 +84,10 @@ def time_out():
 	turn_index += 1
 	turn_index_lock.release()
 	#unlock
-
+	if players[turn_index]['username'] == my_player_name and my_turn == False:
+		print "OO GUARDA CASO TORNA A ME"
+		my_turn = True
+	
 	print "Ora deve giocare il giocatore di indice: " + str(turn_index)
 	reset_timer()
 
@@ -323,7 +330,7 @@ def playedCard(username, year, event, card_id, position):
 					print "\n IL GIOCO E' FINITO! IL VINCITORE E' " + x['username'] + "\n"
 					return "", 200
 			elif players[turn_index]['username'] == my_player_name:
-				print "\n>>> DEVO GIOCARE IO!!! <<<\n"
+				print "\n>>> DEVI GIOCARE TU <<<\n"
 				my_turn = True
 			break
 	else:
@@ -424,7 +431,7 @@ if __name__ == "__main__":
 		else:
 			print "Usage:", sys.argv[0], "<public IP>"
 			exit(1)
-		app.debug = True
+		#app.debug = True
 		server_started = try_ports()
 		while not server_started:
 			server_started = try_ports()
