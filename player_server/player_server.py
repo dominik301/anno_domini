@@ -139,7 +139,9 @@ def turn_status():
 def doubt_status():
 	if doubtp == "" :
 		return jsonify({'doubt' : 0})
-	return jsonify({'doubt' : str(doubtp),'status': str(doubtStatus)})
+	temp = doubtp
+	resetDoubt()
+	return jsonify({'doubt' : str(temp),'status': str(doubtStatus)})
 #Metodo invocato dal browser web
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
 def create_p(username):
@@ -321,7 +323,6 @@ def playedCard(username, year, event, card_id, position):
 	global turn_index
 	global my_turn
 	reset_timer()
-	resetDoubt()
 	cardToInsert = Game_Card(year, event, card_id)
 	table.insert(position, cardToInsert)
 	print "\nBanco dopo la carta giocata"
@@ -376,7 +377,7 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	global table
 	global my_turn
 	global doubtp
-	global doubtStatus;
+	global doubtStatus
 	doubtp = username
 	myIndex = -1
 	doubterIndex = -1
@@ -401,17 +402,17 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 			nextPlayerIndex = doubterIndex
 			break
 
-		else:
-			#Dubitato male
-			print "\nDubitato male"
-			doubtStatus = 1;
-			#Puo' essere che il gioco sia finito (siamo in auto-dubito e l'ultimo player ha 0 carte)
-			if int(players[prevIndex]['n_cards']) == 0:
-				return "End", 200
-			#Gioco non finito: colui che ha dubitato deve essere penalizzato
-			penalizatedIndex = doubterIndex
-			penalization = 2
-			nextPlayerIndex = (doubterIndex + 1) % len(players)
+	else:
+		#Dubitato male
+		print "\nDubitato male"
+		doubtStatus = 1;
+		#Puo' essere che il gioco sia finito (siamo in auto-dubito e l'ultimo player ha 0 carte)
+		if int(players[prevIndex]['n_cards']) == 0:
+			return "End", 200
+		#Gioco non finito: colui che ha dubitato deve essere penalizzato
+		penalizatedIndex = doubterIndex
+		penalization = 2
+		nextPlayerIndex = (doubterIndex + 1) % len(players)
 	pescate = pesca(penalization)
 	if penalizatedIndex == myIndex:  #il penalizzato inserisce le carte nella mano
 		for c in pescate:
@@ -430,7 +431,6 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	if myIndex == nextPlayerIndex:
 		print "\n>>> DEVO GIOCARE IO!!! <<<\n"
 		my_turn = True
-		resetDoubt()
 	return "",200
 
 def resetDoubt():
