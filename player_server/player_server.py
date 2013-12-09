@@ -25,7 +25,6 @@ table = []
 
 #lista di giocatori 
 players = []
-players_lock = Lock()
 
 #id del gioco
 game_id = 0
@@ -65,31 +64,30 @@ def reset_timer():
 	player_timer.start()
 
 def time_out():
+	global time_out_counter
 	global turn_index
 	global my_turn
 	global players
+	#lock
+	counter_lock.acquire()
+	time_out_counter += 1
+	counter_lock.release()
+	#unlock
 
-	#crit[players]
-	players_lock.acquire()
-	print "giocatori rimasti: " + str(len(players))
+	print "giocatori rimasti: " + str(len(players) - time_out_counter)
 
-	#se e' il mio turno e non c'e' stata nessuna giocata da parte della UI allora metto a false my_turn
 	if players[turn_index]['username'] == my_player_name and my_turn == True:
 		my_turn = False
 
-	players.remove(players[turn_index])
-
-	#se ci sono troppi pochi giocatori nella partia, non si prosegue
-	if len(players) < 3:
+	if len(players) - time_out_counter < 3:
 		print "troppi pochi giocatori la partita non puo' andare avanti"
-		players_lock.release()
 		return
 
 	print "TIMEOUT: doveva giocare il giocatore del turno: " + str(turn_index)
 
 	#lock
 	turn_index_lock.acquire()
-	turn_index = (turn_index + 1) % len(players)
+	turn_index += 1
 	turn_index_lock.release()
 	#unlock
 	if players[turn_index]['username'] == my_player_name and my_turn == False:
@@ -97,10 +95,6 @@ def time_out():
 		my_turn = True
 	
 	print "Ora deve giocare il giocatore di indice: " + str(turn_index)
-	print "Giocatori rimasti"
-	for p in players:
-		print p
-	players_lock.release()
 	reset_timer()
 
 #timer (corrente: viene di volta in volta rinnovato con i reset) di ogni giocatore
@@ -109,13 +103,12 @@ player_timer = _timer()
 #contatore di time out
 counter_lock = Lock()
 counter_lock.acquire()
+time_out_counter = 0
 counter_lock.release()
 
 @app.route("/playersLeft")
 def playerLeft():
-	players_lock.acquire()
-	return str(len(players))
-	player_lock.release()
+	return str(len(players) - time_out_counter)
 
 @app.route("/")
 def hello():
@@ -135,16 +128,6 @@ def game_status():
 	if len(hand) == 0 and len(table) == 0 :
 		return jsonify({'status' : 0})
 	return jsonify({'status' : 1})
-
-#servizio per ottenere il numero di carte degli altri giocatori
-@app.route("/playerCards")
-def playerCards():
-	cards_dict = {}
-	players_lock.acquire()
-	for p in players:
-		cards_dict[p['username']] = p['n_cards']
-	players_lock.release()
-	return jsonify(cards_dict)
 
 @app.route("/turnStatus")
 def turn_status():
@@ -181,7 +164,7 @@ def gameList():
 	games_json = req.json()
 	print req.json()
 	for h in games_json:
-		print "IL CREATORE E' "+h['creator']['username']
+		print "IL CREATORE E "+h['creator']['username']
 		creator = Player(h['creator']['username'],"0.0.0.0")
 		game = Game(h['game_id'],creator,h['player_n'],h['p_list'])
 		games.append(game)
@@ -204,6 +187,13 @@ def join_g(id_game):
 	global game_id
 	game_id = id_game
 	return req.text, req.status_code
+
+#Metodo invocato dal browser web
+@app.route('/unsubscribe', methods = ['DELETE'])
+def unsubscribe():
+	if len(players) == 0:
+		req = requests.delete("http://"+server_ip+":"+str(server_port)+"/unsubscribe/"+my_player_name+"/"+str(game_id))
+		return req.text, req.status_code
 
 #Metodo invocato dal registrar server
 @app.route('/startGame', methods = ['PUT'])
@@ -319,16 +309,11 @@ def playCard(card_id,card_pos):
 		print "ID="+str(x.card_id)+" Y="+str(x.year)
 	#Invio il messaggio della giocata a tutti gli altri giocatori
 	my_turn = False
-
-	#crit[players]
-	players_lock.acquire()
 	for user in players:
 		url = "http://"+user['ip']+":"+str(user['porta'])+"/playedCard"
 		url = url + "/" + my_player_name + "/" + str(cardToSend.year) + "/" + str(cardToSend.event) + "/" + str(cardToSend.card_id) + "/" + str(card_pos)
 		r = requests.put(url) #TODO: da' sempre "ok" come esito?! vedere se una delle put da errore e restituire 400
-	players_lock.release()
 	return "ok"
-	
 
 #Metodo invocato da un altro player_server
 #L'username serve perche' nel test in localhost l'ip e' sempre lo stesso e non si riesce a riconoscere gli utenti
@@ -345,31 +330,25 @@ def playedCard(username, year, event, card_id, position):
 		print "ID="+str(i.card_id)+" Y="+str(i.year)
 	
 	#Aggiorno il numero delle carte del player e controllo se e' il mio turno
-	players_lock.acquire()
 	for x in players: #players e' una lista di dizionari
 		if x['username'] == username:
 			turn_index_lock.acquire()
 			turn_index = ((players.index(x) + 1) % len(players))
 			turn_index_lock.release()
-			x['n_cards'] = x['n_cards'] - 1
+			x['n_cards'] = str(int(x['n_cards']) - 1)
 			#print "\nIl giocatore", x['username'], "ha ora", x['n_cards'], "carte"
 			print str(players[turn_index]['username']) + my_player_name
-			if x['n_cards'] == 0: #Auto-dubito (ATTENZIONE: avviene localmente in tutti i nodi senza scambio di msg)
-				players_lock.release()
+			if x['n_cards'] == "0": #Auto-dubito (ATTENZIONE: avviene localmente in tutti i nodi senza scambio di msg)
 				returned = doubted(players[ ((players.index(x) + 1) % len(players)) ]['username'])
-				players_lock.acquire()
 				if returned[0]=="End":
 					print "\n IL GIOCO E' FINITO! IL VINCITORE E' " + x['username'] + "\n"
-					players_lock.release()
 					return "", 200
 			elif players[turn_index]['username'] == my_player_name:
 				print "\n>>> DEVI GIOCARE TU <<<\n"
 				my_turn = True
 			break
 	else:
-		players_lock.release()
 		return "Player not found", 400
-	players_lock.release()
 	return "", 200
 
 #Metodo invocato dall'utente in locale (browser)
@@ -378,13 +357,11 @@ def doubt():
 	global my_turn
 	if len(table) < 2:
 		return "", 400
-
-	players_lock.acquire()
+	my_turn = False
 	for x in players: #lo invia anche a se' stesso
 			url = "http://" + x['ip'] + ":" + str(x['porta']) + "/doubted/" + my_player_name
 			r = requests.put(url)
-	players_lock.release()
-	return "", 200
+	return r.text, 200
 
 #Metodo che fa il pop di n carte dal mazzo e le restituisce come lista
 def pesca(n):
@@ -404,7 +381,6 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	doubtp = username
 	myIndex = -1
 	doubterIndex = -1
-	players_lock.acquire()
 	for user in players:
 		if user['username'] == my_player_name:
 			myIndex = players.index(user)
@@ -425,19 +401,18 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 			penalization = 3
 			nextPlayerIndex = doubterIndex
 			break
+
 	else:
 		#Dubitato male
 		print "\nDubitato male"
+		doubtStatus = 1;
 		#Puo' essere che il gioco sia finito (siamo in auto-dubito e l'ultimo player ha 0 carte)
 		if int(players[prevIndex]['n_cards']) == 0:
-			players_lock.release()
 			return "End", 200
 		#Gioco non finito: colui che ha dubitato deve essere penalizzato
 		penalizatedIndex = doubterIndex
 		penalization = 2
 		nextPlayerIndex = (doubterIndex + 1) % len(players)
-		#incremento il turno sse ho dubitato male e quindi passo il turno al successivo
-		turn_index = (turn_index + 1) % len(players)
 	pescate = pesca(penalization)
 	if penalizatedIndex == myIndex:  #il penalizzato inserisce le carte nella mano
 		for c in pescate:
@@ -446,7 +421,7 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 		for c in hand:
 			print "ID="+str(c.card_id)+" Y="+str(c.year)
 	#Tutti i giocatori aggiornano il counter delle carte del penalizzato
-	players[penalizatedIndex]['n_cards'] = int(players[penalizatedIndex]['n_cards']) + penalization
+	players[penalizatedIndex]['n_cards'] = str(int(players[penalizatedIndex]['n_cards']) + penalization)
 	#In ogni caso (sia dubitato bene, sia male) resetto il tavolo
 	table = []
 	table.append(deck.pop(0))
@@ -456,7 +431,6 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	if myIndex == nextPlayerIndex:
 		print "\n>>> DEVO GIOCARE IO!!! <<<\n"
 		my_turn = True
-	players_lock.release()
 	return "",200
 
 def resetDoubt():
@@ -468,7 +442,6 @@ def try_ports():
 	global my_port
 	try:
 		app.run(my_ip, my_port, threaded = True)
-		print "player_server terminates"
 		return True
 	except:
 		my_port += 1
@@ -477,16 +450,19 @@ def try_ports():
 
 
 if __name__ == "__main__":
-	if len(sys.argv) == 1:
-		my_ip = "127.0.0.1"
-	elif len(sys.argv) == 2:
-		my_ip = sys.argv[1]
-	else:
-		print "Usage:", sys.argv[0], "<public IP>"
-		exit(1)
-	app.debug = True
-	server_started = try_ports()
-	while not server_started:
+	#try:
+		if len(sys.argv) == 1:
+			my_ip = "127.0.0.1"
+		elif len(sys.argv) == 2:
+			my_ip = sys.argv[1]
+		else:
+			print "Usage:", sys.argv[0], "<public IP>"
+			exit(1)
+		#app.debug = True
 		server_started = try_ports()
-	print "back to main"
-
+		while not server_started:
+			server_started = try_ports()
+		print "back to main"
+		#os._exit(1)
+	#except KeyboardInterrupt:
+		#os._exit(1)
