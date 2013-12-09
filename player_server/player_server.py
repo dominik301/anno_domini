@@ -32,8 +32,14 @@ game_id = 0
 #carte che ho in mano
 hand = []
 
-#variabile per il turno
+#variabile per il polling del turno
 my_turn = False;
+
+#variabile per il polling del dubbio
+doubtp = "";
+
+#variabile per lo stato del dubbio 0 bene 1 male
+doubtStatus = 0
 
 #indice dei turni, mi serve per capire chi e' crashato
 turn_index_lock = Lock()
@@ -48,7 +54,7 @@ my_ip = "127.0.0.1"
 my_port = 5001
 
 def _timer():
-	return Timer(5.0, time_out)
+	return Timer(60.0, time_out)
 
 def reset_timer():
 	global player_timer
@@ -127,6 +133,12 @@ def turn_status():
 	if not my_turn:
 		return jsonify({'turn' : 0})
 	return jsonify({'turn' : 1})
+
+@app.route("/doubtStatus")
+def doubt_status():
+	if doubtp == "" :
+		return jsonify({'doubt' : 0})
+	return jsonify({'doubt' : str(doubtp),'status': str(doubtStatus)})
 #Metodo invocato dal browser web
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
 def create_p(username):
@@ -308,6 +320,7 @@ def playedCard(username, year, event, card_id, position):
 	global turn_index
 	global my_turn
 	reset_timer()
+	resetDoubt()
 	cardToInsert = Game_Card(year, event, card_id)
 	table.insert(position, cardToInsert)
 	print "\nBanco dopo la carta giocata"
@@ -338,12 +351,14 @@ def playedCard(username, year, event, card_id, position):
 #Metodo invocato dall'utente in locale (browser)
 @app.route('/doubt', methods = ['PUT'])
 def doubt():
+	global my_turn
 	if len(table) < 2:
 		return "", 400
+	my_turn = False
 	for x in players: #lo invia anche a se' stesso
 			url = "http://" + x['ip'] + ":" + str(x['porta']) + "/doubted/" + my_player_name
 			r = requests.put(url)
-	return "", 200
+	return r.text, 200
 
 #Metodo che fa il pop di n carte dal mazzo e le restituisce come lista
 def pesca(n):
@@ -358,6 +373,9 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	reset_timer()
 	global table
 	global my_turn
+	global doubtp
+	global doubtStatus;
+	doubtp = username
 	myIndex = -1
 	doubterIndex = -1
 	for user in players:
@@ -375,20 +393,23 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 		if table[i].year > table[i+1].year:
 			#Il dubbio era fondato: si penalizza il precedente nella mano
 			print "\nDubitato bene: carta ",table[i].card_id, " viene dopo ", table[i+1].card_id
+			doubtStatus = 0;
 			penalizatedIndex = prevIndex
 			penalization = 3
 			nextPlayerIndex = doubterIndex
 			break
-	else:
-		#Dubitato male
-		print "\nDubitato male"
-		#Puo' essere che il gioco sia finito (siamo in auto-dubito e l'ultimo player ha 0 carte)
-		if int(players[prevIndex]['n_cards']) == 0:
-			return "End", 200
-		#Gioco non finito: colui che ha dubitato deve essere penalizzato
-		penalizatedIndex = doubterIndex
-		penalization = 2
-		nextPlayerIndex = (doubterIndex + 1) % len(players)
+
+		else:
+			#Dubitato male
+			print "\nDubitato male"
+			doubtStatus = 1;
+			#Puo' essere che il gioco sia finito (siamo in auto-dubito e l'ultimo player ha 0 carte)
+			if int(players[prevIndex]['n_cards']) == 0:
+				return "End", 200
+			#Gioco non finito: colui che ha dubitato deve essere penalizzato
+			penalizatedIndex = doubterIndex
+			penalization = 2
+			nextPlayerIndex = (doubterIndex + 1) % len(players)
 	pescate = pesca(penalization)
 	if penalizatedIndex == myIndex:  #il penalizzato inserisce le carte nella mano
 		for c in pescate:
@@ -407,7 +428,13 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	if myIndex == nextPlayerIndex:
 		print "\n>>> DEVO GIOCARE IO!!! <<<\n"
 		my_turn = True
+		resetDoubt()
 	return "",200
+
+def resetDoubt():
+	global doubtp
+	if doubtp != "":
+		doubtp = ""
 
 def try_ports():
 	global my_port
@@ -434,6 +461,6 @@ if __name__ == "__main__":
 		while not server_started:
 			server_started = try_ports()
 		print "back to main"
-		os._exit(1)
+		#os._exit(1)
 	#except KeyboardInterrupt:
 		#os._exit(1)
