@@ -294,40 +294,39 @@ function playCard(card_id,position){
 }
 function pollingAjaxsg(){
   $('#partite').html('');
-  $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
-  var my_delay = 1000;
-  $(function() {
-    callAjax();
-  });
-  var varajax;
-  function callAjax() {
-    varajax = $.ajax({
-    cache: false,
-    url: 'http://localhost:'+player_server_port+'/turnStatus',        
-    dataType: 'json',  
-    success: function(data) {
-      setTimeout(callAjax, my_delay);
-      if(data['turn'] == 1){
-         $('#partite').html('');
-         $('#partite').html('<h2>E IL TUO TURNO</h2>');
-         chiediMano()
-         $("#cardPile div").draggable( "enable" );
-         stopPollingTr = 1;
+      $('#partite').html('<h2>ATTENDERE INIZIO PARTITA...</h2>');
+      var my_delay = 1000;
+      $(function() {
+        callAjax();
+      });
+      var varajax;
+      function callAjax() {
+        varajax = $.ajax({
+            cache: false,    
+            url: 'http://localhost:'+ player_server_port +'/gameStatus',        
+            dataType: 'json',  
+            success: function(data) {
+              if( my_turn == 0 )
+                setTimeout(callAjax, my_delay);
+              if(data['status'] == 1){
+                 game_status = data['status'];
+                 chiediBanco();
+                 termina = data['status'];
+                 chiediMano();
+                 $('#other_players').show();
+                 $("#cardPile").show();
+                 $("#dubbio").show();
+                 $("#cardSlots").show();
+                 pollingAjaxtr();
+                 pollingAjaxba();
+              }
+            }
+        });
+        if (game_status==1){
+          varajax.abort();
+        }
       }
-      else{
-         $('#partite').html('');
-         $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
-         $("#cardPile div").draggable( "disable" );
-         chiediMano()
-      }
-    }
-  });
-  if (game_status==1){
-    varajax.abort();
-  }
-  }
 }
-
 function pollingAjaxtr(){
   $('#partite').html('');
     $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
