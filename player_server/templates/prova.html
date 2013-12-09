@@ -10,6 +10,11 @@
  
 <script type="text/javascript">
 $( init );
+
+var player_server_port = location.port;
+var game_status = 0;
+var my_turn = 0;
+
 var stopPollingGames = 0;
 var stopPollingBa = 0;
 var banco = new Array();
@@ -23,6 +28,9 @@ var mustRefreshBanco = false;
 function init() {
   // Create the pile of shuffled cards  
 }
+
+//$("#cardPile div").draggable( "disable" );
+
 //funzione che chiedeIlBanco al serverino sottostante e lo mostra nella GUI
 function mostraDateBanco() {
   console.log("mostra banco");
@@ -88,9 +96,9 @@ function handleCardDrop( event, ui ) {
     $(this).droppable( 'disable' );
     ui.draggable.position( { of: $(this), my: 'left top', at: 'left top' } );
     ui.draggable.draggable( 'option', 'revert', false );
-    playCard(ui.draggable.data( 'card_id' ),$(this).data( 'number' ))
-    console.log($(this).data( 'number' ))
-    console.log(ui.draggable.data( 'card_id' ))
+    playCard(ui.draggable.data( 'card_id' ),$(this).data( 'number' ));
+    console.log($(this).data( 'number' ));
+    console.log(ui.draggable.data( 'card_id' ));
   } 
   </script>
  
@@ -115,7 +123,21 @@ function handleCardDrop( event, ui ) {
 <div id="partite" style="display: none;" align="center">
   </div>
 <div id="content">
- 
+  <div id="other_players" 
+       style="
+              display: none;
+              width: inherit;
+              height: 120px;
+              padding: 20px;
+              border: 2px solid #333;
+              margin: 0 0 30px 0;
+              -moz-border-radius: 10px;
+              -webkit-border-radius: 10px;
+              border-radius: 10px;
+              -moz-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
+              -webkit-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
+              box-shadow: 0 0 .3em rgba(0, 0, 0, .8);">
+  </div>
   <div id="cardPile" style="display: none;"> </div>
   <input type="button" id ="dubbio" value="Dubbio" align="center" style="display: none;">
   <div id="cardSlots" style="display: none;"> </div>
@@ -124,10 +146,39 @@ function handleCardDrop( event, ui ) {
  </div>
  <script>
  var stopPollingTr = 0;
+
+ /*recupero il numero di carte degli altri giocatori*/
+ function askPlayerCards(){
+        console.log("asking for other player cards")
+        $(function() {
+          callAjax();
+        });
+        var varajax;
+        function callAjax() {
+          varajax = $.ajax({
+              cache: false,
+              url: 'http://localhost:'+player_server_port+'/playerCards',        
+              dataType: 'json',  
+              success: function(data) {
+                if( game_status == 1 ){
+                  $('#other_players').empty();
+                  $('#other_players, .carta_p').show();
+                  for( key in data ){
+                    console.log(data[key]);
+                    $("#other_players").append("<div class='carta_p' style='float:left;'>"+ data[key] +"</div>");
+                  }
+                }
+                console.log(data);
+              }
+          });
+        }
+  }
+
  var player_server_port = location.port;
+
  $( "#reset" ).click(function() {
-    $("#inputtext").val("")
-});
+    $("#inputtext").val("");
+  });
  $( "#submit" ).click(function() {
     var bla = $("#inputtext").val();  
     $.ajax({
@@ -239,13 +290,12 @@ function playCard(card_id,position){
       pollingAjaxdb();
     }
   });
-  chiediMano()
+  chiediMano();
 }
 function pollingAjaxsg(){
   $('#partite').html('');
       $('#partite').html('<h2>ATTENDERE INIZIO PARTITA...</h2>');
       var my_delay = 1000;
-      var termina;
       $(function() {
         callAjax();
       });
@@ -256,10 +306,14 @@ function pollingAjaxsg(){
             url: 'http://localhost:'+ player_server_port +'/gameStatus',        
             dataType: 'json',  
             success: function(data) {
-              setTimeout(callAjax, my_delay);
+              if( my_turn == 0 )
+                setTimeout(callAjax, my_delay);
               if(data['status'] == 1){
+                 game_status = data['status'];
+                 chiediBanco();
                  termina = data['status'];
                  chiediMano();
+                 $('#other_players').show();
                  $("#cardPile").show();
                  $("#dubbio").show();
                  $("#cardSlots").show();
@@ -268,7 +322,7 @@ function pollingAjaxsg(){
               }
             }
         });
-        if (termina==1){
+        if (game_status==1){
           varajax.abort();
         }
       }
