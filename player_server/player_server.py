@@ -53,6 +53,8 @@ server_port = 5000
 my_ip = "127.0.0.1"
 my_port = 5001
 
+
+
 def _timer():
 	return Timer(60.0, time_out)
 
@@ -96,6 +98,7 @@ def time_out():
 	
 	print "Ora deve giocare il giocatore di indice: " + str(turn_index)
 	reset_timer()
+
 
 #timer (corrente: viene di volta in volta rinnovato con i reset) di ogni giocatore
 player_timer = _timer()
@@ -462,7 +465,12 @@ if __name__ == "__main__":
 		server_started = try_ports()
 		while not server_started:
 			server_started = try_ports()
+
 		print "back to main"
-		#os._exit(1)
-	#except KeyboardInterrupt:
-		#os._exit(1)
+		#for t in enumerate():
+		#	if currentThread() != t:
+		#		print "try joining: " + str(t)
+		#		t.join(1.0)
+		#		if t.isAlive():
+		#			t.cancel()
+		#			print "timeout joining a thread!"
