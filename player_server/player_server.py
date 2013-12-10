@@ -186,6 +186,8 @@ def create_g(n_players):
 	if my_player_name != "" and n_players >=1:
 		req = requests.post("http://"+server_ip+":"+str(server_port)+"/createGame/"+my_player_name+"/"+str(n_players))
 		global game_id
+		if req.status_code == 400:
+			return req.text, req.status_code
 		game_id = int(req.text)
 		return req.text, req.status_code
 	else:

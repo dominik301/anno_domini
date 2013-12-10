@@ -60,7 +60,9 @@ def create_p(username,porta):
 
 @app.route('/createGame/<string:username>/<int:n_players>', methods = ['POST'])
 def create_g(username, n_players):
-	global index 
+	global index
+	if index == 1:
+		return "Project limitation: maximum one game!", 400 
 	if username in _players_:
 		try:
 			new_g = Game(index, _players_[username], n_players)

@@ -436,6 +436,13 @@ $( "#createG" ).click(function() {
       $("#partite").show()
       pollingAjaxsg();
       pollingAjaxdb();
+    },
+    error: function (xhr, textStatus, errorThrown) {
+      console.log(xhr)
+      console.log(textStatus)
+      console.log(errorThrown)
+      $("#creap").hide();
+      $("#partite").show();
     }
   })
 });
