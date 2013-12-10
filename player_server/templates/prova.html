@@ -27,14 +27,14 @@ function mostraDateBanco() {
   var flag = false;
   for (var i=0; i<bancoPreDoubt.length;i++){
     if (flag ==false){
-      $('<div>' + i + '</div>').data( 'number', i ).appendTo( '#cardSlots' ).droppable( {
+      $('<div></div>').data( 'number', i ).appendTo( '#cardSlots' ).droppable( {
         accept: '#cardPile div',
         hoverClass: 'hovered',
         drop: handleCardDrop
       });
       $('<div>' + bancoPreDoubt[i].year + '</div>').data( 'number', i).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
       z = i+1
-      $('<div>' + z + '</div>').data( 'number', z ).appendTo( '#cardSlots' ).droppable( {
+      $('<div></div>').data( 'number', z ).appendTo( '#cardSlots' ).droppable( {
         accept: '#cardPile div',
         hoverClass: 'hovered',
         drop: handleCardDrop
@@ -44,7 +44,7 @@ function mostraDateBanco() {
     else if(flag == true) {
       $('<div>' + bancoPreDoubt[i].year + '</div>').data( 'number', i ).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
       y=i+1
-      $('<div>' + y + '</div>').data( 'number', y).appendTo( '#cardSlots' ).droppable( {
+      $('<div></div>').data( 'number', y).appendTo( '#cardSlots' ).droppable( {
         accept: '#cardPile div',
         hoverClass: 'hovered',
         drop: handleCardDrop
@@ -143,7 +143,7 @@ function showGames(){
           $("#partite").hide();
         });
         for ( var i=0; i<games.length; i++ ) {
-          $('#mytable tr:last').after("<tr><td><a onclick=joinGames("+games[i].game_id+")>"+games[i].game_id+"</a></td><td>"+games[i].creator.username+"</td><td>"+games[i].player_n+"</td></tr>");
+          $('#mytable tr:last').after("<tr><td>"+games[i].game_id+"</td><td>"+games[i].creator.username+"</td><td>"+games[i].player_n+"</td><td><input type='button' id='join' value='join' onclick='joinGames("+games[i].game_id+")'></td></tr>");
         }
       }
     }
@@ -323,14 +323,14 @@ function pollingAjaxba(){
           $('#cardSlots').html('');
           for (var i=0; i<banco.length;i++){
             if (flag ==false){
-              $('<div>' + i + '</div>').data( 'number', i ).appendTo( '#cardSlots' ).droppable( {
+              $('<div></div>').data( 'number', i ).appendTo( '#cardSlots' ).droppable( {
                 accept: '#cardPile div',
                 hoverClass: 'hovered',
                 drop: handleCardDrop
               });
               $('<div>' + banco[i].event + '</div>').data( 'number', i).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
               z = i+1
-              $('<div>' + z + '</div>').data( 'number', z ).appendTo( '#cardSlots' ).droppable( {
+              $('<div></div>').data( 'number', z ).appendTo( '#cardSlots' ).droppable( {
                 accept: '#cardPile div',
                 hoverClass: 'hovered',
                 drop: handleCardDrop
@@ -340,7 +340,7 @@ function pollingAjaxba(){
             else if(flag == true) {
               $('<div>' + banco[i].event + '</div>').data( 'number', i ).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
               y=i+1
-              $('<div>' + y + '</div>').data( 'number', y).appendTo( '#cardSlots' ).droppable( {
+              $('<div></div>').data( 'number', y).appendTo( '#cardSlots' ).droppable( {
                 accept: '#cardPile div',
                 hoverClass: 'hovered',
                 drop: handleCardDrop
@@ -361,7 +361,6 @@ function pollingAjaxba(){
 </head>
 <body>
  <table align="center" id="form">
- <form method="post" >
   <tr>
     <td colspan="2" align="center"><b>Registrazione al servizio<br>Tutti i campi sono obbligatori</b></td>
   </tr>
@@ -369,7 +368,6 @@ function pollingAjaxba(){
     <td><b>Nome</b></td>
     <td><input type="text" name="nome" id="inputtext"></td>
   </tr><tr><td> <input type="button" value="Registrati" id="submit"></td></tr></table>
-</form>
 <div id="creap" style="display: none;" align="center">
     <table id="creapartita">
       <tr><td>Numero di giocatori</td><td><input type='text' id='n_players'></td>

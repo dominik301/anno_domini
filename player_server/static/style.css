@@ -1,12 +1,3 @@
-/* Add some margin to the page and set a default font and colour */
- 
-body {
-  margin: 30px;
-  font-family: "Georgia", serif;
-  line-height: 1.8em;
-  color: #333;
-}
- 
 /* Give headings their own font */
  
 h1, h2, h3, h4 {
@@ -39,6 +30,7 @@ h1, h2, h3, h4 {
  
 #cardPile {
   width: 910px;
+  font-size: 12px;
   height: 120px;
   padding: 20px;
   border: 2px solid #333;
@@ -63,10 +55,10 @@ h1, h2, h3, h4 {
 /* Individual cards and slots */
 #cardPile div {
   float: left;
+  font-size: 12px;
   width: 58px;
-  height: 78px;
+  height: 100px;
   padding: 10px;
-  padding-top: 40px;
   padding-bottom: 0;
   border: 2px solid #333;
   -moz-border-radius: 10px;
@@ -77,24 +69,24 @@ h1, h2, h3, h4 {
 }
 #cardSlots div.ui-droppable{
   float: left;
-  width: 56px;
-  height: 76px;
+  width: 0px;
+  height: 67px;
   padding: 10px;
   padding-top: 40px;
   padding-bottom: 0;
-  border-style: dashed;
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
-  margin: 0 0 0 10px;
-  background: #fff;
+  margin: 0 0 0 0px;
+  background: #ddf;
 }
 div#primacarta{
   float: left;
+  font-size: 12px;
   width: 58px;
-  height: 78px;
+  height: 110px;
   padding: 10px;
-  padding-top: 40px;
+  padding-top: 0px;
   padding-bottom: 0;
   border: 2px solid #333;
   -moz-border-radius: 10px;
@@ -115,7 +107,7 @@ div#primacarta{
 #cardPile div {
   background: #666;
   color: #fff;
-  font-size: 15px;
+  font-size: 12px;
   text-shadow: 0 0 3px #000;
 }
  
