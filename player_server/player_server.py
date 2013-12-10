@@ -461,7 +461,6 @@ def try_ports():
 		print "Eccezione! Provo la porta: " + str(my_port)
 		return False
 
-
 if __name__ == "__main__":
 	if len(sys.argv) == 1:
 		my_ip = "127.0.0.1"
