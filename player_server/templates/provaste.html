@@ -19,11 +19,13 @@ var game_status = 0;
 var my_turn = 0;
 var prevHandLenght = 0;
 var mustRefreshBanco = false;
+var player_server_port = location.port;
+var game_status = 0;
+var my_turn = 0;
 
 function init() {
   // Create the pile of shuffled cards  
 }
-//funzione che chiedeIlBanco al serverino sottostante e lo mostra nella GUI
 function mostraDateBanco() {
   console.log("Scopri banco");
   $('#cardSlots').html('');
@@ -59,32 +61,6 @@ function mostraDateBanco() {
   mustRefreshBanco = true;
 }
 
-function askPlayerCards(){
-        console.log("asking for other player cards")
-        $(function() {
-          callAjax();
-        });
-        var varajax;
-        function callAjax() {
-          varajax = $.ajax({
-              cache: false,
-              url: 'http://localhost:'+player_server_port+'/playerCards',        
-              dataType: 'json',  
-              success: function(data) {
-                if( game_status == 1 ){
-                  $('#other_players').empty();
-                  $('#other_players, .carta_p').show();
-                  for( key in data ){
-                    console.log(data[key]);
-                    $("#other_players").append("<div class='carta_p' style='float:left;'>"+key+"("+data[key]+")"+"</div>");
-                  }
-                }
-                console.log(data);
-              }
-          });
-        }
-  }
-
   function chiediMano(){
     $.ajax({
   url: 'http://localhost:'+ player_server_port +'/mano',
@@ -92,8 +68,8 @@ function askPlayerCards(){
   dataType: "json",
   success: function (data) {
     numbers = data
-    //console.log("prevHandLenght"+prevHandLenght);
-    //console.log("numbers.length"+numbers.length);
+    console.log("prevHandLenght"+prevHandLenght);
+    console.log("numbers.length"+numbers.length);
     if (prevHandLenght != numbers.length){
       $('#cardPile').html('');
       for ( var i=0; i<numbers.length; i++ ) {
@@ -114,9 +90,9 @@ function handleCardDrop( event, ui ) {
     $(this).droppable( 'disable' );
     ui.draggable.position( { of: $(this), my: 'left top', at: 'left top' } );
     ui.draggable.draggable( 'option', 'revert', false );
-    playCard(ui.draggable.data( 'card_id' ),$(this).data( 'number' ))
-    console.log($(this).data( 'number' ))
-    console.log(ui.draggable.data( 'card_id' ))
+    playCard(ui.draggable.data( 'card_id' ),$(this).data( 'number' ));
+    console.log($(this).data( 'number' ));
+    console.log(ui.draggable.data( 'card_id' ));
   } 
   </script>
  
@@ -140,13 +116,12 @@ function handleCardDrop( event, ui ) {
   </div>
 <div id="partite" style="display: none;" align="center">
   </div>
-<div id="esitoDubbio" align="center"><h2>Mammt</h>
-</div>
 <div id="content">
   <div id="other_players" 
        style="
               display: none;
               width: inherit;
+              height: 120px;
               padding: 20px;
               border: 2px solid #333;
               margin: 0 0 30px 0;
@@ -164,11 +139,40 @@ function handleCardDrop( event, ui ) {
   
  </div>
  <script>
+
+ /*recupero il numero di carte degli altri giocatori*/
+ function askPlayerCards(){
+        console.log("asking for other player cards")
+        $(function() {
+          callAjax();
+        });
+        var varajax;
+        function callAjax() {
+          varajax = $.ajax({
+              cache: false,
+              url: 'http://localhost:'+player_server_port+'/playerCards',        
+              dataType: 'json',  
+              success: function(data) {
+                if( game_status == 1 ){
+                  $('#other_players').empty();
+                  $('#other_players, .carta_p').show();
+                  for( key in data ){
+                    console.log(data[key]);
+                    $("#other_players").append("<div class='carta_p' style='float:left;'>"+ data[key] +"</div>");
+                  }
+                }
+                console.log(data);
+              }
+          });
+        }
+  }
+
  var stopPollingTr = 0;
  var player_server_port = location.port;
+
  $( "#reset" ).click(function() {
-    $("#inputtext").val("")
-});
+    $("#inputtext").val("");
+  });
  $( "#submit" ).click(function() {
     var bla = $("#inputtext").val();  
     $.ajax({
@@ -280,7 +284,7 @@ function playCard(card_id,position){
       pollingAjaxdb();
     }
   });
-  chiediMano()
+  chiediMano();
 }
 function pollingAjaxsg(){
   $('#partite').html('');
@@ -299,7 +303,6 @@ function pollingAjaxsg(){
             success: function(data) {
               setTimeout(callAjax, my_delay);
               if(data['status'] == 1){
-                 game_status = 1;
                  termina = data['status'];
                  chiediMano();
                  $('#other_players').show();
@@ -318,41 +321,39 @@ function pollingAjaxsg(){
 }
 function pollingAjaxtr(){
   $('#partite').html('');
-    $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
-    var my_delay = 1000;
-    $(function() {
-      callAjax();
-    });
-    var varajax;
-    function callAjax() {
-      varajax = $.ajax({
-        cache: false,
-        url: 'http://localhost:'+player_server_port+'/turnStatus',        
-        dataType: 'json',  
-        success: function(data) {
-          setTimeout(callAjax, my_delay);
-          askPlayerCards();
-          if(data['turn'] == 1){
-             $('#partite').html('');
-             $('#partite').html('<h2>E IL TUO TURNO</h2>');
-             chiediMano()
-             $("#cardPile div").draggable( "enable" );
-             stopPollingTr = 1;
-          }
-          else{
-             $('#partite').html('');
-             $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
-             $("#cardPile div").draggable( "disable" );
-             chiediMano()
-          }
-        }
+      $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
+      var my_delay = 1000;
+      $(function() {
+        callAjax();
       });
-       if (stopPollingTr==1){
+      var varajax;
+      function callAjax() {
+        varajax = $.ajax({
+            cache: false,
+            url: 'http://localhost:'+player_server_port+'/turnStatus',        
+            dataType: 'json',  
+            success: function(data) {
+              setTimeout(callAjax, my_delay);
+              if(data['turn'] == 1){  
+                 $("#cardPile div").draggable( "enable" );
+                 $('#partite').html('');
+                 $('#partite').html('<h2>E IL TUO TURNO</h2>');
+                 chiediMano()
+                 stopPollingTr = 1;
+              }
+              else{
+                 $("#cardPile div").draggable( "disable" );
+                 $('#partite').html('');
+                 $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
+                 chiediMano()
+              }
+            }
+        });
+        if (stopPollingTr==1){
         varajax.abort();
       }
-  }
+    }
 }
-
 function pollingAjaxdb(){
   var my_delay = 1000;
   $(function() {

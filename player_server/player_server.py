@@ -129,6 +129,14 @@ def game_status():
 		return jsonify({'status' : 0})
 	return jsonify({'status' : 1})
 
+#servizio per ottenere il numero di carte degli altri giocatori
+@app.route("/playerCards")
+def playerCards():
+	cards_dict = {}
+	for p in players:
+		cards_dict[p['username']] = p['n_cards']
+	return jsonify(cards_dict)
+
 @app.route("/turnStatus")
 def turn_status():
 	if not my_turn:
@@ -450,7 +458,6 @@ def try_ports():
 
 
 if __name__ == "__main__":
-	#try:
 		if len(sys.argv) == 1:
 			my_ip = "127.0.0.1"
 		elif len(sys.argv) == 2:
@@ -463,6 +470,11 @@ if __name__ == "__main__":
 		while not server_started:
 			server_started = try_ports()
 		print "back to main"
-		#os._exit(1)
-	#except KeyboardInterrupt:
-		#os._exit(1)
+		#for t in enumerate():
+		#	if currentThread() != t:
+		#		print "try joining: " + str(t)
+		#		t.join(1.0)
+		#		if t.isAlive():
+		#			t.cancel()
+		#			print "timeout joining a thread!"
+
