@@ -42,10 +42,7 @@ doubtp = "";
 doubtStatus = 0
 
 #indice dei turni, mi serve per capire chi e' crashato
-turn_index_lock = Lock()
-turn_index_lock.acquire()
 turn_index = 0
-turn_index_lock.release()
 
 app = Flask(__name__)
 server_ip = "127.0.0.1"
@@ -56,7 +53,7 @@ my_port = 5001
 
 
 def _timer():
-	return Timer(60.0, time_out)
+	return Timer(10.0, time_out)
 
 def reset_timer():
 	global player_timer
@@ -66,52 +63,35 @@ def reset_timer():
 	player_timer.start()
 
 def time_out():
-	global time_out_counter
 	global turn_index
 	global my_turn
 	global players
-	#lock
-	counter_lock.acquire()
-	time_out_counter += 1
-	counter_lock.release()
-	#unlock
 
-	print "giocatori rimasti: " + str(len(players) - time_out_counter)
+	print "TIMEOUT: doveva giocare il giocatore del turno:" + str(turn_index) +":"+ players[turn_index]['username']
+	players.remove(players[turn_index])
+	print "giocatori rimasti: " + str(len(players))
 
-	if players[turn_index]['username'] == my_player_name and my_turn == True:
-		my_turn = False
-
-	if len(players) - time_out_counter < 3:
+	if len(players) < 2:
 		print "troppi pochi giocatori la partita non puo' andare avanti"
 		return
 
-	print "TIMEOUT: doveva giocare il giocatore del turno: " + str(turn_index)
+	if turn_index >= len(players): #Nel caso in cui ha fatto crash l'ultimo della lista
+		turn_index -= 1
 
-	#lock
-	turn_index_lock.acquire()
-	turn_index += 1
-	turn_index_lock.release()
-	#unlock
 	if players[turn_index]['username'] == my_player_name and my_turn == False:
 		print "OO GUARDA CASO TORNA A ME"
 		my_turn = True
 	
-	print "Ora deve giocare il giocatore di indice: " + str(turn_index)
+	print "Time out...ora deve giocare il giocatore di indice: " + players[turn_index]['username']
 	reset_timer()
 
 
 #timer (corrente: viene di volta in volta rinnovato con i reset) di ogni giocatore
 player_timer = _timer()
 
-#contatore di time out
-counter_lock = Lock()
-counter_lock.acquire()
-time_out_counter = 0
-counter_lock.release()
-
 @app.route("/playersLeft")
 def playerLeft():
-	return str(len(players) - time_out_counter)
+	return str(len(players))
 
 @app.route("/")
 def hello():
@@ -215,6 +195,8 @@ def start_g():
 	global hand
 	global table
 	global my_turn
+	global turn_index
+	turn_index = 0
 	players = request.json #Restituisce lista di dizionari: ogni dizionario corrisponde a un player
 	if players[0]['username'] == my_player_name:
 		my_turn = True
@@ -342,26 +324,28 @@ def playedCard(username, year, event, card_id, position):
 	for i in table:	#only for test
 		print "ID="+str(i.card_id)+" Y="+str(i.year)
 	
-	#Aggiorno il numero delle carte del player e controllo se e' il mio turno
-	for x in players: #players e' una lista di dizionari
-		if x['username'] == username:
-			turn_index_lock.acquire()
-			turn_index = ((players.index(x) + 1) % len(players))
-			turn_index_lock.release()
-			x['n_cards'] = str(int(x['n_cards']) - 1)
-			#print "\nIl giocatore", x['username'], "ha ora", x['n_cards'], "carte"
-			print str(players[turn_index]['username']) + my_player_name
-			if x['n_cards'] == "0": #Auto-dubito (ATTENZIONE: avviene localmente in tutti i nodi senza scambio di msg)
-				returned = doubted(players[ ((players.index(x) + 1) % len(players)) ]['username'])
-				if returned[0]=="End":
-					print "\n IL GIOCO E' FINITO! IL VINCITORE E' " + x['username'] + "\n"
-					return "", 200
-			elif players[turn_index]['username'] == my_player_name:
-				print "\n>>> DEVI GIOCARE TU <<<\n"
-				my_turn = True
-			break
+	if players[turn_index]['username'] == username:
+		print "ha giocato chi mi aspettavo"
+		players[turn_index]['n_cards'] = str(int(players[turn_index]['n_cards']) - 1)
+		if players[turn_index]['n_cards'] == "0": #Auto-dubito (ATTENZIONE: avviene localmente in tutti i nodi senza scambio di msg)
+			returned = doubted(players[ ((turn_index + 1) % len(players)) ]['username'])
+			if returned[0]=="End":
+				print "\n IL GIOCO E' FINITO! IL VINCITORE E' " + x['username'] + "\n"
+				return "", 200
+		turn_index = ((turn_index + 1) % len(players))
+	#il giocatore da cui mi aspettavo la giocata e' crashato, quindi mi aspetto la giocata da quello successivo
+	elif players[(turn_index+1) % len(players)]['username'] == username:
+		players.remove(players[turn_index])
 	else:
-		return "Player not found", 400
+		return "Unexcepted player", 400
+
+	
+
+	if players[turn_index]['username'] == my_player_name:
+		print "\n>>> DEVI GIOCARE TU <<<\n"
+		my_turn = True
+
+	print "Adesso e' il turno di: " + players[turn_index]['username']
 	return "", 200
 
 #Metodo invocato dall'utente in locale (browser)
@@ -444,6 +428,7 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	if myIndex == nextPlayerIndex:
 		print "\n>>> DEVO GIOCARE IO!!! <<<\n"
 		my_turn = True
+	print "Adesso e' il turno di: " + players[turn_index]['username']
 	return "",200
 
 def resetDoubt():

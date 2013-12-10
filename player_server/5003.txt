@@ -1,0 +1,50 @@
+Eccezione! Provo la porta: 5002
+Eccezione! Provo la porta: 5003
+Sono il server_player: IP: 127.0.0.1 porta: 5003
+200
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'1', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'1', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E 1
+Ricevo carte
+ID=44 Y=1918
+ID=31 Y=1921
+ID=35 Y=1932
+ID=11 Y=1959
+ID=6 Y=1948
+ID=23 Y=1909
+ID=50 Y=1924
+Ricevo tavolo
+ID=14 Y=1964
+Ricevo deck
+Il mazzo ha 31 carte
+
+La mia mano
+ID=44 Y=1918
+ID=31 Y=1921
+ID=35 Y=1932
+ID=11 Y=1959
+ID=6 Y=1948
+ID=23 Y=1909
+ID=50 Y=1924
+
+Il tavolo
+ID=14 Y=1964
+resetto il timer
+
+Banco dopo la carta giocata
+ID=14 Y=1964
+ID=36 Y=1937
+ha giocato chi mi aspettavo
+Adesso e' il turno di: 2
+TIMEOUT: doveva giocare il giocatore del turno:1:2
+giocatori rimasti: 3
+OO GUARDA CASO TORNA A ME
+Time out...ora deve giocare il giocatore di indice: 3
+resetto il timer
+TIMEOUT: doveva giocare il giocatore del turno:1:3
+giocatori rimasti: 2
+Time out...ora deve giocare il giocatore di indice: 4
+resetto il timer
+TIMEOUT: doveva giocare il giocatore del turno:1:4
+giocatori rimasti: 1
+troppi pochi giocatori la partita non puo' andare avanti
+back to main
