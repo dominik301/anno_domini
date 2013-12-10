@@ -1,28 +1,23 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
- 
-<title>A jQuery Drag-and-Drop Number Cards Game</title>
+<title>Anno Domini</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <link rel="stylesheet" type="text/css" href={{ url_for('static', filename='style.css') }}>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"></script>
- 
 <script type="text/javascript">
-$( init );
+
 var stopPollingGames = 0;
 var stopPollingBa = 0;
 var banco = new Array();
 var bancoPreDoubt = new Array();
 var player_server_port = location.port;
 var game_status = 0;
-var my_turn = 0;
 var prevHandLenght = 0;
 var mustRefreshBanco = false;
 
-function init() {
-  // Create the pile of shuffled cards  
-}
+
 //funzione che chiedeIlBanco al serverino sottostante e lo mostra nella GUI
 function mostraDateBanco() {
   console.log("Scopri banco");
@@ -45,7 +40,6 @@ function mostraDateBanco() {
       flag = true;
     }
     else if(flag == true) {
-      console.log("else")
       $('<div>' + bancoPreDoubt[i].year + '</div>').data( 'number', i ).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
       y=i+1
       $('<div>' + y + '</div>').data( 'number', y).appendTo( '#cardSlots' ).droppable( {
@@ -60,7 +54,6 @@ function mostraDateBanco() {
 }
 
 function askPlayerCards(){
-        console.log("asking for other player cards")
         $(function() {
           callAjax();
         });
@@ -74,12 +67,9 @@ function askPlayerCards(){
                 if( game_status == 1 ){
                   $('#other_players').empty();
                   $('#other_players, .carta_p').show();
-                  for( key in data ){
-                    console.log(data[key]);
+                  for( key in data )
                     $("#other_players").append("<div class='carta_p' style='float:left;'>"+key+"("+data[key]+")"+"</div>");
-                  }
                 }
-                console.log(data);
               }
           });
         }
@@ -140,7 +130,7 @@ function handleCardDrop( event, ui ) {
   </div>
 <div id="partite" style="display: none;" align="center">
   </div>
-<div id="esitoDubbio" align="center"><h2>Mammt</h>
+<div id="esitoDubbio" align="center" style="display: none;"><h2></h2>
 </div>
 <div id="content">
   <div id="other_players" 
@@ -375,9 +365,13 @@ function pollingAjaxdb(){
               stopPollingTr = 0
               pollingAjaxtr();
             }
+            $('#esitoDubbio').text("IL GIOCATORE "+data['doubt']+" HA DUBITATO " +"MALE");
+            $('#esitoDubbio').show();
             console.log("IL GIOCATORE "+data['doubt']+" HA DUBITATO " +"MALE");
           }
           else{ //Dubitato bene
+            $('#esitoDubbio').text("IL GIOCATORE "+data['doubt']+" HA DUBITATO " +"BENE")
+            $('#esitoDubbio').show();
             console.log("IL GIOCATORE "+data['doubt']+" HA DUBITATO " +"BENE");
           }
         }
@@ -389,6 +383,7 @@ function pollingAjaxdb(){
 //funzione di polling per il banco
 function pollingAjaxba(){
   var my_delay = 1000;
+  $('#esitoDubbio').hide();
   $(function() {
     callAjax();
   });
@@ -426,7 +421,6 @@ function pollingAjaxba(){
               flag = true;
             }
             else if(flag == true) {
-              console.log("else")
               $('<div>' + banco[i].event + '</div>').data( 'number', i ).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
               y=i+1
               $('<div>' + y + '</div>').data( 'number', y).appendTo( '#cardSlots' ).droppable( {
