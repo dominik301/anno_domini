@@ -186,6 +186,8 @@ def create_g(n_players):
 	if my_player_name != "" and n_players >=1:
 		req = requests.post("http://"+server_ip+":"+str(server_port)+"/createGame/"+my_player_name+"/"+str(n_players))
 		global game_id
+		if req.status_code == 400:
+			return req.text, req.status_code
 		game_id = int(req.text)
 		return req.text, req.status_code
 	else:
@@ -461,24 +463,23 @@ def try_ports():
 
 
 if __name__ == "__main__":
-		if len(sys.argv) == 1:
-			my_ip = "127.0.0.1"
-		elif len(sys.argv) == 2:
-			my_ip = sys.argv[1]
-		else:
-			print "Usage:", sys.argv[0], "<public IP>"
-			exit(1)
-		#app.debug = True
+	if len(sys.argv) == 1:
+		my_ip = "127.0.0.1"
+	elif len(sys.argv) == 2:
+		my_ip = sys.argv[1]
+	else:
+		print "Usage:", sys.argv[0], "<public IP>"
+		exit(1)
+	#app.debug = True
+	server_started = try_ports()
+	while not server_started:
 		server_started = try_ports()
-		while not server_started:
-			server_started = try_ports()
 
-		print "back to main"
-		for t in enumerate():
-			print t
-			if currentThread() != t:
-				print "try joining: " + str(t)
-				t.join(1.0)
-				if t.isAlive():
-					t.cancel()
-					print "timeout joining a thread!"
+	print "back to main"
+	for t in enumerate():
+		if currentThread() != t:
+			print "try joining: " + str(t)
+			t.join(1.0)
+			if t.isAlive():
+				t.cancel()
+				print "timeout joining a thread!"
