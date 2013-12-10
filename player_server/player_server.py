@@ -461,23 +461,23 @@ def try_ports():
 
 
 if __name__ == "__main__":
-		if len(sys.argv) == 1:
-			my_ip = "127.0.0.1"
-		elif len(sys.argv) == 2:
-			my_ip = sys.argv[1]
-		else:
-			print "Usage:", sys.argv[0], "<public IP>"
-			exit(1)
-		#app.debug = True
+	if len(sys.argv) == 1:
+		my_ip = "127.0.0.1"
+	elif len(sys.argv) == 2:
+		my_ip = sys.argv[1]
+	else:
+		print "Usage:", sys.argv[0], "<public IP>"
+		exit(1)
+	#app.debug = True
+	server_started = try_ports()
+	while not server_started:
 		server_started = try_ports()
-		while not server_started:
-			server_started = try_ports()
 
-		print "back to main"
-		#for t in enumerate():
-		#	if currentThread() != t:
-		#		print "try joining: " + str(t)
-		#		t.join(1.0)
-		#		if t.isAlive():
-		#			t.cancel()
-		#			print "timeout joining a thread!"
+	print "back to main"
+	for t in enumerate():
+		if currentThread() != t:
+			print "try joining: " + str(t)
+			t.join(1.0)
+			if t.isAlive():
+				t.cancel()
+				print "timeout joining a thread!"
