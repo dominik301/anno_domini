@@ -474,10 +474,11 @@ if __name__ == "__main__":
 			server_started = try_ports()
 
 		print "back to main"
-		#for t in enumerate():
-		#	if currentThread() != t:
-		#		print "try joining: " + str(t)
-		#		t.join(1.0)
-		#		if t.isAlive():
-		#			t.cancel()
-		#			print "timeout joining a thread!"
+		for t in enumerate():
+			print t
+			if currentThread() != t:
+				print "try joining: " + str(t)
+				t.join(1.0)
+				if t.isAlive():
+					t.cancel()
+					print "timeout joining a thread!"
