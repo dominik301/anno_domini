@@ -25,7 +25,7 @@ function init() {
 }
 //funzione che chiedeIlBanco al serverino sottostante e lo mostra nella GUI
 function mostraDateBanco() {
-  console.log("mostra banco");
+  console.log("Scopri banco");
   $('#cardSlots').html('');
   var flag = false;
   for (var i=0; i<bancoPreDoubt.length;i++){
@@ -58,6 +58,32 @@ function mostraDateBanco() {
   bancoPreDoubt = banco;
   mustRefreshBanco = true;
 }
+
+function askPlayerCards(){
+        console.log("asking for other player cards")
+        $(function() {
+          callAjax();
+        });
+        var varajax;
+        function callAjax() {
+          varajax = $.ajax({
+              cache: false,
+              url: 'http://localhost:'+player_server_port+'/playerCards',        
+              dataType: 'json',  
+              success: function(data) {
+                if( game_status == 1 ){
+                  $('#other_players').empty();
+                  $('#other_players, .carta_p').show();
+                  for( key in data ){
+                    console.log(data[key]);
+                    $("#other_players").append("<div class='carta_p' style='float:left;'>"+key+"("+data[key]+")"+"</div>");
+                  }
+                }
+                console.log(data);
+              }
+          });
+        }
+  }
 
   function chiediMano(){
     $.ajax({
@@ -114,8 +140,23 @@ function handleCardDrop( event, ui ) {
   </div>
 <div id="partite" style="display: none;" align="center">
   </div>
+<div id="esitoDubbio" align="center"><h2>Mammt</h>
+</div>
 <div id="content">
- 
+  <div id="other_players" 
+       style="
+              display: none;
+              width: inherit;
+              padding: 20px;
+              border: 2px solid #333;
+              margin: 0 0 30px 0;
+              -moz-border-radius: 10px;
+              -webkit-border-radius: 10px;
+              border-radius: 10px;
+              -moz-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
+              -webkit-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
+              box-shadow: 0 0 .3em rgba(0, 0, 0, .8);">
+  </div>
   <div id="cardPile" style="display: none;"> </div>
   <input type="button" id ="dubbio" value="Dubbio" align="center" style="display: none;">
   <div id="cardSlots" style="display: none;"> </div>
@@ -258,8 +299,10 @@ function pollingAjaxsg(){
             success: function(data) {
               setTimeout(callAjax, my_delay);
               if(data['status'] == 1){
+                 game_status = 1;
                  termina = data['status'];
                  chiediMano();
+                 $('#other_players').show();
                  $("#cardPile").show();
                  $("#dubbio").show();
                  $("#cardSlots").show();
@@ -288,6 +331,7 @@ function pollingAjaxtr(){
         dataType: 'json',  
         success: function(data) {
           setTimeout(callAjax, my_delay);
+          askPlayerCards();
           if(data['turn'] == 1){
              $('#partite').html('');
              $('#partite').html('<h2>E IL TUO TURNO</h2>');
@@ -325,7 +369,7 @@ function pollingAjaxdb(){
         if(data['doubt'] != 0){ //Entro solo se qualcuno ha dubitato
           stopPollingBa = 1
           mostraDateBanco();
-          setTimeout(function restartPollingBa() { stopPollingBa = 0; pollingAjaxba(); }, 100000);
+          setTimeout(function restartPollingBa() { stopPollingBa = 0; pollingAjaxba(); }, 10000);
           if(data['status']== 1) { //Dubitato Male
             if (stopPollingTr==1) {
               stopPollingTr = 0
@@ -344,14 +388,14 @@ function pollingAjaxdb(){
 
 //funzione di polling per il banco
 function pollingAjaxba(){
-  if (stopPollingBa != 1) {
-    console.log("Polling Banco");
-    var my_delay = 1000;
-    $(function() {
-      callAjax();
-    });
-    var varajax;
-    function callAjax() {
+  var my_delay = 1000;
+  $(function() {
+    callAjax();
+  });
+  var varajax;
+  function callAjax() {
+    if (stopPollingBa != 1) {
+      console.log("Polling Banco not stopped");
       varajax = $.ajax({
         url: 'http://localhost:'+ player_server_port +'/banco',
         type: "GET",
@@ -395,11 +439,13 @@ function pollingAjaxba(){
           mustRefreshBanco = false;
         }
       });
+    } //Chiude if stopPollingBa!=1
+    else {
+      varajax.abort();
+      console.log("Polling Banco is stopped");
     }
-  } //Chiude if stopPollingBa!=1
-  else
-    varajax.abort();
-}
+  } //Chiude callAjax
+} //Chiude pollingAjaxba
  </script>
 </body>
 </html>
