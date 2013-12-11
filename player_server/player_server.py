@@ -53,7 +53,7 @@ my_port = 5001
 
 
 def _timer():
-	return Timer(10.0, time_out)
+	return Timer(600.0, time_out)
 
 def reset_timer():
 	global player_timer
@@ -66,22 +66,17 @@ def time_out():
 	global turn_index
 	global my_turn
 	global players
-
 	print "TIMEOUT: doveva giocare il giocatore del turno:" + str(turn_index) +":"+ players[turn_index]['username']
 	players.remove(players[turn_index])
 	print "giocatori rimasti: " + str(len(players))
-
 	if len(players) < 2:
 		print "troppi pochi giocatori la partita non puo' andare avanti"
 		return
-
 	if turn_index >= len(players): #Nel caso in cui ha fatto crash l'ultimo della lista
-		turn_index -= 1
-
+		turn_index = turn_index % len(players)
 	if players[turn_index]['username'] == my_player_name and my_turn == False:
 		print "OO GUARDA CASO TORNA A ME"
 		my_turn = True
-	
 	print "Time out...ora deve giocare il giocatore di indice: " + players[turn_index]['username']
 	reset_timer()
 
@@ -139,6 +134,7 @@ def create_p(username):
 	global my_player_name
 	if username != "":
 		req = requests.post("http://"+server_ip+":"+str(server_port)+"/createPlayer/"+username+"/"+str(my_port))
+		print "http://"+server_ip+":"+str(server_port)+"/createPlayer/"+username+"/"+str(my_port)
 		my_player_name = username
 		return req.text, req.status_code
 	else:
@@ -310,6 +306,15 @@ def playCard(card_id,card_pos):
 		r = requests.put(url) #TODO: da' sempre "ok" come esito?! vedere se una delle put da errore e restituire 400
 	return "ok"
 
+#Funzione per testare il fatto che il giocatore successivo a quello da cui ci si aspetta
+#la giocata rileva per prima il crash. Quindi biogna far seguire da terminale il 
+#comando playCard o doubt per simulare la giocata prima che gli altri possano
+#accorgersi del crash.
+#@app.route('/morto', methods=['GET'])
+#def morto():
+#	time_out()
+#	return "", 200
+
 #Metodo invocato da un altro player_server
 #L'username serve perche' nel test in localhost l'ip e' sempre lo stesso e non si riesce a riconoscere gli utenti
 @app.route('/playedCard/<string:username>/<int:year>/<string:event>/<int:card_id>/<int:position>', methods = ['PUT'])
@@ -323,7 +328,6 @@ def playedCard(username, year, event, card_id, position):
 	print "\nBanco dopo la carta giocata"
 	for i in table:	#only for test
 		print "ID="+str(i.card_id)+" Y="+str(i.year)
-	
 	if players[turn_index]['username'] == username:
 		print "ha giocato chi mi aspettavo"
 		players[turn_index]['n_cards'] = str(int(players[turn_index]['n_cards']) - 1)
@@ -332,19 +336,19 @@ def playedCard(username, year, event, card_id, position):
 			if returned[0]=="End":
 				print "\n IL GIOCO E' FINITO! IL VINCITORE E' " + x['username'] + "\n"
 				return "", 200
-		turn_index = ((turn_index + 1) % len(players))
-	#il giocatore da cui mi aspettavo la giocata e' crashato, quindi mi aspetto la giocata da quello successivo
+	#il giocatore da cui mi aspettavo la giocata e' crashato: mi e' arrivata la giocata da quello successivo
 	elif players[(turn_index+1) % len(players)]['username'] == username:
+		print "Ha giocato il successivo a quello che aspettavo"
+		print "Elimino ", players[turn_index]['username'], " (",turn_index,")"
 		players.remove(players[turn_index])
+		if turn_index >= len(players): #Nel caso in cui ha fatto crash l'ultimo della lista
+			turn_index = turn_index % len(players)
 	else:
 		return "Unexcepted player", 400
-
-	
-
+	turn_index = ((turn_index + 1) % len(players))
 	if players[turn_index]['username'] == my_player_name:
 		print "\n>>> DEVI GIOCARE TU <<<\n"
 		my_turn = True
-
 	print "Adesso e' il turno di: " + players[turn_index]['username']
 	return "", 200
 
@@ -373,17 +377,28 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	reset_timer()
 	global table
 	global my_turn
+	global turn_index
 	global doubtp
 	global doubtStatus
 	doubtp = username
+	#E' arrivata la giocata dal successivo a quello da cui me l'aspettavo
+	if players[(turn_index+1)%len(players)]['username'] == username:
+		players.remove(players[turn_index])
+		if turn_index >= len(players):
+			turn_index = turn_index % len(players)
+#	elif players[turn_index]['username'] != username:
+#		print "ADDIO"
+#		return "Unexpected player", 400
+	doubterIndex = turn_index
+	print "Doubter = ", doubterIndex, players[doubterIndex]
 	myIndex = -1
-	doubterIndex = -1
+	#doubterIndex = -1
 	for user in players:
 		if user['username'] == my_player_name:
 			myIndex = players.index(user)
-		if user['username'] == username:
-			doubterIndex = players.index(user)
-		if myIndex > -1 and doubterIndex > -1: #inutile continuare a cercare
+		#if user['username'] == username:
+		#	doubterIndex = players.index(user)
+		if myIndex > -1:# and doubterIndex > -1: #inutile continuare a cercare
 			break
 	prevIndex = doubterIndex - 1
 	if prevIndex == -1:
@@ -392,16 +407,15 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	for i in range(0, len(table) - 1):
 		if table[i].year > table[i+1].year:
 			#Il dubbio era fondato: si penalizza il precedente nella mano
-			print "\nDubitato bene: carta ",table[i].card_id, " viene dopo ", table[i+1].card_id
+			print "\n", players[turn_index]['username'], "ha dubitato bene"
 			doubtStatus = 0;
 			penalizatedIndex = prevIndex
 			penalization = 3
 			nextPlayerIndex = doubterIndex
 			break
-
 	else:
 		#Dubitato male
-		print "\nDubitato male"
+		print "\n", players[turn_index]['username'], "ha dubitato male"
 		doubtStatus = 1;
 		#Puo' essere che il gioco sia finito (siamo in auto-dubito e l'ultimo player ha 0 carte)
 		if int(players[prevIndex]['n_cards']) == 0:
@@ -425,7 +439,8 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	print "Il mazzo ha", str(len(deck)), "carte"
 	print "Nuovo tavolo: ID=" + str(table[0].card_id) + " Y=" + str(table[0].year)
 	#Verifico se e' il mio turno
-	if myIndex == nextPlayerIndex:
+	turn_index = nextPlayerIndex
+	if myIndex == turn_index:
 		print "\n>>> DEVO GIOCARE IO!!! <<<\n"
 		my_turn = True
 	print "Adesso e' il turno di: " + players[turn_index]['username']
@@ -454,7 +469,7 @@ if __name__ == "__main__":
 	else:
 		print "Usage:", sys.argv[0], "<public IP>"
 		exit(1)
-	#app.debug = True
+	app.debug = True
 	server_started = try_ports()
 	while not server_started:
 		server_started = try_ports()
