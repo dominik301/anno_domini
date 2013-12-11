@@ -17,7 +17,8 @@ var game_status = 0;
 var prevHandLenght = 0;
 var mustRefreshBanco = false;
 var stopPollingTr = 0;
-var player_server_port = location.port;  
+var player_server_port = location.port; 
+var stopPollingTo = 0; 
 
 //funzione che chiede il banco al serverino sottostante e lo mostra nella GUI
 function mostraDateBanco() {
@@ -60,6 +61,7 @@ function askPlayerCards(){
     callAjax();
   });
   var varajax;
+  var i = 0;
   function callAjax() {
     varajax = $.ajax({
       cache: false,
@@ -67,6 +69,14 @@ function askPlayerCards(){
       dataType: 'json',  
       success: function(data) {
         if( game_status == 1 ){
+          for( key in data ){
+            i = i + 1;
+          }
+          if(i < 4){
+            $('body').html('');
+            $('body').html('<h2>NON CI SONO GIOCATORI SUFFICIENTI PER CONTINUARE LA PARTITA</h2><div><img src="/static/dinosaur.gif" dynsrc="/static/dinosaur.gif" loop = false ></div>');
+            stopPollingBa = 1;
+          }
           $('#other_players').empty();
           $('#other_players, .carta_p').show();
           for( key in data )
@@ -87,7 +97,7 @@ function chiediMano(){
       if (prevHandLenght != numbers.length){
         $('#cardPile').html('');
         for ( var i=0; i<numbers.length; i++ ) {
-          $('<div>' + numbers[i].event + '</div>').data( 'card_id', numbers[i].card_id ).attr( 'id', 'card'+numbers[i] ).appendTo( '#cardPile' ).draggable( {
+          $('<div><p>' + numbers[i].event + '</p></div>').data( 'card_id', numbers[i].card_id ).attr( 'id', 'card'+numbers[i] ).appendTo( '#cardPile' ).draggable( {
           containment: '#content',
           stack: '#cardPile div',
           cursor: 'move',
@@ -174,6 +184,7 @@ function playCard(card_id,position){
     dataType: "text",
     success: function (data) {
       stopPollingTr = 0;
+      stopPollingTo = 1;
       pollingAjaxtr();
       pollingAjaxdb();
     }
@@ -235,20 +246,22 @@ function pollingAjaxtr() {
             setTimeout(callAjax, my_delay);
             askPlayerCards();
             if(data['turn'] == 1){
+              stopPollingTo = 0;
+              pollingAjaxTo();
               $('#dubbio').attr('disabled', false);
-               $('#partite').html('');
-               $('#partite').html('<h2>E IL TUO TURNO</h2>');
+              $('#partite').html('');
+              $('#partite').html('<h2>E IL TUO TURNO</h2>');
                //alert("è il tuo turno");
-               chiediMano()
-               $("#cardPile div").draggable( "enable" );
-               stopPollingTr = 1;
+              chiediMano();
+              $("#cardPile div").draggable( "enable" );
+              stopPollingTr = 1;
             }
             else{
               $('#dubbio').attr('disabled', true);
-               $('#partite').html('');
-               $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
-               $("#cardPile div").draggable( "disable" );
-               chiediMano()
+              $('#partite').html('');
+              $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
+              $("#cardPile div").draggable( "disable" );
+              chiediMano();
             }
           }
         });
@@ -297,7 +310,34 @@ function pollingAjaxdb(){
     });
   }
 }
-
+//Polling per il timeout
+function pollingAjaxTo(){
+  var my_delay = 1000;
+  $(function() {
+    callAjax();
+  });
+  var varajax;
+  function callAjax() {
+    if (stopPollingTo != 1) {
+      varajax = $.ajax({
+          cache: false,    
+          url: 'http://localhost:'+ player_server_port +'/timeOut',        
+          dataType: 'json',  
+          success: function(data) {
+            setTimeout(callAjax, my_delay);
+            if(data['my_timeout']){
+              $('body').html('');
+              $('body').html('<h2>SCEMO SEI ANDATO IN CRASH</h2><div><img src="/static/dinosaur.gif" dynsrc="/static/dinosaur.gif" loop = false ></div>');
+              stopPollingTo = 1;
+              stopPollingBa = 1;
+            }
+          }
+      });
+    }
+    else
+      varajax.abort();
+  }
+}
 //funzione di polling per il banco
 function pollingAjaxba(){
   var my_delay = 1000;
@@ -329,7 +369,7 @@ function pollingAjaxba(){
                 hoverClass: 'hovered',
                 drop: handleCardDrop
               });
-              $('<div>' + banco[i].event + '</div>').data( 'number', i).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
+              $('<div><p>' + banco[i].event + '</p></div>').data( 'number', i).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
               z = i+1
               $('<div></div>').data( 'number', z ).appendTo( '#cardSlots' ).droppable( {
                 accept: '#cardPile div',
@@ -339,7 +379,7 @@ function pollingAjaxba(){
               flag = true;
             }
             else if(flag == true) {
-              $('<div>' + banco[i].event + '</div>').data( 'number', i ).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
+              $('<div><p>' + banco[i].event + '</p></div>').data( 'number', i ).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
               y=i+1
               $('<div></div>').data( 'number', y).appendTo( '#cardSlots' ).droppable( {
                 accept: '#cardPile div',

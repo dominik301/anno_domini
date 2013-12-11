@@ -44,7 +44,10 @@ doubtStatus = 0
 #indice dei turni, mi serve per capire chi e' crashato
 turn_index = 0
 
-app = Flask(__name__)
+#variabile per stabilire il mio crash
+my_timeout = False
+
+app = Flask(__name__, static_folder = "static")
 server_ip = "127.0.0.1"
 server_port = 5000
 my_ip = "127.0.0.1"
@@ -66,7 +69,13 @@ def time_out():
 	global turn_index
 	global my_turn
 	global players
+	global my_timeout
 
+	#per avvisare il browser che sono io che ho fatto crash	
+	if my_turn == True:
+		print("e il mio crash")
+		my_turn = False
+		my_timeout = True
 	print "TIMEOUT: doveva giocare il giocatore del turno:" + str(turn_index) +":"+ players[turn_index]['username']
 	players.remove(players[turn_index])
 	print "giocatori rimasti: " + str(len(players))
@@ -93,6 +102,10 @@ player_timer = _timer()
 @app.route("/playersLeft")
 def playerLeft():
 	return str(len(players))
+
+@app.route("/timeOut")
+def myTimeOut():
+	return jsonify({"my_timeout": my_timeout})
 
 @app.route("/")
 def hello():
