@@ -53,7 +53,7 @@ my_port = 5001
 
 
 def _timer():
-	return Timer(10.0, time_out)
+	return Timer(20.0, time_out)
 
 def reset_timer():
 	global player_timer
@@ -75,14 +75,15 @@ def time_out():
 		print "troppi pochi giocatori la partita non puo' andare avanti"
 		return
 
-	if turn_index >= len(players): #Nel caso in cui ha fatto crash l'ultimo della lista
-		turn_index -= 1
+	"""if turn_index >= len(players): #Nel caso in cui ha fatto crash l'ultimo della lista
+		turn_index = turn_index - 1"""
+
+	if turn_index > len(players)-1: #Nel caso in cui ha fatto crash l'ultimo della lista
+		turn_index = 0
 
 	if players[turn_index]['username'] == my_player_name and my_turn == False:
 		print "OO GUARDA CASO TORNA A ME"
 		my_turn = True
-	
-	print "Time out...ora deve giocare il giocatore di indice: " + players[turn_index]['username']
 	reset_timer()
 
 
@@ -464,6 +465,6 @@ if __name__ == "__main__":
 		if currentThread() != t:
 			print "try joining: " + str(t)
 			t.join(1.0)
-			if t.isAlive():
+			if t.isAlive() and t.__class__.__name__ == "_Timer":
 				t.cancel()
-				print "timeout joining a thread!"
+				print "timeout canceled!"
