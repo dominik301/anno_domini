@@ -10,15 +10,14 @@
 
 var stopPollingGames = 0;
 var stopPollingBa = 0;
+var stopPollingTr = 0;
+var stopPollingTo = 0; 
 var banco = new Array();
 var bancoPreDoubt = new Array();
 var player_server_port = location.port;
 var game_status = 0;
 var prevHandLenght = 0;
 var mustRefreshBanco = false;
-var stopPollingTr = 0;
-var player_server_port = location.port; 
-var stopPollingTo = 0; 
 
 //funzione che chiede il banco al serverino sottostante e lo mostra nella GUI
 function mostraDateBanco() {
@@ -97,7 +96,7 @@ function chiediMano(){
       if (prevHandLenght != numbers.length){
         $('#cardPile').html('');
         for ( var i=0; i<numbers.length; i++ ) {
-          $('<div><p>' + numbers[i].event + '</p></div>').data( 'card_id', numbers[i].card_id ).attr( 'id', 'card'+numbers[i] ).appendTo( '#cardPile' ).draggable( {
+          $('<div><p>' + numbers[i].year + '</p></div>').data( 'card_id', numbers[i].card_id ).attr( 'id', 'card'+numbers[i] ).appendTo( '#cardPile' ).draggable( {
           containment: '#content',
           stack: '#cardPile div',
           cursor: 'move',
@@ -369,7 +368,7 @@ function pollingAjaxba(){
                 hoverClass: 'hovered',
                 drop: handleCardDrop
               });
-              $('<div><p>' + banco[i].event + '</p></div>').data( 'number', i).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
+              $('<div><p>' + banco[i].year + '</p></div>').data( 'number', i).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
               z = i+1
               $('<div></div>').data( 'number', z ).appendTo( '#cardSlots' ).droppable( {
                 accept: '#cardPile div',
@@ -379,7 +378,7 @@ function pollingAjaxba(){
               flag = true;
             }
             else if(flag == true) {
-              $('<div><p>' + banco[i].event + '</p></div>').data( 'number', i ).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
+              $('<div><p>' + banco[i].year + '</p></div>').data( 'number', i ).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
               y=i+1
               $('<div></div>').data( 'number', y).appendTo( '#cardSlots' ).droppable( {
                 accept: '#cardPile div',
