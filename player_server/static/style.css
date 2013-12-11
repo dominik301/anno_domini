@@ -5,6 +5,10 @@ h1, h2, h3, h4 {
 }
  
 /* Main content area */
+
+body{
+  font-family: sans-serif;
+}
  
 #content {
   margin: 80px 70px;
@@ -16,7 +20,7 @@ h1, h2, h3, h4 {
  /* Slots for final card positions */
  
 #cardSlots {
-  margin: 50px auto 0 auto;
+  margin: 15px auto 0 auto;
   background: #ddf;
   overflow: auto;
 }
@@ -116,5 +120,30 @@ div#primacarta{
   -webkit-box-shadow: 0 0 .5em rgba(0, 0, 0, .8);
   box-shadow: 0 0 .5em rgba(0, 0, 0, .8);
 }
- 
+
+div.carta_p{
+  float: left;
+  font-size: 12px;
+  width: auto;
+  height: auto;
+  padding: 10px;
+  padding-bottom: 100;
+  border: 2px solid #333;
+  margin: 0 0 10px 10px;
+  background: #fff;
+}
+
+#other_players{
+  margin: 0 0 20px 77px;
+  width: 910px;
+  font-size: 12px;
+  height: 40px;
+  padding: 20px;
+  border: 2px solid #333;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  -moz-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
+  -webkit-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
+  box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
 }

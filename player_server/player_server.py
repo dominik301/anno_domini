@@ -53,7 +53,7 @@ my_port = 5001
 
 
 def _timer():
-	return Timer(600.0, time_out)
+	return Timer(20.0, time_out)
 
 def reset_timer():
 	global player_timer
@@ -479,6 +479,6 @@ if __name__ == "__main__":
 		if currentThread() != t:
 			print "try joining: " + str(t)
 			t.join(1.0)
-			if t.isAlive():
+			if t.isAlive() and t.__class__.__name__ == "_Timer":
 				t.cancel()
-				print "timeout joining a thread!"
+				print "timeout canceled!"
