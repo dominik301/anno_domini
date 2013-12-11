@@ -35,6 +35,9 @@ hand = []
 #variabile per il polling del turno
 my_turn = False;
 
+#variabile dell'eventuale vincitore
+winner = ""
+
 #variabile per il polling del dubbio
 doubtp = "";
 
@@ -56,7 +59,7 @@ my_port = 5001
 
 
 def _timer():
-	return Timer(50.0, time_out)
+	return Timer(600.0, time_out)
 
 def reset_timer():
 	global player_timer
@@ -132,9 +135,11 @@ def playerCards():
 
 @app.route("/turnStatus")
 def turn_status():
-	if not my_turn:
-		return jsonify({'turn' : 0})
-	return jsonify({'turn' : 1})
+	if my_turn:
+		toreturn = 1
+	else:
+		toreturn = 0
+	return jsonify({'winner' : winner, 'turn' : toreturn})
 
 @app.route("/doubtStatus")
 def doubt_status():
@@ -349,10 +354,15 @@ def playedCard(username, year, event, card_id, position):
 		print "ha giocato chi mi aspettavo"
 		players[turn_index]['n_cards'] = str(int(players[turn_index]['n_cards']) - 1)
 		if players[turn_index]['n_cards'] == "0": #Auto-dubito (ATTENZIONE: avviene localmente in tutti i nodi senza scambio di msg)
-			returned = doubted(players[ ((turn_index + 1) % len(players)) ]['username'])
+			winner_index = turn_index
+			turn_index = ((turn_index + 1) % len(players))
+			returned = doubted(players[turn_index]['username'])
 			if returned[0]=="End":
-				print "\n IL GIOCO E' FINITO! IL VINCITORE E' " + x['username'] + "\n"
+				winner = players[winner_index]['username']
+				print "\n IL GIOCO E' FINITO! IL VINCITORE E' " + winner + "\n"
 				return "", 200
+		else:
+			turn_index = ((turn_index + 1) % len(players))
 	#il giocatore da cui mi aspettavo la giocata e' crashato: mi e' arrivata la giocata da quello successivo
 	elif players[(turn_index+1) % len(players)]['username'] == username:
 		print "Ha giocato il successivo a quello che aspettavo"
@@ -360,9 +370,9 @@ def playedCard(username, year, event, card_id, position):
 		players.remove(players[turn_index])
 		if turn_index >= len(players): #Nel caso in cui ha fatto crash l'ultimo della lista
 			turn_index = turn_index % len(players)
+		turn_index = ((turn_index + 1) % len(players))
 	else:
 		return "Unexcepted player", 400
-	turn_index = ((turn_index + 1) % len(players))
 	if players[turn_index]['username'] == my_player_name:
 		print "\n>>> DEVI GIOCARE TU <<<\n"
 		my_turn = True

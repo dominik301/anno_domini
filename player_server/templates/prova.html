@@ -242,6 +242,9 @@ function pollingAjaxtr() {
           url: 'http://localhost:'+player_server_port+'/turnStatus',        
           dataType: 'json',  
           success: function(data) {
+			if (data['winner'] != "") {
+				alert("Ho vinto");
+			}
             setTimeout(callAjax, my_delay);
             askPlayerCards();
             if(data['turn'] == 1){
