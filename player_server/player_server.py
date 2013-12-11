@@ -100,6 +100,7 @@ def return_table():
 @app.route("/mano")
 def return_hand():
 	return json.dumps(hand, default=lambda o: o.__dict__)
+	
 #metodo per il polling
 @app.route("/gameStatus")
 def game_status():
@@ -128,6 +129,7 @@ def doubt_status():
 	temp = doubtp
 	resetDoubt()
 	return jsonify({'doubt' : str(temp),'status': str(doubtStatus)})
+	
 #Metodo invocato dal browser web
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
 def create_p(username):
@@ -156,6 +158,7 @@ def gameList():
 		game = Game(h['game_id'],creator,h['player_n'],h['p_list'])
 		games.append(game)
 	return json.dumps(games, default=lambda o: o.__dict__)
+	
 #Metodo invocato dal browser web
 @app.route('/createGame/<int:n_players>', methods = ['POST'])
 def create_g(n_players):
@@ -386,18 +389,15 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 		players.remove(players[turn_index])
 		if turn_index >= len(players):
 			turn_index = turn_index % len(players)
-#	elif players[turn_index]['username'] != username:
-#		print "ADDIO"
-#		return "Unexpected player", 400
+	elif players[turn_index]['username'] != username:
+		return "Unexpected player", 400
 	doubterIndex = turn_index
 	print "Doubter = ", doubterIndex, players[doubterIndex]
+	
 	myIndex = -1
-	#doubterIndex = -1
 	for user in players:
 		if user['username'] == my_player_name:
 			myIndex = players.index(user)
-		#if user['username'] == username:
-		#	doubterIndex = players.index(user)
 		if myIndex > -1:# and doubterIndex > -1: #inutile continuare a cercare
 			break
 	prevIndex = doubterIndex - 1
