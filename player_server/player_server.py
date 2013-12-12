@@ -475,16 +475,6 @@ def resetDoubt():
 	if doubtp != "":
 		doubtp = ""
 
-def shutdown_server():
-	for t in enumerate():
-		if currentThread() != t:
-			print "try joining: " + str(t)
-			t.join(1.0)
-			if t.isAlive() and t.__class__.__name__ == "_Timer":
-				t.cancel()
-				print "timeout canceled!"
-	sys.exit()
-
 def try_ports():
 	global my_port
 	try:
@@ -509,4 +499,13 @@ if __name__ == "__main__":
 		server_started = try_ports()
 
 	print "back to main"
-	shutdown_server()
+	sys.exit()
+	
+	for t in enumerate():
+		if currentThread() != t:
+			print "try joining: " + str(t)
+			t.join(1.0)
+			if t.isAlive() and t.__class__.__name__ == "_Timer":
+				t.cancel()
+				print "timeout canceled!"
+	sys.exit()
