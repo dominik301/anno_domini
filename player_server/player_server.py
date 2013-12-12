@@ -82,7 +82,7 @@ def time_out():
 	print "TIMEOUT: doveva giocare il giocatore del turno:" + str(turn_index) +":"+ players[turn_index]['username']
 	players.remove(players[turn_index])
 	print "giocatori rimasti: " + str(len(players))
-	if len(players) < 2:
+	if len(players) < 4:
 		print "troppi pochi giocatori la partita non puo' andare avanti"
 		return
 	if turn_index >= len(players): #Nel caso in cui ha fatto crash l'ultimo della lista
@@ -476,16 +476,6 @@ def resetDoubt():
 	if doubtp != "":
 		doubtp = ""
 
-def shutdown_server():
-	for t in enumerate():
-		if currentThread() != t:
-			print "try joining: " + str(t)
-			t.join(1.0)
-			if t.isAlive() and t.__class__.__name__ == "_Timer":
-				t.cancel()
-				print "timeout canceled!"
-	sys.exit()
-
 def try_ports():
 	global my_port
 	try:
@@ -510,4 +500,13 @@ if __name__ == "__main__":
 		server_started = try_ports()
 
 	print "back to main"
-	shutdown_server()
+	sys.exit()
+	
+	for t in enumerate():
+		if currentThread() != t:
+			print "try joining: " + str(t)
+			t.join(1.0)
+			if t.isAlive() and t.__class__.__name__ == "_Timer":
+				t.cancel()
+				print "timeout canceled!"
+	sys.exit()
