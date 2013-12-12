@@ -1,14 +1,33 @@
 Anno Domini
 ===========
+### Implementazione di un gioco distribuito basato su un modello architetturale RESTful
+
+[Sommario](#sommario)  
+[Introduzione](#introduzione)  
+[Aspetti progettuali](#asp_prog)  
+[Aspetti implementativi](#asp_impl)  
+[Valutazioni](#valutazioni)  
+[Conclusioni](#conclusioni)
+
+##Sommario
+<a name="sommario"/>
+Il progetto, realizzato dagli studenti Vincenzo Gambale, Stefano Bettinelli e Roberto De Santis è l'implementazione di un gioco da tavolo (Anno Domini) con tecnologie Web che si basano su un modello architetturale di tipo RESTful.
+
+Intrisecamente il Web si basa su un'interazione di tipo Client-Server, mentre l'obiettivo principale del progetto (in linea con il corso di Sistemi Distribuiti) è stato quello realizzare un'implementazione distribuita del gioco. La gestione e l'esecuzione di una partita avvengono in modo distribuito, senza il supporto di alcun server centrale, fatta eccezione di una prima fase di registrazione, necessaria per raccogliere la partecipazione del giusto numero di persone ad una sessione di gioco.
 
 Anno domini è un gioco di carte: consiste nel collocare le carte dei giocatori in una linea temporale a seconda dell'evento.
 
-Contenuto
-=========
-336 carte: sul fronte è descritto un evento, e sul retro l’anno in cui è accaduto.
+##Introduzione
+<a name="sommario"/>
+Il progetto, realizzato dagli studenti Vincenzo Gambale, Stefano Bettinelli e Roberto De Santis è l'implementazione di un gioco da tavolo (Anno Domini) con tecnologie Web che si basano su un modello architetturale di tipo RESTful.
 
-Regole
-======
+Intrisecamente il Web si basa su un'interazione di tipo Client-Server, mentre l'obiettivo principale del progetto (in linea con il corso di Sistemi Distribuiti) è stato quello realizzare un'implementazione distribuita del gioco. La gestione e l'esecuzione di una partita avvengono in modo distribuito, senza il supporto di alcun server centrale, fatta eccezione di una prima fase di registrazione, necessaria per raccogliere la partecipazione del giusto numero di persone ad una sessione di gioco.
+
+####Regole del gioco
+Anno domini, come detto in precedenza, è un gioco di carte e consiste nel collocare le carte dei giocatori in una linea temporale in accordo all'evento storico scritto sulle carte dei giocatori.
+
+Sono a disposizione un totale di 336 carte: sul fronte è descritto un evento, e sul retro l’anno in cui è accaduto.
+
 * Ogni giocatore inizia con 7 carte in mano.
 * Il gioco termina quando uno dei giocatori rimane senza carte in mano e si considera quindi il vincitore
 * L'obiettivo del gioco è di posizionare in ordine cronologico le carte di eventi partendo da una carta di riferimento iniziale posta sul tavolo da gioco.
@@ -55,11 +74,3 @@ Api Rest
 | sendGames() | the server | a client | unicast | POST | il server invia al client richiedente la lista di partite disponibili |
 | playerCreationResponce() | the server | a client | unicast | ? | il server invia l'esito della creazione di un giocatore |  
 | cancelSubscription() | a client | the server | unicast | DELETE | il client invia un messaggio al server di uscita dalla partita |
-
-ToDoList
-==================
-- [ ] a task list item
-- [ ] list syntax required
-- [ ] normal **formatting**, @mentions, #1234 refs
-- [ ] incomplete
-- [x] completed
