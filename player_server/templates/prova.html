@@ -237,15 +237,18 @@ function pollingAjaxtr() {
     var varajax;
     function callAjax() {
       if (stopPollingTr != 1) {
+        console.log("STO POLLANDO IL TURNO");
         varajax = $.ajax({
           cache: false,
           url: 'http://localhost:'+player_server_port+'/turnStatus',        
           dataType: 'json',  
           success: function(data) {
-			if (data['winner'] != "") {
-				alert("Ho vinto");
-			}
             setTimeout(callAjax, my_delay);
+            console.log("AND THE WINNER IS"+data['winner']);
+            if (data['winner'] != "") {
+              $('body').html('');
+              $('body').html('<h2>AND THE WINNER IS '+data['winner']+'</h2><div><img src="/static/winner.gif" dynsrc="/static/winner.gif" loop = false ></div>');
+            }
             askPlayerCards();
             if(data['turn'] == 1){
               stopPollingTo = 0;

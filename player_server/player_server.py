@@ -344,6 +344,7 @@ def playedCard(username, year, event, card_id, position):
 	#la prima cosa che faccio e' resettare il timer del timeout
 	global turn_index
 	global my_turn
+	global winner
 	reset_timer()
 	cardToInsert = Game_Card(year, event, card_id)
 	table.insert(position, cardToInsert)
