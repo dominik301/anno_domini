@@ -252,6 +252,10 @@ function pollingAjaxtr() {
             if (data['winner'] != "") {
               $('body').html('');
               $('body').html('<h2>AND THE WINNER IS '+data['winner']+'</h2><div><img src="/static/winner.gif" dynsrc="/static/winner.gif" loop = false ></div>');
+              stopPollingTo = 1;
+              stopPollingBa = 1;
+              stopPollingTr = 1;
+              stopPollingDb = 1;
             }
             askPlayerCards();
             if(data['turn'] == 1){
