@@ -11,6 +11,7 @@
 var stopPollingGames = 0;
 var stopPollingBa = 0;
 var stopPollingTr = 0;
+var stopPollingDb = 0;
 var stopPollingTo = 0; 
 var banco = new Array();
 var bancoPreDoubt = new Array();
@@ -72,6 +73,8 @@ function askPlayerCards(){
             i = i + 1;
           }
           if(i < 4){
+            stopPollingTr = 1;
+            stopPollingDb = 1;
             $('body').html('');
             $('body').html('<h2>NON CI SONO GIOCATORI SUFFICIENTI PER CONTINUARE LA PARTITA</h2><div><img src="/static/dinosaur.gif" dynsrc="/static/dinosaur.gif" loop = false ></div>');
             stopPollingBa = 1;
@@ -207,6 +210,7 @@ function pollingAjaxsg(){
           url: 'http://localhost:'+ player_server_port +'/gameStatus',        
           dataType: 'json',  
           success: function(data) {
+            console.log("pollingAjaxsg");
             setTimeout(callAjax, my_delay);
             if(data['status'] == 1){
                game_status = 1;
@@ -242,9 +246,10 @@ function pollingAjaxtr() {
           url: 'http://localhost:'+player_server_port+'/turnStatus',        
           dataType: 'json',  
           success: function(data) {
-			if (data['winner'] != "") {
-				alert("Ho vinto");
-			}
+          console.log("pollingAjaxtr");
+			      if (data['winner'] != "") {
+				      alert("Ho vinto");
+			      }
             setTimeout(callAjax, my_delay);
             askPlayerCards();
             if(data['turn'] == 1){
@@ -280,11 +285,13 @@ function pollingAjaxdb(){
   });
   var varajax;
   function callAjax() {
+    if(stopPollingDb != 1){
     varajax = $.ajax({
       cache: false,    
       url: 'http://localhost:'+ player_server_port +'/doubtStatus',        
       dataType: 'json',  
       success: function(data) {
+        console.log("pollingAjaxdb");
         setTimeout(callAjax, my_delay);
         if(data['doubt'] != 0) { //Entro solo se qualcuno ha dubitato
           stopPollingBa = 1;
@@ -311,6 +318,8 @@ function pollingAjaxdb(){
       }
     });
   }
+  else varajax.abort();
+  }
 }
 //Polling per il timeout
 function pollingAjaxTo(){
@@ -326,6 +335,7 @@ function pollingAjaxTo(){
           url: 'http://localhost:'+ player_server_port +'/timeOut',        
           dataType: 'json',  
           success: function(data) {
+            console.log("pollingAjaxTo");
             setTimeout(callAjax, my_delay);
             if(data['my_timeout']){
               $('body').html('');
@@ -356,6 +366,7 @@ function pollingAjaxba(){
         type: "GET",
         dataType: "json",
         success: function (data) {
+          console.log("pollingAjaxba");
           setTimeout(callAjax, my_delay);
           if (banco.length == data.length && banco.length!=0 && !mustRefreshBanco) //Per evitare refresh continui
             return ;
@@ -365,7 +376,7 @@ function pollingAjaxba(){
           var flag = false;
           $('#cardSlots').html('');
           for (var i=0; i<banco.length;i++){
-            if (flag ==false){
+            if (flag == false){
               $('<div></div>').data( 'number', i ).appendTo( '#cardSlots' ).droppable( {
                 accept: '#cardPile div',
                 hoverClass: 'hovered',

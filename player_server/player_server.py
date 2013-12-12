@@ -82,7 +82,7 @@ def time_out():
 	print "TIMEOUT: doveva giocare il giocatore del turno:" + str(turn_index) +":"+ players[turn_index]['username']
 	players.remove(players[turn_index])
 	print "giocatori rimasti: " + str(len(players))
-	if len(players) < 2:
+	if len(players) < 4:
 		print "troppi pochi giocatori la partita non puo' andare avanti"
 		return
 	if turn_index >= len(players): #Nel caso in cui ha fatto crash l'ultimo della lista
