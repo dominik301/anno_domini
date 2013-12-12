@@ -88,7 +88,7 @@ body{
   margin: 0 0 0 10px;
   background: #ddf;
 }
-div#primacarta{
+div.primacarta{
   display: table-cell;
   font-size: 12px;
   width: 58px;

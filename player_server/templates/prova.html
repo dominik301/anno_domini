@@ -381,19 +381,51 @@ function pollingAjaxba(){
           if (banco.length > bancoPreDoubt.length)
             bancoPreDoubt = data;
           var flag = false;
-          $('#cardSlots').html('');
+          
+          
+          //struttura del banco
+          $("#cardSlots").html('');
+          for (var r=0; r<=parseInt(banco.length / 7); r++) { //per ogni riga
+            $("#cardSlots").append('<div id="row'+r+'" class="cardsRow"></div>');
+            for (var i=0; i<7; i++) {
+              $("#row"+r).append('<div id="gancio' + (r*7+i) +'" style="visibility:hidden;"></div>')
+              $("#row"+r).append('<div id="carta' + (r*7+i) +'" class="primacarta" style="visibility:hidden;"></div>');
+            }
+          }
+          //setto le carte nel banco
+          for (var i=0; i<banco.length; i++) {
+            $("#carta"+i).data('number',i)
+            $("#carta"+i).append('<p>' + banco[i].year + '</p>')
+            $("#carta"+i).css("visibility","visible");
+            $("#gancio"+i).droppable( {
+              accept: '#cardPile div',
+              hoverClass: 'hovered',
+              drop: handleCardDrop
+            });
+            $("#gancio"+i).data('number',i);
+            $("#gancio"+i).css("visibility","visible");
+          }
+          $("#gancio"+banco.length).droppable( {
+            accept: '#cardPile div',
+            hoverClass: 'hovered',
+            drop: handleCardDrop
+          });
+          $("#gancio"+banco.length).data('number',banco.length)
+          $("#gancio"+banco.length).css("visibility","visible");
+/*
+          var riga = 0;
 
           for (var i=0; i<banco.length;i++){
             if (flag == false){
-              $('<div>').attr('id','cardsRow').appendTo('#cardsSlots')
-              $('<div></div>').data( 'number', i ).appendTo( '#cardSlots' ).droppable( {
+              $("#cardSlots").append('<div id="row'+riga+'" class="cardsRow"></div>')
+              $('<div></div>').data( 'number', i ).appendTo( '#row'+riga ).droppable( {
                 accept: '#cardPile div',
                 hoverClass: 'hovered',
                 drop: handleCardDrop
               });
-              $('<div><p>' + banco[i].year + '</p></div>').data( 'number', i).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
+              $('<div><p>' + banco[i].year + '</p></div>').data( 'number', i).attr( 'id', 'primacarta' ).appendTo( '#row'+riga )
               z = i+1
-              $('<div></div>').data( 'number', z ).appendTo( '#cardSlots' ).droppable( {
+              $('<div></div>').data( 'number', z ).appendTo( '#row'+riga ).droppable( {
                 accept: '#cardPile div',
                 hoverClass: 'hovered',
                 drop: handleCardDrop
@@ -401,19 +433,19 @@ function pollingAjaxba(){
               flag = true;
             }
             else if(flag == true) {
-              $('<div><p>' + banco[i].year + '</p></div>').data( 'number', i ).attr( 'id', 'primacarta' ).appendTo( '#cardSlots' )
+              $('<div><p>' + banco[i].year + '</p></div>').data( 'number', i ).attr( 'id', 'primacarta' ).appendTo( '#row'+riga )
               y=i+1
-              $('<div></div>').data( 'number', y).appendTo( '#cardSlots' ).droppable( {
+              $('<div></div>').data( 'number', y).appendTo( '#row'+riga ).droppable( {
                 accept: '#cardPile div',
                 hoverClass: 'hovered',
                 drop: handleCardDrop
               });
-              if (i%7 == 0) {
+              if ((i+1)%7 == 0) {
                 flag = false
-                $('</div>').appendTo('#cardsSlots')
+                riga += 1
               }
             }
-          }
+          }*/
           mustRefreshBanco = false;
         }
       });
