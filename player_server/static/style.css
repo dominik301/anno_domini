@@ -29,7 +29,7 @@ body{
  
 #cardPile {
   margin: 0 auto;
-  background: #ffd;
+  background: darkgrey;
 }
  
 #cardPile {
@@ -46,6 +46,7 @@ body{
   box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
 }
 #cardSlots{
+  display: table;
   width: 910px;
   height: auto;
   padding: 20px;
@@ -55,7 +56,10 @@ body{
   border-radius: 10px;
   -moz-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
   -webkit-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
-  box-shadow: 0 0 .3em rgba(0, 0, 0, .8);} 
+  box-shadow: 0 0 .3em rgba(0, 0, 0, .8);}
+.cardsRow {
+  display:table-row;
+} 
 /* Individual cards and slots */
 #cardPile div {
   float: left;
@@ -72,8 +76,8 @@ body{
   background: #fff;
 }
 #cardSlots div.ui-droppable{
-  float: left;
-  width: 0px;
+  display: table-cell;
+  width: 5px;
   height: 67px;
   padding: 10px;
   padding-top: 40px;
@@ -81,11 +85,11 @@ body{
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
-  margin: 0 0 0 0px;
+  margin: 0 0 0 10px;
   background: #ddf;
 }
 div#primacarta{
-  float: left;
+  display: table-cell;
   font-size: 12px;
   width: 58px;
   height: 110px;

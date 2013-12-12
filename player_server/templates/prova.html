@@ -76,7 +76,7 @@ function askPlayerCards(){
             stopPollingTr = 1;
             stopPollingDb = 1;
             $('body').html('');
-            $('body').html('<h2>NON CI SONO GIOCATORI SUFFICIENTI PER CONTINUARE LA PARTITA</h2><div><img src="/static/dinosaur.gif" dynsrc="/static/dinosaur.gif" loop = false ></div>');
+            $('body').html('<div><h2 style="text-align: center; color: black;font-family: initial;font-size: 50px;line-height: 60px;">NON CI SONO GIOCATORI SUFFICIENTI PER CONTINUARE LA PARTITA</h2><img src="/static/dinosaur.gif" dynsrc="/static/dinosaur.gif" loop = false style="display: block; margin:auto;"></div>');
             stopPollingBa = 1;
           }
           $('#other_players').empty();
@@ -251,7 +251,7 @@ function pollingAjaxtr() {
             console.log("AND THE WINNER IS"+data['winner']);
             if (data['winner'] != "") {
               $('body').html('');
-              $('body').html('<h2>AND THE WINNER IS '+data['winner']+'</h2><div><img src="/static/winner.gif" dynsrc="/static/winner.gif" loop = false ></div>');
+              $('body').html('<div><h2 style="text-align: center; color: black;font-family: initial;font-size: 50px;line-height: 60px;">AND THE WINNER IS '+data['winner']+'</h2><img src="/static/winner.gif" dynsrc="/static/winner.gif" loop = false style="display: block; margin:auto;"></div>');
               stopPollingTo = 1;
               stopPollingBa = 1;
               stopPollingTr = 1;
@@ -259,17 +259,18 @@ function pollingAjaxtr() {
             }
             askPlayerCards();
             if(data['turn'] == 1){
+              $('#cardPile').css("background-color","greenyellow");
               stopPollingTo = 0;
               pollingAjaxTo();
               $('#dubbio').attr('disabled', false);
               $('#partite').html('');
               $('#partite').html('<h2>E IL TUO TURNO</h2>');
-               //alert("è il tuo turno");
               chiediMano();
               $("#cardPile div").draggable( "enable" );
               stopPollingTr = 1;
             }
             else{
+              $('#cardPile').css("background-color","darkgrey");
               $('#dubbio').attr('disabled', true);
               $('#partite').html('');
               $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
@@ -345,7 +346,7 @@ function pollingAjaxTo(){
             setTimeout(callAjax, my_delay);
             if(data['my_timeout']){
               $('body').html('');
-              $('body').html('<h2>SCEMO SEI ANDATO IN CRASH</h2><div><img src="/static/dinosaur.gif" dynsrc="/static/dinosaur.gif" loop = false ></div>');
+              $('body').html('<div><h2 style="text-align: center; color: black;font-family: initial;font-size: 50px;line-height: 60px;">SI &egrave; VERIFICATO UN GUASTO</h2><img src="/static/dinosaur.gif" dynsrc="/static/dinosaur.gif" loop = false style="display: block; margin:auto;"></div>');
               stopPollingTo = 1;
               stopPollingBa = 1;
             }
@@ -381,8 +382,10 @@ function pollingAjaxba(){
             bancoPreDoubt = data;
           var flag = false;
           $('#cardSlots').html('');
+
           for (var i=0; i<banco.length;i++){
             if (flag == false){
+              $('<div>').attr('id','cardsRow').appendTo('#cardsSlots')
               $('<div></div>').data( 'number', i ).appendTo( '#cardSlots' ).droppable( {
                 accept: '#cardPile div',
                 hoverClass: 'hovered',
@@ -405,6 +408,10 @@ function pollingAjaxba(){
                 hoverClass: 'hovered',
                 drop: handleCardDrop
               });
+              if (i%7 == 0) {
+                flag = false
+                $('</div>').appendTo('#cardsSlots')
+              }
             }
           }
           mustRefreshBanco = false;
