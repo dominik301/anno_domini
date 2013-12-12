@@ -3,8 +3,9 @@ import sys
 import requests
 import json
 import random
-from flask import Flask, jsonify, request, abort, render_template
 import sys
+
+from flask import Flask, jsonify, request, abort, render_template
 from game_card import *
 from game import *
 from deck import *
@@ -471,6 +472,12 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	print "Adesso e' il turno di: " + players[turn_index]['username']
 	return "",200
 
+
+@app.route('/threads')
+def threads():
+	print enumerate()
+	return str(enumerate())+"\n", 200
+
 def resetDoubt():
 	global doubtp
 	if doubtp != "":
@@ -500,13 +507,12 @@ if __name__ == "__main__":
 		server_started = try_ports()
 
 	print "back to main"
-	sys.exit()
 	
 	for t in enumerate():
-		if currentThread() != t:
+		if currentThread() != t and t.__class__.__name__ != "_DummyThread":
 			print "try joining: " + str(t)
-			t.join(1.0)
-			if t.isAlive() and t.__class__.__name__ == "_Timer":
+			#t.join(1.0)
+			if t.__class__.__name__ == "_Timer":
 				t.cancel()
 				print "timeout canceled!"
 	sys.exit()
