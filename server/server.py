@@ -31,8 +31,7 @@ def get_games():
 	for game in _games_:
 		creator = _games_.get(game).creator.username
 		player_number = _games_.get(game).player_n
-		player = Player(creator,"10.0.0.1")
-		new_g = Game(index, player, player_number)
+		new_g = Game(index,_games_.get(game).p_list[0], player_number)
 		game_list.append(new_g)
 		index = index + 1
 	print game_list
@@ -91,6 +90,7 @@ def join_g(username, game_id):
 		return "User is already subscripted\n", 400
 	if game.player_n == len(game.p_list):
 		for i in game.p_list:
+			print i.ip
 			url = "http://"+i.ip+":"+str(i.porta)+"/startGame"
 			headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 			r = requests.put(url, json.dumps(game.p_list, default=lambda o: o.__dict__), headers=headers)
