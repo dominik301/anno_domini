@@ -31,8 +31,8 @@ def get_games():
 	for game in _games_:
 		creator = _games_.get(game).creator.username
 		player_number = _games_.get(game).player_n
-		player = Player(creator,"10.0.0.1")
-		new_g = Game(index, player, player_number)
+#		player = Player(creator,"10.0.0.1")
+		new_g = Game(index, _games_.get(game).p_list[0], player_number)
 		game_list.append(new_g)
 		index = index + 1
 	print game_list
