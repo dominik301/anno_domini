@@ -48,7 +48,7 @@ class Game:
 		self.game_id = game_id
    		self.creator = creator
    		self.p_list = []
-   		if player_n in range(2,20):
+   		if player_n in range(4,20):
    			self.player_n = player_n
    		else:
    			raise PlayersNumberRangeException("Number of players not in range")
