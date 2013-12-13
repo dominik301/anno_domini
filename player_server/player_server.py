@@ -4,7 +4,6 @@ import requests
 import json
 import random
 import sys
-import os
 
 from flask import Flask, jsonify, request, abort, render_template
 from game_card import *
@@ -497,18 +496,6 @@ def try_ports():
 		print "Eccezione! Provo la porta: " + str(my_port)
 		return False
 
-def terminate_app():
-	print "*** terminating app..."
-	for t in enumerate():
-		if currentThread() != t and t.__class__.__name__ != "_DummyThread":
-			print "try joining: " + str(t)
-			t.join(1.0)
-			if t.__class__.__name__ == "_Timer":
-				t.cancel()
-				print "timeout canceled!"
-	print "app terminated!"
-	sys.exit()
-
 if __name__ == "__main__":
 	if len(sys.argv) == 1:
 		my_ip = "127.0.0.1"
@@ -524,7 +511,12 @@ if __name__ == "__main__":
 	while not server_started:
 		server_started = try_ports()
 
-	print "terminating main..."
-	
-	terminate_app()
+	for t in enumerate():
+		if currentThread() != t and t.__class__.__name__ != "_DummyThread" and t.__class__.__name__ != "_MainThread":
+			print "try joining: " + str(t)
+			#t.join()
+			if t.__class__.__name__ == "_Timer":
+				t.cancel()
+				print "timeout canceled!"
+
 	sys.exit()
