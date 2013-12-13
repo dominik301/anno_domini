@@ -137,7 +137,8 @@ function showGames(){
     dataType: "json",
     success: function (data) {
       setTimeout(callAjax, my_delay);
-      games = data
+      games = data;
+      console.log("POLLING PARTITE")
       if (games['zero'] == 0) {
         $('#partite').html('');
         $('#partite').html('<h2>non ci sono partite</h2><input type="button" id="createGame" value="createGame">');
@@ -158,6 +159,7 @@ function showGames(){
         for ( var i=0; i<games.length; i++ ) {
           $('#mytable tr:last').after("<tr><td>"+games[i].game_id+"</td><td>"+games[i].creator.username+"</td><td>"+games[i].player_n+"</td><td><input type='button' id='join' value='join' onclick='joinGames("+games[i].game_id+")'></td></tr>");
         }
+       stopPollingGames = 1; 
       }
     }
   })
