@@ -15,6 +15,9 @@ from flask import make_response,current_app
 from functools import update_wrapper
 from threading import *
 
+#lista dei giochi creati
+gamesList = []
+
 #mazzo
 deck = Deck
 
@@ -165,18 +168,12 @@ def create_p(username):
 @app.route('/gamesList', methods = ['GET'])
 def gameList():
 	games = []
-	req = requests.get("http://"+server_ip+":5000/gameList")
-	#se ritorna una lista vuota....
-	if req.text == "[]" :
-		return jsonify({'zero': 0})
-		return "There is no data in http header", 400
-	games_json = req.json()
-	print req.json()
-	for h in games_json:
+	for h in gamesList:
 		print "IL CREATORE E "+h['creator']['username']
 		creator = Player(h['creator']['username'],"0.0.0.0")
 		game = Game(h['game_id'],creator,h['player_n'],h['p_list'])
 		games.append(game)
+		print "there is game ", h['game_id'], " created by ", h['creator']['username']
 	return json.dumps(games, default=lambda o: o.__dict__)
 	
 #Metodo invocato dal browser web
@@ -210,7 +207,6 @@ def unsubscribe():
 #Metodo invocato dal registrar server
 @app.route('/startGame', methods = ['PUT'])
 def start_g():
-	print("SONO NELLA START GAME");
 	global players
 	global hand
 	global table
@@ -254,6 +250,11 @@ def start_g():
 
 	return "", 200
 
+@app.route("/rcvGamesList", methods = ['POST'])
+def rcvGamesList():
+	global gamesList
+	gamesList = request.json
+	return "",200
 
 #genera le carte da gioco iniziali di un giocatore rimuovendole dal deck
 def get_randomCards():

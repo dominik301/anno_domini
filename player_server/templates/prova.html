@@ -177,7 +177,6 @@ function joinGames(game_id){
     dataType: "text",
     success: function (data) {
       pollingAjaxsg(); 
-      pollingAjaxdb();
     }
   });
 }
@@ -200,7 +199,7 @@ function playCard(card_id,position){
 function pollingAjaxsg(){
   $('#partite').html('');
   $('#partite').html('<h2>ATTENDERE INIZIO PARTITA...</h2>');
-  var my_delay = 5000;
+  var my_delay = 2000;
   var stopPollingSG = 0;
   $(function() {
     callAjax();
@@ -225,6 +224,7 @@ function pollingAjaxsg(){
                $("#cardSlots").show();
                pollingAjaxtr();
                pollingAjaxba();
+               pollingAjaxdb();
             }
           }
       });
@@ -537,7 +537,7 @@ $( "#createG" ).click(function() {
       $("#creap").hide()
       $("#partite").show()
       pollingAjaxsg();
-      pollingAjaxdb();
+/////      pollingAjaxdb();
     },
     error: function (xhr, textStatus, errorThrown) {
       console.log(xhr)

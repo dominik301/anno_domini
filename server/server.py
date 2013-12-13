@@ -53,6 +53,14 @@ def create_p(username,porta):
 	new_p = Player(username, str(request.remote_addr), porta)
 	if new_p.username not in _players_:
 		_players_[new_p.username] = new_p
+		if len(_games_) != 0: #invio l'elenco dei giochi al nuovo iscritto
+			gamesToSend = []
+			for key in _games_:
+				game = Game(_games_[key].game_id, _games_[key].creator, _games_[key].player_n, [])
+				gamesToSend.append(game)
+			url = "http://" + new_p.ip + ":" + str(new_p.porta) + "/rcvGamesList"
+			headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+			r = requests.post(url, json.dumps(gamesToSend, default=lambda o: o.__dict__), headers=headers)
 	else:
 		return "Username already chosen\n", 400
 	return "Registrato", 201
@@ -60,6 +68,7 @@ def create_p(username,porta):
 @app.route('/createGame/<string:username>/<int:n_players>', methods = ['POST'])
 def create_g(username, n_players):
 	global index
+	global _games_
 	if index == 1:
 		return "Project limitation: maximum one game!", 400 
 	if username in _players_:
@@ -70,6 +79,15 @@ def create_g(username, n_players):
 		except CreatorNotFoundException:
 			return "Creator non found\n", 400
 		_games_[index] = new_g
+		#informo tutti i players iscritti al server della creazione del nuovo gioco
+		gamesToSend = []
+		for key in _games_:
+			game = Game(_games_[key].game_id, _games_[key].creator, _games_[key].player_n, [])
+			gamesToSend.append(game)
+		for key in _players_:
+			url = "http://" + _players_[key].ip + ":" + str(_players_[key].porta) + "/rcvGamesList"
+			headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+			r = requests.post(url, json.dumps(gamesToSend, default=lambda o: o.__dict__), headers=headers)
 		index = index + 1
 	else:
 		return "Unknown username\n", 400
