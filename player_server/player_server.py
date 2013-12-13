@@ -4,6 +4,7 @@ import requests
 import json
 import random
 import sys
+import os
 
 from flask import Flask, jsonify, request, abort, render_template
 from game_card import *
@@ -63,7 +64,7 @@ my_port = 5001
 
 
 def _timer():
-	return Timer(60.0, time_out)
+	return Timer(6.0, time_out)
 
 def reset_timer():
 	global player_timer
@@ -80,9 +81,10 @@ def time_out():
 
 	#per avvisare il browser che sono io che ho fatto crash	
 	if my_turn == True:
-		print("e il mio crash")
 		my_turn = False
 		my_timeout = True
+		print "e' il mio crash, my_timeout: " + str(my_timeout)
+
 	print "TIMEOUT: doveva giocare il giocatore del turno:" + str(turn_index) +":"+ players[turn_index]['username']
 	players.remove(players[turn_index])
 	print "giocatori rimasti: " + str(len(players))
@@ -487,6 +489,8 @@ def resetDoubt():
 
 def try_ports():
 	global my_port
+	if my_timeout:
+		return True
 	try:
 		app.run(my_ip, my_port, threaded = True)
 		return True
@@ -496,13 +500,15 @@ def try_ports():
 		return False
 
 def terminate_app():
+	print "*** terminating app..."
 	for t in enumerate():
 		if currentThread() != t and t.__class__.__name__ != "_DummyThread":
 			print "try joining: " + str(t)
-			#t.join(1.0)
+			t.join(1.0)
 			if t.__class__.__name__ == "_Timer":
 				t.cancel()
 				print "timeout canceled!"
+	print "app terminated!"
 	sys.exit()
 
 if __name__ == "__main__":
@@ -520,13 +526,7 @@ if __name__ == "__main__":
 	while not server_started:
 		server_started = try_ports()
 
-	print "back to main"
+	print "terminating main..."
 	
-	for t in enumerate():
-		if currentThread() != t and t.__class__.__name__ != "_DummyThread":
-			print "try joining: " + str(t)
-			#t.join(1.0)
-			if t.__class__.__name__ == "_Timer":
-				t.cancel()
-				print "timeout canceled!"
+	terminate_app()
 	sys.exit()
