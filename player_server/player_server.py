@@ -495,6 +495,16 @@ def try_ports():
 		print "Eccezione! Provo la porta: " + str(my_port)
 		return False
 
+def terminate_app():
+	for t in enumerate():
+		if currentThread() != t and t.__class__.__name__ != "_DummyThread":
+			print "try joining: " + str(t)
+			#t.join(1.0)
+			if t.__class__.__name__ == "_Timer":
+				t.cancel()
+				print "timeout canceled!"
+	sys.exit()
+
 if __name__ == "__main__":
 	if len(sys.argv) == 1:
 		my_ip = "127.0.0.1"
