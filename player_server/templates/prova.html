@@ -136,33 +136,33 @@ function showGames(){
     type: "GET",
     dataType: "json",
     success: function (data) {
-      setTimeout(callAjax, my_delay);
-      games = data;
-      console.log("POLLING PARTITE")
-      if (games['zero'] == 0) {
-        $('#partite').html('');
-        $('#partite').html('<h2>non ci sono partite</h2><input type="button" id="createGame" value="createGame">');
-        $("#createGame").click(function() {
-          console.log("ciao");
-          $("#creap").show();
-          $("#partite").hide();
-        });
-      }
-      else {
-        $('#partite').html('');
-        $('#partite').html('<table id="mytable"><tr><td>ID</td><td>CREATOR</td><td>PLAYER_N</td></tr></table><input type="button" id="createGame" value="createGame">');
-        $("#createGame").click(function() {
-          console.log("ciao");
-          $("#creap").show();
-          $("#partite").hide();
-        });
-        for ( var i=0; i<games.length; i++ ) {
-          $('#mytable tr:last').after("<tr><td>"+games[i].game_id+"</td><td>"+games[i].creator.username+"</td><td>"+games[i].player_n+"</td><td><input type='button' id='join' value='join' onclick='joinGames("+games[i].game_id+")'></td></tr>");
-        }
-       stopPollingGames = 1; 
-      }
-    }
-  })
+	  if (stopPollingGames != 1) {
+		  setTimeout(callAjax, my_delay);
+		  games = data
+		  if (games['zero'] == 0) {
+			$('#partite').html('');
+			$('#partite').html('<h2>non ci sono partite</h2><input type="button" id="createGame" value="createGame">');
+			$("#createGame").click(function() {
+			  console.log("ciao");
+			  $("#creap").show();
+			  $("#partite").hide();
+			});
+		  }
+		  else {
+			$('#partite').html('');
+			$('#partite').html('<table id="mytable"><tr><td>ID</td><td>CREATOR</td><td>PLAYER_N</td></tr></table><input type="button" id="createGame" value="createGame">');
+			$("#createGame").click(function() {
+			  console.log("ciao");
+			  $("#creap").show();
+			  $("#partite").hide();
+			});
+			for ( var i=0; i<games.length; i++ ) {
+			  $('#mytable tr:last').after("<tr><td>"+games[i].game_id+"</td><td>"+games[i].creator.username+"</td><td>"+games[i].player_n+"</td><td><input type='button' id='join' value='join' onclick='joinGames("+games[i].game_id+")'></td></tr>");
+			}
+		}
+    } // chiusura stopPollingGames!=1
+   } //chiusura success
+  }) //chiusura varajax
   if (stopPollingGames == 1){
     varajax.abort();
   }
@@ -527,12 +527,12 @@ function pollingAjaxba(){
 
 $( "#createG" ).click(function() {
     var nplayers = $("#n_players").val();
-    stopPollingGames = 1;
     $.ajax({
     url: 'http://'+ip_server+':'+ player_server_port +'/createGame/'+nplayers,
     type: "POST",
     dataType: "text",
     success: function (data) {
+	  stopPollingGames = 1;
       console.log(data)
       $("#creap").hide()
       $("#partite").show()
