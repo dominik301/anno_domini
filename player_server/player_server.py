@@ -495,11 +495,11 @@ def try_ports():
 
 if __name__ == "__main__":
 	if len(sys.argv) == 1:
-		my_ip = "127.0.0.1"
+		server_ip = "127.0.0.1"
 	elif len(sys.argv) == 2:
-		my_ip = sys.argv[1]
+		server_ip = sys.argv[1]
 	else:
-		print "Usage:", sys.argv[0], "<public IP>"
+		print "Usage:", sys.argv[0], "<server IP>"
 		exit(1)
 	app.debug = True
 	server_started = try_ports()
