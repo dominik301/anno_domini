@@ -20,6 +20,8 @@ var player_server_port = location.port;
 var game_status = 0;
 var prevHandLenght = 0;
 var mustRefreshBanco = false;
+var n_players = 0;//nr of players
+var color = 0;//variabile per colorare le caselline
 
 //funzione che chiede il banco al serverino sottostante e lo mostra nella GUI
 function mostraDateBanco() {
@@ -62,7 +64,6 @@ function askPlayerCards(){
     callAjax();
   });
   var varajax;
-  var i = 0;
   function callAjax() {
     varajax = $.ajax({
       cache: false,
@@ -70,10 +71,11 @@ function askPlayerCards(){
       dataType: 'json',  
       success: function(data) {
         if( game_status == 1 ){
+          n_players = 0;
           for( key in data ){
-            i = i + 1;
+            n_players= n_players + 1;
           }
-          if(i < 4){
+          if(n_players < 4){
             stopPollingTr = 1;
             stopPollingDb = 1;
             $('body').html('');
@@ -83,7 +85,8 @@ function askPlayerCards(){
           $('#other_players').empty();
           $('#other_players, .carta_p').show();
           for( key in data )
-            $("#other_players").append("<div class='carta_p' style='float:left;'>"+key+"("+data[key]+")"+"</div>");
+            $("#other_players").append("<div class='carta_p' id="+key+" style='float:left;'>"+data[key].username+"("+data[key].n_cards+")"+"</div>");
+          $('#'+color).css({'background-color' : 'greenyellow'});
         }
       }
     });
@@ -263,6 +266,7 @@ function pollingAjaxtr() {
             askPlayerCards();
             if(data['turn'] == 1){
               $('#cardPile').css("background-color","greenyellow");
+              color = data['turn_index'];
               stopPollingTo = 0;
               pollingAjaxTo();
               $('#dubbio').attr('disabled', false);
@@ -278,6 +282,7 @@ function pollingAjaxtr() {
               $('#partite').html('');
               $('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
               $("#cardPile div").draggable( "disable" );
+              color = data['turn_index'];
               chiediMano();
             }
           }

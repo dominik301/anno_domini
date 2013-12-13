@@ -134,8 +134,10 @@ def game_status():
 @app.route("/playerCards")
 def playerCards():
 	cards_dict = {}
+	i = 0
 	for p in players:
-		cards_dict[p['username']] = p['n_cards']
+		cards_dict[i] = {'username': p['username'], 'n_cards' : p['n_cards']}
+		i = i+1
 	return jsonify(cards_dict)
 
 @app.route("/turnStatus")
@@ -144,7 +146,7 @@ def turn_status():
 		toreturn = 1
 	else:
 		toreturn = 0
-	return jsonify({'winner' : winner, 'turn' : toreturn})
+	return jsonify({'winner' : winner, 'turn' : toreturn,'turn_index' : turn_index})
 
 @app.route("/doubtStatus")
 def doubt_status():
