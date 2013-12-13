@@ -1,0 +1,33 @@
+Sono il server_player: IP: 127.0.0.1 porta: 5001
+200
+http://192.168.0.103:5000/createPlayer/asd/5001
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+[{u'player_n': 4, u'game_id': 0, u'p_list': [{u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}], u'creator': {u'username': u'stefano', u'ip': u'10.0.0.1', u'n_cards': 7, u'porta': 5000}}]
+IL CREATORE E stefano
+back to main
+back to main
