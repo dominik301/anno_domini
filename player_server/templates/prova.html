@@ -388,9 +388,10 @@ function pollingAjaxba(){
           for (var r=0; r<=parseInt(banco.length / 7); r++) { //per ogni riga
             $("#cardSlots").append('<div id="row'+r+'" class="cardsRow"></div>');
             for (var i=0; i<7; i++) {
-              $("#row"+r).append('<div id="gancio' + (r*7+i) +'" style="visibility:hidden;"></div>')
+              $("#row"+r).append('<div id="gancio' + (r*7+i) +'" style="visibility:hidden;"></div>');
               $("#row"+r).append('<div id="carta' + (r*7+i) +'" class="primacarta" style="visibility:hidden;"></div>');
             }
+            $("#row"+r).append('<div id="gancio' + ((r+1)*7) + 'L" style="visibility:hidden;"></div>');
           }
           //setto le carte nel banco
           for (var i=0; i<banco.length; i++) {
@@ -404,6 +405,15 @@ function pollingAjaxba(){
             });
             $("#gancio"+i).data('number',i);
             $("#gancio"+i).css("visibility","visible");
+            if (i%7 == 6) {
+				$("#gancio"+ (i+1) + "L").droppable ({
+				  accept: '#cardPile div',
+				  hoverClass: 'hovered',
+				  drop: handleCardDrop
+				});
+				$("#gancio"+ (i+1) + "L").data('number',i+1);
+				$("#gancio"+ (i+1) + "L").css("visibility","visible");
+			}
           }
           $("#gancio"+banco.length).droppable( {
             accept: '#cardPile div',

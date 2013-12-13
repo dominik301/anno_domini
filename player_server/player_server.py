@@ -60,7 +60,7 @@ my_port = 5001
 
 
 def _timer():
-	return Timer(600.0, time_out)
+	return Timer(6000.0, time_out)
 
 def reset_timer():
 	global player_timer
