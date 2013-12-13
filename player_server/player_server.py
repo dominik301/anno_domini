@@ -54,7 +54,7 @@ my_timeout = False
 app = Flask(__name__, static_folder = "static")
 server_ip = "127.0.0.1"
 server_port = 5000
-my_ip = "127.0.0.1"
+my_ip = "0.0.0.0"
 my_port = 5001
 
 
@@ -210,6 +210,7 @@ def unsubscribe():
 #Metodo invocato dal registrar server
 @app.route('/startGame', methods = ['PUT'])
 def start_g():
+	print("invocato start_g")
 	global players
 	global hand
 	global table
