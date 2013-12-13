@@ -64,7 +64,7 @@ my_port = 5001
 
 
 def _timer():
-	return Timer(6.0, time_out)
+	return Timer(60.0, time_out)
 
 def reset_timer():
 	global player_timer
@@ -489,8 +489,6 @@ def resetDoubt():
 
 def try_ports():
 	global my_port
-	if my_timeout:
-		return True
 	try:
 		app.run(my_ip, my_port, threaded = True)
 		return True
