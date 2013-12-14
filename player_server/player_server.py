@@ -126,7 +126,7 @@ def return_hand():
 #metodo per il polling
 @app.route("/gameStatus")
 def game_status():
-	if len(hand) == 0 and len(table) == 0 :
+	if len(hand) == 0 or len(table) == 0 :
 		return jsonify({'status' : 0})
 	return jsonify({'status' : 1})
 
