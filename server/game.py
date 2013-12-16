@@ -71,8 +71,9 @@ class Game:
    		if len(self.p_list) >= self.player_n:
 			raise PlayersNumberReachedException("Number of players reached")
 		else:
-			if player in self.p_list:
-				raise UserSubscriptionException("The player is already subscripted")
+			for p in self.p_list:
+				if player.porta == p.porta and player.ip == p.ip:
+					raise UserSubscriptionException("The player is already subscripted")
 			else:
 				self.p_list.append(player)
 

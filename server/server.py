@@ -52,6 +52,9 @@ def hello():
 def create_p(username,porta):
 	new_p = Player(username, str(request.remote_addr), porta)
 	if new_p.username not in _players_:
+		for p in _players_:
+			if _players_[p].ip == new_p.ip and _players_[p].porta == new_p.porta:
+				return "Username already chosen\n", 400
 		_players_[new_p.username] = new_p
 		if len(_games_) != 0: #invio l'elenco dei giochi al nuovo iscritto
 			gamesToSend = []
