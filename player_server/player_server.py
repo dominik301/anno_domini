@@ -4,6 +4,8 @@ import requests
 import json
 import random
 import sys
+import os
+import signal
 
 from flask import Flask, jsonify, request, abort, render_template
 from game_card import *
@@ -75,6 +77,14 @@ def reset_timer():
 	player_timer = _timer()
 	player_timer.start()
 
+def terminate_app():
+	#qui eseguo la kill sul gruppo di processi attivi per questo player_server
+	print "-- will kill"
+	pid_g = os.getpgrp()
+	print "-- pid_g:", pid_g
+	os.killpg(pid_g, signal.SIGKILL)
+	print "-- did kill"
+
 def time_out():
 	global turn_index
 	global my_turn
@@ -129,7 +139,7 @@ def return_hand():
 #metodo per il polling
 @app.route("/gameStatus")
 def game_status():
-	if len(hand) == 0 and len(table) == 0 :
+	if len(hand) == 0 or len(table) == 0 :
 		return jsonify({'status' : 0})
 	return jsonify({'status' : 1})
 
