@@ -4,6 +4,8 @@ import requests
 import json
 import random
 import sys
+import os
+import signal
 
 from flask import Flask, jsonify, request, abort, render_template
 from game_card import *
@@ -72,6 +74,14 @@ def reset_timer():
 	player_timer = _timer()
 	player_timer.start()
 
+def terminate_app():
+	#qui eseguo la kill sul gruppo di processi attivi per questo player_server
+	print "-- will kill"
+	pid_g = os.getpgrp()
+	print "-- pid_g:", pid_g
+	os.killpg(pid_g, signal.SIGKILL)
+	print "-- did kill"
+
 def time_out():
 	global turn_index
 	global my_turn
@@ -83,13 +93,15 @@ def time_out():
 		my_turn = False
 		my_timeout = True
 		print "e' il mio crash, my_timeout: " + str(my_timeout)
+		terminate_app()
 
 	print "TIMEOUT: doveva giocare il giocatore del turno:" + str(turn_index) +":"+ players[turn_index]['username']
 	players.remove(players[turn_index])
 	print "giocatori rimasti: " + str(len(players))
 	if len(players) < 4:
 		print "troppi pochi giocatori la partita non puo' andare avanti"
-		return
+		#return
+		terminate_app
 	if turn_index >= len(players): #Nel caso in cui ha fatto crash l'ultimo della lista
 		turn_index = turn_index % len(players)
 	if players[turn_index]['username'] == my_player_name and my_turn == False:
