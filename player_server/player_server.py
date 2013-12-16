@@ -27,6 +27,9 @@ my_player_name = ""
 #le carte sul tavolo
 table = []
 
+#le carte sul tavolo prima del dubbio
+tablePreDoubt = []
+
 #lista di giocatori 
 players = []
 
@@ -63,7 +66,7 @@ my_port = 5001
 
 
 def _timer():
-	return Timer(60.0, time_out)
+	return Timer(3600.0, time_out)
 
 def reset_timer():
 	global player_timer
@@ -156,6 +159,21 @@ def doubt_status():
 	resetDoubt()
 	return jsonify({'doubt' : str(temp),'status': str(doubtStatus)})
 	
+@app.route("/bancoOrDoubt", methods=['GET'])
+def bancoOrDoubt():
+	if doubtp != "": #Restituisco lo stato del dubito
+		temp = doubtp
+		toReturn = {'status': 'doubt', 'doubter': str(doubtp), 'doubtResult': str(doubtStatus), 'table': tablePreDoubt}
+		resetDoubt()
+	else: #Restituisco il banco
+		if my_turn:
+			turno = 1
+		else:
+			turno = 0
+		jsonTurno = {'winner': winner, 'turn': turno, 'turn_index': turn_index}
+		toReturn = {'status': 'normal', 'turn': jsonTurno , 'table': table}
+	return json.dumps(toReturn, default=lambda o: o.__dict__)
+
 #Metodo invocato dal browser web
 @app.route('/createPlayer/<string:username>', methods = ['POST'])
 def create_p(username):
@@ -410,11 +428,13 @@ def pesca(n):
 def doubted(username): #il param. e' l'username di chi invia il messaggio
 	reset_timer()
 	global table
+	global tablePreDoubt
 	global my_turn
 	global turn_index
 	global doubtp
 	global doubtStatus
 	doubtp = username
+	tablePreDoubt = table
 	#E' arrivata la giocata dal successivo a quello da cui me l'aspettavo
 	if players[(turn_index+1)%len(players)]['username'] == username:
 		players.remove(players[turn_index])

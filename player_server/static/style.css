@@ -5,39 +5,29 @@ h1, h2, h3, h4 {
 }
  
 /* Main content area */
-
 body{
   font-family: sans-serif;
 }
  
 #content {
-  margin: 80px 70px;
+  /* position: relative; */
+  margin: 40px 70px;
   text-align: center;
   -moz-user-select: none;
   -webkit-user-select: none;
   user-select: none;
 }
- /* Slots for final card positions */
- 
-#cardSlots {
-  margin: 15px auto 0 auto;
-  background: #ddf;
-  overflow: auto;
-}
  
 /* The initial pile of unsorted cards */
- 
 #cardPile {
-  margin: 0 auto;
-  background: darkgrey;
-}
- 
-#cardPile {
+  display: table;
   width: 910px;
-  font-size: 12px;
-  height: 120px;
+  height: auto;
   padding: 20px;
+  margin: 0 auto;
   border: 2px solid #333;
+  background: darkgrey;
+  font-size: 12px;
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
@@ -45,23 +35,33 @@ body{
   -webkit-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
   box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
 }
-#cardSlots{
+
+ /* Slots for final card positions */
+#cardSlots {
   display: table;
   width: 910px;
   height: auto;
   padding: 20px;
   border: 2px solid #333;
+  background: #ddf;
+  margin: 15px auto 0 auto;
+  overflow: auto;
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
   -moz-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
   -webkit-box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
-  box-shadow: 0 0 .3em rgba(0, 0, 0, .8);}
+  box-shadow: 0 0 .3em rgba(0, 0, 0, .8);
+}
+
 .cardsRow {
   display:table-row;
 } 
+
 /* Individual cards and slots */
-#cardPile div {
+
+/*
+#cardPile div.primacarta {
   float: left;
   font-size: 12px;
   width: 58px;
@@ -75,7 +75,9 @@ body{
   margin: 0 0 0 10px;
   background: #fff;
 }
-#cardSlots div.ui-droppable{
+*/
+
+#cardSlots div.ui-droppable {
   display: table-cell;
   width: 4%;
   height: 67px;
@@ -88,6 +90,13 @@ body{
   margin: 0 0 0 10px;
   background: #ddf;
 }
+
+div.table-row-separator {
+	display: table-row;
+	width: 100%;
+	height: 20px;
+}
+
 div.primacarta{
   display: table-cell;
   font-size: 12px;
@@ -112,7 +121,7 @@ div.primacarta{
   background: #aaa;
 }
  
-#cardPile div {
+#cardPile div.primacarta {
   background: #666;
   color: #fff;
   font-size: 12px;
@@ -125,7 +134,7 @@ div.primacarta{
   box-shadow: 0 0 .5em rgba(0, 0, 0, .8);
 }
 
-div.carta_p{
+div.carta_p {
   float: left;
   font-size: 12px;
   width: auto;
@@ -138,7 +147,9 @@ div.carta_p{
 }
 
 #other_players{
-  margin: 0 0 20px 77px;
+  margin: auto;
+  margin-bottom: 20px;
+  /* margin: 0 0 20px 77px; */
   width: 910px;
   font-size: 12px;
   height: 40px;
