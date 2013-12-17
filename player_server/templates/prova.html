@@ -161,6 +161,7 @@ function askPlayerCards(){
 			url: 'http://'+ip_server+':'+player_server_port+'/playerCards',        
 			dataType: 'json',  
 			success: function(data) {
+				console.log(data)
 				if( game_status == 1 ) {
 					n_players = 0;
 					for( key in data ) {

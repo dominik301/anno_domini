@@ -58,6 +58,7 @@ La durara del timeout è abbastanza lunga da consentire ad un nodo sia di effett
 
 Vediamo ora nelle specifico il funzionamento del timeout all'interno del nodo in due casi diversi: 
 
+1. 1. Il server comunica ai giocatori che possono iniziare la partita, i giocatori fanno partire i timer a cui associano la funzione di callback. Il giocatore a cui spetta il turno effettua una giocata (che può essere un un'azione di dubbio oppure la giocata di una carta della sua mano) ed invia a tutti gli altri partecipanti un messaggio dell'azione effettuata. Alla ricezione di tale messaggio gli altri giocatori a loro volta resettano il timeout; automaticamente il turno viene calcolato in ogni nodo ed assunto univocamente da uno dei giocatori (quello successivo a quello che ha fatto precedentemente la giocata).
 
 Api Rest
 ==================
