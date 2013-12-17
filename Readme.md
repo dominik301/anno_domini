@@ -4,7 +4,7 @@ Anno Domini
 
 [Sommario](#sommario)  
 [Introduzione](#introduzione)  
-[Aspetti progettuali](#asp_prog)  
+[Aspetti progettuali](#aspetti-progettuali)  
 [Aspetti implementativi](#asp_impl)  
 [Valutazioni](#valutazioni)  
 [Conclusioni](#conclusioni)
@@ -18,7 +18,7 @@ Il gioco non prevede nessun elemento di perno, ossia specifici ruoli ricoperti d
 In questa relazione descriviamo in che modo è stato ideato e progettato tale sistema distribuito, assumendo l'eventualità dei soli guasti di tipo crash dei processi, ossia dei giocatori partecipanti alla partita. Il sistema è stato implementato facendo riferimento al modello architetturale di tipo REST .
 
 ##Introduzione
-<a name="sommario"/>
+<a name="introduzione"/>
 Anno Domini prevede la partecipazione di un minimo di quattro giocatori alla partita, ad ognuno dei quali vengono distribuite sette carte. Ogni carta rappresenta uno specifico evento storico, visibile ai giocatori anche quando questa è coperta. Quando la carta viene scoperta viene invece esternato l'anno di riferimento. Come già accennato, lo scopo del gioco è quello di mettere in ordine cronologico, dal più lontano al più recente, gli eventi storici e vince il giocatore che rimane senza carte in mano.
 
 Inizialmente sul banco è presente una sola carta coperta. Man mano che si va avanti con il procedere del gioco, la sequenza presente sul banco si arricchisce di nuove carte, opportunamente posizionate dai giocatori rispettando i turni.
@@ -29,8 +29,8 @@ La partita termina nel momento in cui un giocatore rimane senza nessuna carta in
 
 La tecnologia REST è inizialmente nata per permettere a servizi web di rilasciare proprie API mantenendo HTTP come protocollo cardine. Solo successivamente ci si sta rendendo conto del fatto che può essere impiegato per la realizzazione dei sistemi distriubuiti. La nostra scelta è ricaduta su REST proprio per sperimentare questo nuovo modo di creare sistemi distribuiti.
 
-Aspetti progettuali 
-===================
+##Aspetti progettuali
+<a name="aspetti-progettuali"/>
 Il primo problema che si incontra nel realizzare un sistema distribuito è fare in modo che ogni nodo sia consapevole della costituzione del sistema di cui fa parte. Per una mera questione di semplicità è stato impiegato un Registrar Server, dedicato alla registrazione dei nodi. Dunque, i vari componenti del sistema distribuito si iscrivono presso il server in qualità di giocatori, per poi prendere parte alla partita. Nel momento in cui viene raggiunto il numero di giocatori richiesto, la partita può iniziare. Da questo momento in poi il ruolo del Registrar Server non è più necessario: il sistema distribuito appena creatosi è in grado di auto-gestirsi senza più ricorrere all'ausilio del Registrar.
 
 Nel dettaglio, la fase preliminare per poter dare il via al gioco è strutturata come segue:
@@ -43,8 +43,7 @@ A questo punto, i nodi sono in grado di gestire autonomamente il gioco durante l
 
 Viste le caratteristiche del gioco, l'architettura astratta del sistema distribuito è quella ad anello. I turni, così come le risorse del gioco, quali il mazzo o le carte presenti sul banco, vengono gestite in modo distribuito. Ciò vuol dire che tali informazioni sono replicate su più nodi, in modo da poter tollerare eventuali guasti dei processi senza compromettere il prosieguo del gioco.
 
-Tolleranza ai guasti
-====================
+###Tolleranza ai guasti
 
 La tolleranza ai guasti del nostro sistema distribuito si occupa di capire se i nodi partecipanti ad una sessione di gioco vanno in crash; non vengono considerati eventuali mal funzionamenti del server di registrat. Si suppone inoltre che la rete sottostante sia affidabile, l'invio e la ricezione dei messaggi avviene in modo corretto ed entro un tempo ragionevole.
 
@@ -58,7 +57,9 @@ La durara del timeout è abbastanza lunga da consentire ad un nodo sia di effett
 
 Vediamo ora nelle specifico il funzionamento del timeout all'interno del nodo in due casi diversi: 
 
-1. 1. Il server comunica ai giocatori che possono iniziare la partita, i giocatori fanno partire i timer a cui associano la funzione di callback. Il giocatore a cui spetta il turno effettua una giocata (che può essere un un'azione di dubbio oppure la giocata di una carta della sua mano) ed invia a tutti gli altri partecipanti un messaggio dell'azione effettuata. Alla ricezione di tale messaggio gli altri giocatori a loro volta resettano il timeout; automaticamente il turno viene calcolato in ogni nodo ed assunto univocamente da uno dei giocatori (quello successivo a quello che ha fatto precedentemente la giocata).
+1.	Il server comunica ai giocatori che possono iniziare la partita, i giocatori fanno partire i timer a cui associano la funzione di callback. Il giocatore a cui spetta il turno effettua una giocata (che può essere un un'azione di dubbio oppure la giocata di una carta della sua mano) ed invia a tutti gli altri partecipanti un messaggio dell'azione effettuata. Alla ricezione di tale messaggio gli altri giocatori a loro volta resettano il timeout; automaticamente il turno viene calcolato in ogni nodo ed assunto univocamente da uno dei giocatori (quello successivo a quello che ha fatto precedentemente la giocata).
+
+![Alt text](./schemaTO_1.png)
 
 Api Rest
 ==================
