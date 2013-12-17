@@ -161,6 +161,7 @@ function askPlayerCards(){
 			url: 'http://'+ip_server+':'+player_server_port+'/playerCards',        
 			dataType: 'json',  
 			success: function(data) {
+				console.log(data);
 				if( game_status == 1 ) {
 					n_players = 0;
 					for( key in data ) {
@@ -170,6 +171,8 @@ function askPlayerCards(){
 						stopPollingGameStatus = 1;
 						$('body').html('');
 						$('body').html('<div><h2 style="text-align: center; color: black;font-family: initial;font-size: 50px;line-height: 60px;">NON CI SONO GIOCATORI SUFFICIENTI PER CONTINUARE LA PARTITA</h2><img src="/static/dinosaur.gif" dynsrc="/static/dinosaur.gif" loop = false style="display: block; margin:auto;"></div>');
+						stopPollingGameStatus = 1
+						stopPollingTo = 1
 					}
 					$('#other_players').empty();
 					$('#other_players, .carta_p').show();
@@ -438,19 +441,20 @@ function updateCountdown() {
 }
 
 function countdownExpired() {
+	clearInterval(countdown);
 	$('#cardPile').css("background-color","darkgrey");
 	$('#dubbio').attr('disabled', true);
 	$('#partite').html('');
 	$('#partite').html('<h2>Tempo esaurito: non puoi pi&ugrave; giocare</h2>');
 	$("#cardPile div").draggable("disable");
   	$("#countdownBox").fadeOut("fast", function(){});
-	setTimeout($("#countdownText").html(""), 200);
+	setTimeout($("#countdownText").html(""), 500);
 }
 
 function resetCountdown() {
 	clearInterval(countdown);
 	$("#countdownBox").fadeOut("fast", function(){});
-	setTimeout($("#countdownText").html(""), 200);
+	setTimeout($("#countdownText").html(""), 500);
 }
 
 </script>
