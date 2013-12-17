@@ -18,6 +18,7 @@ var game_status = 0;
 var prevHandLenght = 0;
 var n_players = 0;//nr of players
 var color = 0;//variabile per colorare le caselline
+var countdown; 
 
 //Funzione per mostrare i giochi dopo la registrazione del player
 function showGames(){
@@ -317,6 +318,7 @@ function pollingAjaxGameStatus() {
 							else
 								$('#dubbio').attr('disabled', true);
 							stopPollingGameStatus = 1;
+							startCountdown();
 						}
 						else { //Non è il mio turno
 							setTimeout(callAjax, 1000);
@@ -356,14 +358,15 @@ function pollingAjaxGameStatus() {
 	} //chiusura callAjax
 }
 
-function handleCardDrop( event, ui ) {
-	ui.draggable.draggable( 'disable' );
-	$(this).droppable( 'disable' );
+function handleCardDrop(event, ui) {
+	resetCountdown();
+	ui.draggable.draggable('disable');
+	$(this).droppable('disable');
 	ui.draggable.position( { of: $(this), my: 'left top', at: 'left top' } );
-	ui.draggable.draggable( 'option', 'revert', false );
-	playCard(ui.draggable.data( 'card_id' ),$(this).data( 'number' ))
-	console.log($(this).data( 'number' ))
-	console.log(ui.draggable.data( 'card_id' ))
+	ui.draggable.draggable('option', 'revert', false );
+	playCard(ui.draggable.data('card_id'), $(this).data('number'));
+	console.log($(this).data('number'));
+	console.log(ui.draggable.data('card_id'));
 }
 
 function joinGames(game_id) {
@@ -422,6 +425,34 @@ function pollingAjaxTimeout(){
 	}
 }
 
+function startCountdown() {
+	$("#countdownText").html("55");
+	countdown = setInterval("updateCountdown();", 1000);
+	$("#countdownBox").fadeIn("fast", function(){});
+}
+
+function updateCountdown() {
+	$("#countdownText").html(parseInt($("#countdownText").text())-1)
+	if (parseInt($("#countdownText").text()) == 0)
+		countdownExpired();
+}
+
+function countdownExpired() {
+	$('#cardPile').css("background-color","darkgrey");
+	$('#dubbio').attr('disabled', true);
+	$('#partite').html('');
+	$('#partite').html('<h2>Tempo esaurito: non puoi pi&ugrave; giocare</h2>');
+	$("#cardPile div").draggable("disable");
+  	$("#countdownBox").fadeOut("fast", function(){});
+	setTimeout($("#countdownText").html(""), 200);
+}
+
+function resetCountdown() {
+	clearInterval(countdown);
+	$("#countdownBox").fadeOut("fast", function(){});
+	setTimeout($("#countdownText").html(""), 200);
+}
+
 </script>
 </head>
 <body>
@@ -445,17 +476,16 @@ function pollingAjaxTimeout(){
 <div id="esitoDubbio" align="center" style="display: none;"><h2></h2>
 </div>
 <div id="content">
-  <div id="other_players" 
-       style="
-              display: none;
-              ">
+  <div id="other_players" style="display: none;">
   <div id="clear" style="clear: both"></div>
   </div>
   <div id="cardPile" style="display: none;"> </div>
   <input type="button" id ="dubbio" value="Dubbio" align="center" style="display: none; font-size: large; margin-top: 15px">
   <div id="cardSlots" style="display: none;"> </div>
  </div>
- 
+ <div id="countdownBox" style="display:none;">
+	 <p id="countdownText"></p>
+ </div>
  <script>
 
  
@@ -522,6 +552,7 @@ $("#dubbio").click(function() {
 		$('#dubbio').attr('disabled', true);
 		stopPollingGameStatus = 0;
 		pollingAjaxGameStatus();
+		resetCountdown();
     }
   })
 });
