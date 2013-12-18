@@ -73,7 +73,7 @@ La tolleranza ai guasti del nostro sistema distribuito si occupa di capire se i 
 Il problema principale è stato quello di identificare i nodi che vanno in crash e per convenzione abbiamo stabilito che una partita può continuare fin tanto che rimangono attivi almeno 4 giocatori.
 
 Abbiamo evitato soluzioni in cui i nodi si scambiano messaggi di liveness, i quali avrebbero aumentato la complessità del funzionamento del singolo nodo ed aumentato il numero di messaggi in circolo sulla rete.
-Nella nostra soluzione al problema ogni nodo è in possesso di un timer a cui è associata una funzione di callback, che si attiva allo scadere del timer. La scadenza del timer, in un nodo, viene interpretata come il crash del giocatore da cui si aspettava una giocata (o un azione di dubbio).
+Nella nostra soluzione al problema ogni nodo è in possesso di un timer a cui è associata una funzione di callback, che si attiva allo scadere del timer. La scadenza del timer, in un nodo, viene interpretata come il crash del giocatore da cui si aspettava una giocata (o un'azione di dubbio).
 
 Ogni nodo conosce l'esatta sequenza dei turni di una partita: istante per istante è in grado di identificare il giocatore in possesso del turno. Per cui, se si verifica un evento di timeout vuol dire che il giocatore in possesso del turno è andato in crash. La funzione di callback effettua le operazioni necessarie per la rimozione di tale nodo dalla partita e l'aggiornamento del turno, che viene assegnato al giocatore successivo.
 La durara del timeout è abbastanza lunga da consentire ad un nodo sia di effettuare una giocata, completando il proprio turno, e sia di inviare un messaggio a tutti gli altri giocatori.
@@ -90,25 +90,50 @@ Vediamo ora nelle specifico il funzionamento del timeout all'interno del nodo in
 
 ##Aspetti implementativi##
 
+Linguaggi usati
+
+lato server:
+
+- python	2.7
+
+lato client:
+
+- javascript
+- html
+- css
+
+Il sistema si compone di tre elementi principali
+
+- Il Server di Registrar, implementato nel file server.py,  offre i seguenti servizi REST al player_server.
+
+| Metodo | HTTP Request | Descrizione servizio |
+|--------|:------------:|---------------------:|
+| get_players() | GET /playerList | Restituisce la lista dei giocatori iscritti al server |
+| get_games() | GET /gameList | Restituisce la partita attiva sul server |
+| create_p(username, porta) | POST /createPlayer/<string:username>/<int:porta> | Crea un nuovo giocatore all'interno del sistema  |
+| create_g(username, n_players) | POST /createGame/<string:username>/<int:n_players> | Restituisce la lista dei giocatori iscritti al server |
+| join_g(username, game_id) | PUT /joinGame/<string:username>/<int:game_id> | Permette ad un player la partecipazione ad una partita esistente se non è stato già 	raggiunto il numero di giocatori impostato al momento della creazione della partita |
+
+- Il Player server è implementato nel file player_server.py ed implementa la logica di un singolo giocatore. Offre i seguenti servizi REST.
+
+| Metodo | HTTP Request | Descrizione servizio |
+|--------|:------------:|---------------------:|
+| game_status() | GET /gameStatus | Permette di conoscere lo stato del gioco, cioè se la partita è iniziata oppure no |
+| doubt_status() | POST /createPlayer/<string:username> | Permette di controllare se è stato sollevato un dubbio |
+| create_p() | GET /playerList | Richiede la creazione di un nuovo giocatore sul server |
+| gameList() | GET /gameList | Restituisce la lista delle partite |
+| create_g(n_players) | POST /createGame/<int:n_players> | Crea una partita sul server |
+| join_g() | PUT /joinGame/<int:id_game> | Effettua la join in una partita del server |
+| start_g() | GET /startGame | Servizio richiamato dal Server di Registrar per iniziare una nuova partita |
+| rcvGamesList() | POST /rcvGamesList | servizio richiamato dal Server di Registrar per ricevere la lista dei giocatori |
+| rcvCards() | POST /receiveCards | Permette di ricevere le carte da gioco |
+| rcvTable() | POST /receiveTable | permette di ricevere le carte sul banco |
+| rcvDeck() | POST /receiveDeck | Permette di ricevere il mazzo |
+| playedCard(username, year, event, card_id, position) | PUT /playedCard/<string:username>/<int:year>/<string:event>/<int:card_id>/<int:position> | permette di ricevere la giocata di uno dei partecipanti |
+| doubted(username) | PUT /doubted/<string:username> | permette di ricevere un'azione di dubbio sollevata da uno dei giocatori |
+
+La GUI è implementata nel file gui.html. L'interfaccia grafica per il suo funzionamento ha bisogno dei servizi implementati nel player_server.py ed utilizza tecniche di polling standard per poter ricevere i cambiamenti di stato di una sessione di gioco. Ad esempio, si effettua polling per monitorare stato del turno oppure un possibile stato di dubbio sulla sequenza di carte del banco; l'obiettivo del progetto non era quello di creare un'interfaccia grafica sofisticata e anche questa descrizione è sufficiente.
+
 ##Valutazioni##
 
 ##Conclusioni##
-
-Api Rest
-==================
-| Msg | SentBy | RcvBy | Type |Crud | Description |
-|-----|:------:|:-----:|:----:|:---:|------------:|
-| getGames() | a client | the server | unicast | GET |un client desidera ricevere la lista di partite pubbliche disponibili sul server |
-| createGame() | a client | the server | unicast | POST |un client intende creare una nuova partita |
-| joinGame() | a client | the server | unicast | PUT |un client intende partecipare ad una partita |
-| startGame() | the server | some clients | broadcast | PUT | quando il server capisce che una partita può cominciare (raggiungimento del numero di giocatori prestabilito) allora fa cominciare la partita e invia a tutti la lista dei partecipanti
-| sendCards() | a client | all other clients partecipating in the game | broadcast | PUT | il client che ha creato la partita invia agli altri partecipanti le carte delle loro mani e il mazzo di carte rimanenti |
-| playFirstCard() | a client | all other clients partecipating in the game | broadcast | PUT | il client che ha creato la partita mette sul tavolo la prima carta del gioco e la comunica a tutti gli altri giocatori |
-| playCard() | a client | all other clients partecipating in the game | broadcast | PUT | un giocatore gioca una carta dalla propria mano mettendola sul banco |
-| sendToken() | a client | next client in the turn | unicast | PUT | il giocatore che termina il proprio turno passa il token al giocatore del turno successivo |
-| sendDoubt() | a client | all other clients partecipating in the game | broadcast | ? | un giocatore dubita sulla sequenza degli eventi del banco e lo rende noto a tutti gli altri giocatori | 
-| zeroCards() | a clent | all other clients partecipating in the game | broadcast | POST | un giocatore comunica a tutti gli altri che non ha più carte in mano e quindi ha vinto la partita |
-| createPlayer() | a client | the server | unicast | POST | un client richiede al server la creazione del profilo di giocatore |
-| sendGames() | the server | a client | unicast | POST | il server invia al client richiedente la lista di partite disponibili |
-| playerCreationResponce() | the server | a client | unicast | ? | il server invia l'esito della creazione di un giocatore |  
-| cancelSubscription() | a client | the server | unicast | DELETE | il client invia un messaggio al server di uscita dalla partita |

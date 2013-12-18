@@ -126,7 +126,7 @@ def myTimeOut():
 @app.route("/")
 def hello():
 	print "Sono il server_player: IP: " + my_ip + " porta: " + str(my_port) + "\n", 200
-	return render_template("prova.html")
+	return render_template("gui.html")
 
 @app.route("/banco")
 def return_table():
