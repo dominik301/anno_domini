@@ -1,5 +1,9 @@
 Anno Domini
 ===========
+
+*Stefano Bettinelli*, *Roberto De Santis*, *Vincenzo Gambale*
+
+
 ###Implementazione di un gioco distribuito basato su un modello architetturale RESTful
 
 ## Indice ##
