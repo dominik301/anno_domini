@@ -116,9 +116,9 @@ Il sistema si compone di tre elementi principali
 |--------|:------------:|---------------------:|
 | `get_players()` | GET `/playerList` | Restituisce la lista dei giocatori iscritti al server |
 | `get_games()` | GET `/gameList` | Restituisce la partita attiva sul server |
-| `create_p(username, porta)` | POST `/createPlayer/\<string:username>/\<int:porta>` | Crea un nuovo giocatore all'interno del sistema  |
-| `create_g(username, n_players)` | POST `/createGame/\<string:username>/\<int:n_players>` | Restituisce la lista dei giocatori iscritti al server |
-| `join_g(username, game_id)` | PUT `/joinGame/\<string:username>/\<int:game_id>` | Permette ad un player la partecipazione ad una partita esistente se non è stato già 	raggiunto il numero di giocatori impostato al momento della creazione della partita |
+| `create_p(username, porta)` | POST `/createPlayer/<string:username>/`<br/>`<int:porta>` | Crea un nuovo giocatore all'interno del sistema  |
+| `create_g(username, n_players)` | POST `/createGame/<string:username>/`<br/>`<int:n_players>` | Restituisce la lista dei giocatori iscritti al server |
+| `join_g(username, game_id)` | PUT `/joinGame/<string:username>/`<br/>`<int:game_id>` | Permette ad un player la partecipazione ad una partita esistente se non è stato già 	raggiunto il numero di giocatori impostato al momento della creazione della partita |
 
 - Il Player server è implementato nel file player_server.py ed implementa la logica di un singolo giocatore. Offre i seguenti servizi REST.
 
@@ -134,7 +134,7 @@ Il sistema si compone di tre elementi principali
 | `rcvCards()` | POST `/receiveCards` | Permette di ricevere le carte da gioco |
 | `rcvTable()` | POST `/receiveTable` | permette di ricevere le carte sul banco |
 | `rcvDeck()` | POST `/receiveDeck` | Permette di ricevere il mazzo |
-| `playedCard(username, year, event, card_id, position)` | PUT `/playedCard/<string:username>/`<br/>`<int:year>/<string:event>`<br/>`/<int:card_id>/<int:position>` | permette di ricevere la giocata di uno dei partecipanti |
+| `playedCard(username, year,`<br/>` event, card_id, position)` | PUT `/playedCard/<string:username>/`<br/>`<int:year>/<string:event>`<br/>`/<int:card_id>/<int:position>` | permette di ricevere la giocata di uno dei partecipanti |
 | `doubted(username)` | PUT `/doubted/<string:username>` | permette di ricevere un'azione di dubbio sollevata da uno dei giocatori |
 
 La GUI è implementata nel file gui.html. L'interfaccia grafica per il suo funzionamento ha bisogno dei servizi implementati nel player_server.py ed utilizza tecniche di polling standard per poter ricevere i cambiamenti di stato di una sessione di gioco. Ad esempio, si effettua polling per monitorare stato del turno oppure un possibile stato di dubbio sulla sequenza di carte del banco; l'obiettivo del progetto non era quello di creare un'interfaccia grafica sofisticata e anche questa descrizione è sufficiente.
