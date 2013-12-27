@@ -54,7 +54,7 @@ def create_p(username,porta):
 	if new_p.username not in _players_:
 		for p in _players_:
 			if _players_[p].ip == new_p.ip and _players_[p].porta == new_p.porta:
-				return "Username already chosen\n", 400
+				return "You have already been registered\n", 400
 		_players_[new_p.username] = new_p
 		if len(_games_) != 0: #invio l'elenco dei giochi al nuovo iscritto
 			gamesToSend = []
@@ -116,20 +116,6 @@ def join_g(username, game_id):
 			headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 			r = requests.put(url, json.dumps(game.p_list, default=lambda o: o.__dict__), headers=headers)
 	return "Game joined\n",200
-
-@app.route('/unsubscribe/<string:username>/<int:game_id>', methods = ['DELETE'])
-def unsubscribe(username, game_id):
-	#Controllo che username e game_id siano stati passati correttamente
-	if username not in _players_ or game_id not in _games_:
-		return "Player or game not found", 400
-	try:
-		_games_[game_id].remove_player(_players_[username])
-		print _games_[game_id].p_list
-	except UserNotFoundException:
-		return "User not subscripted to the specified game", 400
-	except CreatorUnsubscriptionException:
-		return "Creator cannot be unsubscribed", 400
-	return "User is not partecipating anymore", 200
 
 if __name__ == '__main__':
 	app.debug = True

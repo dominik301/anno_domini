@@ -17,7 +17,77 @@ body{
   -webkit-user-select: none;
   user-select: none;
 }
- 
+
+#form, #partite, #creap {
+	margin-top: 100px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 15px;
+	border: solid 2px #444;
+	border-radius: 10px;
+	box-shadow: 0px 0px 5px #BBB;
+	text-align: center;
+}
+
+#form {
+	width: 370px;
+}
+
+#partite {
+	width: 370px;
+}
+
+#creap {
+	width: 460px;
+}
+
+p.formTitle, h2 {
+	font-size: 28px;
+	margin-top: 5px;
+	font-weight: normal;
+}
+
+input[type="text"] {
+	border: 1px solid #DDD;
+	background: -webkit-linear-gradient(top, #F5F5F5, #F1F1F1);
+	background: -moz-linear-gradient(top, #F5F5F5, #F1F1F1);
+	background: -ms-linear-gradient(top, #F5F5F5, #F1F1F1);
+	background: -o-linear-gradient(top, #F5F5F5, #F1F1F1);
+	padding: 4px;
+}
+
+input[type="button"] {
+	border: 1px solid #DDD;
+	background: -webkit-linear-gradient(top, #F5F5F5, #F1F1F1);
+	background: -moz-linear-gradient(top, #F5F5F5, #F1F1F1);
+	background: -ms-linear-gradient(top, #F5F5F5, #F1F1F1);
+	background: -o-linear-gradient(top, #F5F5F5, #F1F1F1);
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+input#n_players {
+	width: 30px;
+}
+
+#gamesTable {
+	margin: auto;
+	text-align: left;
+}
+
+#gamesTable td {
+	padding-right: 10px;
+}
+
+#turno {
+	text-align: center;
+	margin-top: 20px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
 /* The initial pile of unsorted cards */
 #cardPile {
   display: table;
@@ -140,7 +210,6 @@ div.carta_p {
   width: auto;
   height: auto;
   padding: 10px;
-  padding-bottom: 100;
   border: 2px solid #333;
   margin: 0 0 10px 10px;
   background: #fff;
@@ -166,8 +235,11 @@ div.carta_p {
 div#countdownBox {
 	position: fixed;
 	top: 10px;
-	right: 10px;
+	right: 35px;
 	width: auto;
 	height: auto;
 	border: 0;
+}
+p#countdownText {
+	font-size: 35px;
 }
