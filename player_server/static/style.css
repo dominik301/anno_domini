@@ -68,6 +68,11 @@ input[type="button"] {
 	padding-right: 10px;
 }
 
+input#n_players {
+	width: 30px;
+}
+
+>>>>>>> 5eaa6949106e5447083593bc020ae35f2e4169c3
 #gamesTable {
 	margin: auto;
 	text-align: left;
