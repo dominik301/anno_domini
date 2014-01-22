@@ -37,9 +37,9 @@ function showGames(){
 				if (stopPollingGames != 1) {
 					setTimeout(callAjax, my_delay);
 					games = data
-					if (games['zero'] == 0) {
+					if (games[0] == undefined) {
 						$('#partite').html('');
-						$('#partite').html('<h2>non ci sono partite</h2><input type="button" id="createGame" value="createGame">');
+						$('#partite').html('<h2>Nessuna partita presente</h2><input type="button" id="createGame" value="Crea partita">');
 						$("#createGame").click(function() {
 							$("#partite").hide();
 							$("#creap").fadeIn("slow",function(){});
@@ -47,13 +47,13 @@ function showGames(){
 					}
 					else {
 						$('#partite').html('');
-						$('#partite').html('<table id="mytable"><tr><td>ID</td><td>CREATOR</td><td>PLAYER_N</td></tr></table><input type="button" id="createGame" value="createGame">');
+						$('#partite').html('<h2>Partite disponibili</h2><table id="gamesTable"><tr><td>Creator</td><td>N. players</td></tr></table>');
 						$("#createGame").click(function() {
 							$("#partite").hide();
 							$("#creap").fadeIn("slow", function(){});
 						});
 						for ( var i=0; i<games.length; i++ ) 
-						  $('#mytable tr:last').after("<tr><td>"+games[i].game_id+"</td><td>"+games[i].creator.username+"</td><td>"+games[i].player_n+"</td><td><input type='button' id='join' value='join' onclick='joinGames("+games[i].game_id+")'></td></tr>");
+						  $('#gamesTable tr:last').after("<tr><td>"+games[i].creator.username+"</td><td>"+games[i].player_n+"</td><td><input type='button' id='join' value='Join' onclick='joinGames("+games[i].game_id+")'></td></tr>");
 					}
 				} // chiusura stopPollingGames!=1
 			} //chiusura success
@@ -67,7 +67,8 @@ function showGames(){
 function pollingAjaxStartGame(){
 	$('#partite').html('');
 	$('#partite').css('display','none');
-	$('#partite').html('<h2>ATTENDERE INIZIO PARTITA...</h2>');
+	$("#partite").css('width', '460px');
+	$('#partite').html('<h2 style="margin: 6px;">Attendere inizio partita...</h2>');
 	$('#partite').fadeIn("slow", function(){});
 	var my_delay = 2000;
 	var stopPollingSG = 0;
@@ -86,12 +87,14 @@ function pollingAjaxStartGame(){
 				setTimeout(callAjax, my_delay);
 				if(data['status'] == 1){
 					game_status = 1;
+					$('#partite').hide();
 					stopPollingSG = data['status'];
 					chiediMano();
 					$('#other_players').show();
 					$("#cardPile").show();
 					$("#dubbio").show();
 					$("#cardSlots").show();
+					$('#turno').show();
 					stopPollingSG = 1;
 					pollingAjaxGameStatus();
 					pollingAjaxTimeout();
@@ -251,7 +254,7 @@ function chiediMano(){
 							$('#cardPile').append('<div class="table-row-separator"></div>');
 						$('#cardPile').append('<div class="cardsRow" id="mycardrow'+riga+'"></div>');
 					}
-					$("#mycardrow"+riga).append('<div style="display: table-cell; width:2%;"></div>');
+					$("#mycardrow"+riga).append('<div style="display: table-cell; width:2%; height:110px;"></div>');
 					$("#mycardrow"+riga).append('<div id="mycard'+i+'" class="primacarta"><p>'+cards[i].event+'</p></div>');
 					$("#mycard"+i).data('card_id', cards[i].card_id);
 					$("#mycard"+i).draggable({
@@ -260,7 +263,7 @@ function chiediMano(){
 						cursor: 'move',
 						revert: true
 					});
-					$("#mycardrow"+riga).append('<div style="display: table-cell; width:2%;"></div>');
+					$("#mycardrow"+riga).append('<div style="display: table-cell; width:2%; height:110px;"></div>');
 				}
 				//Riempio il cardPile di carte vuote se non ho raggiunto il numero (7)
 				for (var i=cards.length; i<7; i++) {
@@ -313,8 +316,8 @@ function pollingAjaxGameStatus() {
 							chiediMano();
 							$('#cardPile').css("background-color","greenyellow");
 							color = jsonTurn['turn_index'];
-							$('#partite').html('');
-							$('#partite').html('<h2>&Egrave; IL TUO TURNO</h2>');
+							$('#turno').html('');
+							$('#turno').html('<h2>&Egrave; il tuo turno</h2>');
 							$("#cardPile div").draggable( "enable" );
 							if (banco.length >1)
 								$('#dubbio').attr('disabled', false);
@@ -327,8 +330,8 @@ function pollingAjaxGameStatus() {
 							setTimeout(callAjax, 1000);
 							$('#cardPile').css("background-color","darkgrey");
 							$('#dubbio').attr('disabled', true);
-							$('#partite').html('');
-							$('#partite').html('<h2>ATTENDERE IL PROPRIO TURNO...</h2>');
+							$('#turno').html('');
+							$('#turno').html('<h2>Attendere il proprio turno...</h2>');
 							$("#cardPile div").draggable( "disable" );
 							color = jsonTurn['turn_index'];
 						}
@@ -431,11 +434,17 @@ function pollingAjaxTimeout(){
 function startCountdown() {
 	$("#countdownText").html("55");
 	countdown = setInterval("updateCountdown();", 1000);
-	$("#countdownBox").fadeIn("fast", function(){});
+	$("#countdownBox").css('color','green');
+	$("#countdownBox").fadeIn("slow", function(){});
 }
 
 function updateCountdown() {
-	$("#countdownText").html(parseInt($("#countdownText").text())-1)
+	$("#countdownText").css('display','none');
+	$("#countdownText").html(parseInt($("#countdownText").text())-1);
+	$("#countdownText").fadeIn("slow", function(){});
+	if (parseInt($("#countdownText").text()) == 9) {
+		$("#countdownText").css('color','red');
+	}
 	if (parseInt($("#countdownText").text()) == 0)
 		countdownExpired();
 }
@@ -460,23 +469,24 @@ function resetCountdown() {
 </script>
 </head>
 <body>
- <div id="form" style="text-align: center; margin:auto;">
-  <p><b>Registrazione al servizio</b><br /></p>
+ <div id="form">
+  <p class="formTitle">Registrazione al servizio<br /></p>
   <div id="subform">
-    <b>Nome: </b>
-    <input type="text" name="nome" id="txtUsername"><br />
+    <label>Nome: </label>
+    <input type="text" name="nome" id="txtUsername">
 	<input type="button" value="Registrati" id="createP">
   </div>
   <p id="errCreateP" style="text-align: center; display: none;"></p>
  </div>
-<div id="creap" style="display: none;" align="center">
-    <table id="creapartita">
-      <tr><td>Numero di giocatori</td><td><input type='text' id='n_players'></td>
-    </table>
-    <input type='button' id='createG' value='createGame'>
-  </div>
+ <div id="creap" style="display: none;">
+	 <h2>Creazione nuova partita</h2>
+    <label>Numero di giocatori: </label><input type='text' id='n_players'>
+    <input type='button' id='createG' value='Crea gioco'>
+ </div>
 <div id="partite" style="display: none;" align="center">
-  </div>
+</div>
+<div id="turno" style="display: none;">
+</div>
 <div id="esitoDubbio" align="center" style="display: none;"><h2></h2>
 </div>
 <div id="content">
@@ -523,7 +533,7 @@ $("#createP").click(function() {
 
 $("#createG").click(function() {
     var nplayers = $("#n_players").val();
-    if (nplayers < 4) {
+    if (isNan(nplayers) || (nplayers < 4)) {
 		$("#n_players").css({'background-color' : 'lightcoral'});
 		return ;
 	}
@@ -534,6 +544,7 @@ $("#createG").click(function() {
     success: function (data) {
 	  stopPollingGames = 1;
       $("#creap").hide();
+      $("#partite").css('width', '460px');
       $("#partite").fadeIn("slow", function(){});
       pollingAjaxStartGame();
     },

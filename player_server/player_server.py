@@ -495,6 +495,9 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	#Tutti i giocatori aggiornano il counter delle carte del penalizzato
 	players[penalizatedIndex]['n_cards'] = str(int(players[penalizatedIndex]['n_cards']) + penalization)
 	#In ogni caso (sia dubitato bene, sia male) resetto il tavolo
+	#e inserisco le carte rimaste alla fine del mazzo
+	for c in table:
+		deck.append(c)
 	table = []
 	table.append(deck.pop(0))
 	print "Il mazzo ha", str(len(deck)), "carte"
