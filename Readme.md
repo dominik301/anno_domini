@@ -140,3 +140,5 @@ La GUI &egrave; implementata nel file gui.html. L'interfaccia grafica per il suo
 Lo stato dell'arte attuale propone l'alternativa dei web services, la quale, oltre ad HTTP, impiega tecnologie supplementari, quali SOAP, WSDL e UDDI. La nuova tecnologia REST semplifica sensibilmente l'approccio con cui realizzare servizi, pur mantenendo vantaggi tipici quali il supporto all'eterogeneità e l'interoperabilità. Inoltre, REST si presta decisamente meglio nella realizzazione di sistemi distribuiti.
 
 ##Conclusioni##
+Concludiamo questa relazione descrivendo alcuni dei possibili miglioramenti che si possono apportare al sistema e discutendo i possibli sviluppi futuri.
+Il primo miglioramento riguarda l'interfaccia grafica nell'aspetto del polling. Quest' ultimo potrebbe essere sostituito dalle websocket di HTML5 che forniscono canali di comunicazione full-duplex attraverso una singola connessione TCP.
