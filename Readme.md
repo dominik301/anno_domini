@@ -97,7 +97,7 @@ Linguaggi usati
 lato server:
 
 - python	2.7
-- Flask: un microframework che permette la creazione di applicazione web con Python
+- Flask: un microframework che permette la creazione di applicazione web con Python. Flask permette di fornire un servizio   richiamabile attraverso una specifica URL, secondo i metodi http specificati. Di default, i servizi vengono erogati       secondo una politica sequenziale, ovvero non sono richiamabili contemporaneamente. Purtroppo ciò rappresenta un limite    per la nostra implementazione. Ad esempio, all'interno del metodo playCard, richiamato dalla GUI per effettuare la        giocata di una carta, viene inviato in broadcast (incluso a sè stesso) il messaggio playedCard. Il che, in termini        implementativi, si traduce nell'invocazione di un servizio REST. Ma ciò non può avvenire se prima non termina             l'esecuzione del metodo playCard. Per risolvere tale problema abbiamo fatto ricorso al multithreading: ogni servizio      REST viene eseguito in un thread apposito. Flask mette a disposizione un'opzione in virtù della quale viene adottata      proprio questa idea.
 
 lato client:
 
@@ -135,6 +135,8 @@ Il sistema si compone di tre elementi principali
 | `doubted(username)` | PUT `/doubted/<string:username>` | permette di ricevere un'azione di dubbio sollevata da uno dei giocatori |
 
 La GUI &egrave; implementata nel file gui.html. L'interfaccia grafica per il suo funzionamento ha bisogno dei servizi implementati nel player_server.py ed utilizza tecniche di polling per poter ricevere i cambiamenti di stato di una sessione di gioco. Ad esempio, si effettua polling per monitorare lo stato del turno oppure un possibile stato di dubbio sulla sequenza di carte del banco.
+
 ##Valutazioni##
+Lo stato dell'arte attuale propone l'alternativa dei web services, la quale, oltre ad HTTP, impiega tecnologie supplementari, quali SOAP, WSDL e UDDI. La nuova tecnologia REST semplifica sensibilmente l'approccio con cui realizzare servizi, pur mantenendo vantaggi tipici quali il supporto all'eterogeneità e l'interoperabilità. Inoltre, REST si presta decisamente meglio nella realizzazione di sistemi distribuiti.
 
 ##Conclusioni##
