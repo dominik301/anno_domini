@@ -142,3 +142,4 @@ Lo stato dell'arte attuale propone l'alternativa dei web services, la quale, olt
 ##Conclusioni##
 Concludiamo questa relazione descrivendo alcuni dei possibili miglioramenti che si possono apportare al sistema e discutendo i possibli sviluppi futuri.
 Il primo miglioramento riguarda l'interfaccia grafica nell'aspetto del polling. Quest' ultimo potrebbe essere sostituito dalle websocket di HTML5 che forniscono canali di comunicazione full-duplex attraverso una singola connessione TCP.
+Uno degli sviluppi futuri potrebbe essere la gestione di più partite in contemporanea da parte del server, dato che attualmente viene gestita una sola partita.
