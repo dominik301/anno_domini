@@ -22,7 +22,7 @@ Il progetto Anno Domini trae spunto da un gioco di carte omonimo che combina l'i
 
 Il gioco non prevede nessun elemento di perno, ossia specifici ruoli ricoperti da un unico componente del gioco preso in esame (quale potrebbe essere quello del dealer nel Blackjack). Il che, evidentemente, rende Anno Domini particolarmente coniugabile con i paradigmi caratteristici dei sistemi distribuiti. 
 
-In questa relazione descriviamo in che modo √® stato ideato e progettato tale sistema distribuito. Assumiamo la presenza solo di guasti di tipo crash dei processi, ossia dei giocatori partecipanti alla partita. Il sistema √® stato implementato facendo riferimento al modello architetturale di tipo REST.
+In questa relazione descriviamo in che modo Ë stato ideato e progettato tale sistema distribuito, assumendo l'eventualit‡ dei soli guasti di tipo crash dei processi, ossia dei giocatori partecipanti alla partita. Il sistema Ë stato implementato facendo riferimento al modello architetturale di tipo REST .
 
 ##Introduzione##
 Anno Domini prevede la partecipazione di un minimo di quattro giocatori alla partita, ad ognuno dei quali vengono distribuite sette carte. Ogni carta rappresenta uno specifico evento storico, visibile ai giocatori anche quando questa √® coperta. Quando la carta viene scoperta, viene invece esternato l'anno di riferimento. Come gi√† accennato, lo scopo del gioco √® quello di mettere in ordine cronologico, dal pi√π lontano al pi√π recente, gli eventi storici e vince il giocatore che rimane senza carte in mano.
@@ -55,7 +55,7 @@ La scelta della tecnologia impiegata con cui √® stato realizzato il nostro siste
 ###Interazione dei componenti del sistema###
 Vediamo ora da un punto di vista progettuale come abbiamo deciso di realizzare la comunicazione dei vari elementi che compongono il sistema. In particolare vengono descritte le fasi di registrazione, preparazione, svolgimento di una giocata e di dubbio.
 
-Prima di iniziare il gioco, un giocatore deve registrarsi al Registrar Server. La registrazione avviene inviando un messaggio di `createPlayer` a quest'ultimo . Dopo la registrazione, il giocatore pu√≤ creare una nuova partita specificando anche il numero di giocatori desiderato oppure unirsi ad una gi√† esistente mediante il messaggio joinGame. Una volta creata la partita il server informa tutti i giocatori inviando il messaggio rcvGameList.
+Prima di iniziare il gioco, il player deve registrarsi al Registrar Server. La registrazione avviene inviando un messaggio di createPlayer a quest'ultimo . Dopo la registrazione, il giocatore puÚ creare una nuova partita specificando anche il numero di giocatori desiderato oppure unirsi ad una gi‡ esistente (se creata precedentemente da un altro giocatore) mediante il messaggio joinGame. Una volta creata una partita il server aggiorna tutti gli utenti registrati inviando il messaggio rcvGameList.
 
 ![Alt text](./documentation/img/Registrazione.png)
 
@@ -68,12 +68,12 @@ Quando un giocatore gioca una carta viene inviato un messaggio playedCard in bro
 
 ![Alt text](./documentation/img/PlayCard.png)
 
-Analogamente, quando un giocatore dubita viene inviato in broadcast un messaggio doubted. Tutti i nodi che ricevono questo messaggio eseguono la computazione del dubbio in locale, verificando se il dubbio era fondato o meno: in tal modo ogni nodo stabilisce quale giocatore deve pescare le carte di penalizzazione e assegna il turno relativo alla giocata successiva. Tale operazione consente di mantenere il sistema in uno stato coerente: aggiornando localmente i contatori del numero di carte degli altri giocatori.
+Analogamente, quando un giocatore dubita viene inviato in broadcast un messaggio doubted. Tutti i nodi che ricevono questo messaggio eseguono la computazione del dubbio in locale, verificando se il dubbio era fondato o meno: in tal modo ogni nodo stabilisce quale giocatore deve pescare le carte di penalizzazione e assegna il turno relativo alla giocata successiva. Tale operazione consente di mantenere il sistema in uno stato coerente (ad esempio tenendo aggiornati i contatori relativi al numero di carte relativi ai vari giocatori su ogni nodo).
 
 ![Alt text](./documentation/img/Dubbio.png)
 
 ##Tolleranza ai guasti
-I guasti che tollera il nostro sistema sono di crash dei nodi che possono presentarsi dopo che una partita √® stata avviata, eventuali guasti del Registrar Server non vengono gestiti: si assume che il suo funzionamento sia perfetto. Si suppone inoltre che la rete sottostante sia affidabile: l'invio e la ricezione dei messaggi avviene in modo corretto ed entro un tempo ragionevole.
+Il tipo di guasto che tollera il nostro sistema Ë solo il crash, e confinato esclusivamente a partire dal momento in cui inizia la partita. Quindi, eventuali guasti che insistono sul Registrar Server non vengono gestiti poichÈ si assume che esso funzioni senza alcuna complicazione. Si suppone inoltre che la rete sottostante sia affidabile: l'invio e la ricezione dei messaggi avviene in modo corretto ed entro un tempo ragionevole.
 
 Di conseguenza, risolvere il problema della tolleranza ai guasti si traduce principalmente nell'identificare i nodi che vanno in crash, per poi adottare una specifica politica che permetta agli altri giocatori di continuare a giocare. Per convenzione, abbiamo stabilito che una partita pu√≤ continuare finch√© sono presenti almeno quattro giocatori.
 
@@ -85,11 +85,11 @@ Come gi√† anticipato, in realt√† i timer che permettono di rilevare un'eventuale
 
 Vediamo ora nelle specifico il funzionamento del timeout relativo al crash all'interno del nodo in due casi diversi: 
 
-- Il server comunica ai giocatori che possono iniziare la partita: essi fanno partire il timer di crash detection. Il giocatore a cui spetta il turno effettua una giocata entro il tempo limite del proprio turno, ed invia a tutti gli altri partecipanti un messaggio dell'azione effettuata. Alla ricezione di tale messaggio gli altri giocatori, a loro volta, resettano il timeout; automaticamente il turno viene calcolato in ogni nodo ed assunto univocamente da uno dei giocatori.
+- Il server comunica ai giocatori che possono iniziare la partita: essi fanno partire il timer di crash detection. Il giocatore a cui spetta il turno effettua una giocata (che puÚ essere un un'azione di dubbio oppure la giocata di una carta della sua mano) entro il tempo limite dettato dal proprio timer relativo alla giocata, ed invia a tutti gli altri partecipanti un messaggio dell'azione effettuata. Alla ricezione di tale messaggio gli altri giocatori, a loro volta, resettano il timeout; automaticamente il turno viene calcolato in ogni nodo ed assunto univocamente da uno dei giocatori (quello successivo a quello che ha fatto precedentemente la giocata).
 
 ![Alt text](./documentation/img/schemaTO_1.png)
 
-- Il server invia la start_game ai nodi, i quali fanno partire il timer. Poich√© ha subito un crash, il giocatore player_0 non effettua alcuna giocata entro il tempo limite. Questo evento provoca lo scadere del timeout sugli altri nodi che rilevano il malfunzionamento ed eliminano il giocatore in questione della lista dei partecipanti. Il turno quindi passer√† automaticamente al giocatore successivo.
+- Il server invia la start_game ai nodi, i quali fanno partire il timer. PoichÈ ha subito un crash, il giocatore player_0 non effettua alcuna giocata entro il tempo limite. Questo evento provoca lo scadere del timeout sugli altri nodi che, in tal modo, rilevano il malfunzionamento ed eliminano il giocatore in questione della lista dei partecipanti. Il turno, quindi, passer‡ automaticamente al giocatore successivo.
 
 ![Alt text](./documentation/img/schemaTO_2.png)
 
