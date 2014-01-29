@@ -19,6 +19,7 @@ var prevHandLenght = 0;
 var n_players = 0;//nr of players
 var color = 0;//variabile per colorare le caselline
 var countdown; 
+var mustRefreshBanco = false;
 
 //Funzione per mostrare i giochi dopo la registrazione del player
 function showGames(){
@@ -325,12 +326,13 @@ function pollingAjaxGameStatus() {
 					console.log(data)
 					console.log("*****")
 					if (data['status'] == "normal") { //CASO DI AGGIORNAMENTO DEL BANCO E DEL TURNO
-						console.log("Aggiorno il banco");
+						console.log("Aggiorno il banco: mustRefreshBanco = " + mustRefreshBanco);
 						$('#esitoDubbio').css('opacity','0.0');
 						newBanco = data['table']
-						if (banco.length != newBanco.length) {
+						if (banco.length != newBanco.length || mustRefreshBanco) {
 							banco = newBanco;
 							aggiornaBanco(); 
+							mustRefreshBanco = false;
 						}
 						askPlayerCards(); //Aggiorna #otherplayers
 						
@@ -386,6 +388,7 @@ function pollingAjaxGameStatus() {
 						mostraDateBanco();
 						chiediMano(); //Nell'eventualità che debba pescare
 						$('#cardPile').css("background-color","darkgrey");
+						mustRefreshBanco = true;
 						if (data['doubtResult'] == 1) { //Dubitato Male
 							$('#esitoDubbio').text("Il giocatore "+data['doubter']+" ha dubitato male");
 							$('#esitoDubbio').animate({opacity: 1.0});
