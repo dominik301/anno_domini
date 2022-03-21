@@ -34,14 +34,14 @@ def get_games():
 		new_g = Game(index,_games_.get(game).p_list[0], player_number)
 		game_list.append(new_g)
 		index = index + 1
-	print game_list
+	print(game_list)
 	return json.dumps(game_list, default=lambda o: o.__dict__)
 
 #only for testing
 @app.route("/printGames", methods = ['GET'])
 def print_games():
 	for item in _games_:
-		print _games_[item]
+		print(_games_[item])
 	return "",200
 
 @app.route("/")
@@ -111,7 +111,7 @@ def join_g(username, game_id):
 		return "User is already subscripted\n", 400
 	if game.player_n == len(game.p_list):
 		for i in game.p_list:
-			print i.ip
+			print(i.ip)
 			url = "http://"+i.ip+":"+str(i.porta)+"/startGame"
 			headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 			r = requests.put(url, json.dumps(game.p_list, default=lambda o: o.__dict__), headers=headers)
@@ -124,5 +124,5 @@ if __name__ == '__main__':
 	elif len(sys.argv) == 2:
 		app.run(sys.argv[1], threaded = True)
 	else:
-		print "Usage:", sys.argv[0], "<public IP>"
+		print("Usage:", sys.argv[0], "<public IP>")
 		exit(1)

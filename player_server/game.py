@@ -46,29 +46,29 @@ class Game:
 
 	def __init__(self, game_id=-1, creator=None, player_n=0, p_list=[]):
 		self.game_id = game_id
-   		self.creator = creator
-   		self.p_list = []
-   		if player_n in range(4,20):
-   			self.player_n = player_n
-   		else:
-   			raise PlayersNumberRangeException("Number of players not in range")
-   		if creator is None or not isinstance(creator, Player):
-   			raise CreatorNotFoundException("Missing creator or not found")
-   		else:
+		self.creator = creator
+		self.p_list = []
+		if player_n in range(4,20):
+			self.player_n = player_n
+		else:
+			raise PlayersNumberRangeException("Number of players not in range")
+		if creator is None or not isinstance(creator, Player):
+			raise CreatorNotFoundException("Missing creator or not found")
+		else:
 			self.p_list.append(self.creator)
 
 	def __str__(self):
-   		g_str = "Game: game_id:%d, creator:%s, player_number:%d players:[" % (self.game_id, self.creator.username, self.player_n)
-   		for i in range(len(self.p_list)):
-   			if i == (len(self.p_list) - 1):
-   				g_str += "<Name: " + self.p_list[i].username + " Ip: " + str(self.p_list[i].ip) + ">"
-   			else:
-   				g_str += "<Name: " + self.p_list[i].username + " Ip: " + str(self.p_list[i].ip) + "> | "
-   		g_str += "]"
-   		return g_str
+		g_str = "Game: game_id:%d, creator:%s, player_number:%d players:[" % (self.game_id, self.creator.username, self.player_n)
+		for i in range(len(self.p_list)):
+			if i == (len(self.p_list) - 1):
+				g_str += "<Name: " + self.p_list[i].username + " Ip: " + str(self.p_list[i].ip) + ">"
+			else:
+				g_str += "<Name: " + self.p_list[i].username + " Ip: " + str(self.p_list[i].ip) + "> | "
+		g_str += "]"
+		return g_str
 
 	def add_player(self, player):
-   		if len(self.p_list) >= self.player_n:
+		if len(self.p_list) >= self.player_n:
 			raise PlayersNumberReachedException("Number of players reached")
 		else:
 			if player in self.p_list:
@@ -100,17 +100,17 @@ if __name__ == "__main__":
 		try:
 			a_game.add_player(vincenzo)
 		except:
-			print "Vincenzo non aggiunto"
+			print("Vincenzo non aggiunto")
 		a_game.add_player(roberto)
 		a_game.add_player(ale)
 		try:
 			a_game.add_player(vincenzo)
 		except:
-			print "Vincenzo non aggiunto"
+			print("Vincenzo non aggiunto")
 		a_game.add_player(mario)
-		print a_game
+		print(a_game)
 		a_game.remove_player(mario)
-		print a_game
+		print(a_game)
 		a_game.remove_player(ale)
-		print a_game
+		print(a_game)
 

@@ -83,10 +83,10 @@ def time_out():
 		my_turn = False
 		my_timeout = True
 
-	print "TIMEOUT: doveva giocare il giocatore del turno:" + str(turn_index) +":"+ players[turn_index]['username']
+	print("TIMEOUT: doveva giocare il giocatore del turno:" + str(turn_index) +":"+ players[turn_index]['username'])
 	players.remove(players[turn_index])
 	if len(players) < 4:
-		print "Troppi pochi giocatori la partita non puo' andare avanti"
+		print("Troppi pochi giocatori la partita non puo' andare avanti")
 		return
 	if turn_index >= len(players): #Nel caso in cui ha fatto crash l'ultimo della lista
 		turn_index = turn_index % len(players)
@@ -110,7 +110,7 @@ def terminate_app():
 
 @app.route("/")
 def hello():
-	print "Sono il server_player: IP: " + my_ip + " porta: " + str(my_port) + "\n", 200
+	print("Sono il server_player: IP: " + my_ip + " porta: " + str(my_port) + "\n", 200)
 	return render_template("gui.html")
 
 #Polling dalla GUI per controllare se il timer e' esaurito
@@ -246,7 +246,7 @@ def start_g():
 	if players[0]['username'] == my_player_name:
 		my_turn = True
 		hand = get_randomCards()
-		table.append(deck.pop(random.choice(range(len(deck)))))
+		table.append(deck.pop(random.choice(list(range(len(deck))))))
 		for p in players:
 			if p['username'] != my_player_name:
 
@@ -277,13 +277,13 @@ def get_randomCards():
 	player_cards = []
 	#sto usando dei magic number (20 che sarebbe la grandezza del mazzo di prova e 3 la mano dei giocatori), come si definiscono le costanti in python
 	for n in range (0,7) :
-		player_cards.append( deck.pop(random.choice(range(len(deck)))) )
+		player_cards.append( deck.pop(random.choice(list(range(len(deck))))) )
 	return player_cards	
 
 #Metodo invocato dal Registrar Server per inviare l'elenco delle partite
 @app.route("/rcvGamesList", methods = ['POST'])
 def rcvGamesList():
-	print "Ricevo elenco games"
+	print("Ricevo elenco games")
 	global gamesList
 	gamesList = request.json
 	return "",200
@@ -291,7 +291,7 @@ def rcvGamesList():
 #Metodo invocato dal player_server creator per inviare le carte di mano
 @app.route('/receiveCards', methods = ['POST'])
 def rcvCards():
-	print "Ricevo carte"
+	print("Ricevo carte")
 	if not request.json:
 		return "There is no data in http header", 400
 	hand_json = request.json
@@ -303,7 +303,7 @@ def rcvCards():
 #Metodo invocato dal player_server creator per inviare il banco iniziale
 @app.route('/receiveTable', methods = ['POST'])
 def rcvTable():
-	print "Ricevo tavolo"
+	print("Ricevo tavolo")
 	if not request.json:
 		return "There is no data in http header", 400
 	table_json = request.json
@@ -316,7 +316,7 @@ def rcvTable():
 @app.route('/receiveDeck', methods = ['POST'])
 def rcvDeck():
 	global deck
-	print "Ricevo deck"
+	print("Ricevo deck")
 	if not request.json:
 		return "There is no data in http header", 400
 	deck_json = request.json
@@ -331,7 +331,7 @@ def rcvDeck():
 #L'username serve perche' nel test in localhost l'ip e' sempre lo stesso e non si riesce a riconoscere gli utenti
 @app.route('/playedCard/<string:username>/<int:year>/<string:event>/<int:card_id>/<int:position>', methods = ['PUT'])
 def playedCard(username, year, event, card_id, position):
-	print "Carta giocata da", username
+	print("Carta giocata da", username)
 	#la prima cosa che faccio e' resettare il timer del timeout
 	global turn_index
 	global my_turn
@@ -347,14 +347,14 @@ def playedCard(username, year, event, card_id, position):
 			returned = doubted(players[turn_index]['username'])
 			if returned[0]=="End":
 				winner = players[winner_index]['username']
-				print "\nIl gioco e' finito! Il vincitore e' " + winner + "\n"
+				print("\nIl gioco e' finito! Il vincitore e' " + winner + "\n")
 				return "", 200
 		else:
 			turn_index = ((turn_index + 1) % len(players))
 	#il giocatore da cui mi aspettavo la giocata e' crashato: mi e' arrivata la giocata da quello successivo
 	elif players[(turn_index+1) % len(players)]['username'] == username:
-		print "Ha giocato il successivo a quello che aspettavo"
-		print "Elimino ", players[turn_index]['username'], " (",turn_index,")"
+		print("Ha giocato il successivo a quello che aspettavo")
+		print("Elimino ", players[turn_index]['username'], " (",turn_index,")")
 		players.remove(players[turn_index])
 		if turn_index >= len(players): #Nel caso in cui ha fatto crash l'ultimo della lista
 			turn_index = turn_index % len(players)
@@ -363,7 +363,7 @@ def playedCard(username, year, event, card_id, position):
 		return "Unexcepted player", 400
 	if players[turn_index]['username'] == my_player_name:
 		my_turn = True
-	print "Adesso e' il turno di: " + players[turn_index]['username']
+	print("Adesso e' il turno di: " + players[turn_index]['username'])
 	return "", 200
 
 #Metodo che fa il pop di n carte dal mazzo e le restituisce come lista
@@ -393,7 +393,7 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	elif players[turn_index]['username'] != username:
 		return "Unexpected player", 400
 	doubterIndex = turn_index
-	print "Doubter = ", doubterIndex, players[doubterIndex]
+	print("Doubter = ", doubterIndex, players[doubterIndex])
 	
 	myIndex = -1
 	for user in players:
@@ -408,7 +408,7 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	for i in range(0, len(table) - 1):
 		if table[i].year > table[i+1].year:
 			#Il dubbio era fondato: si penalizza il precedente nella mano
-			print "\n", players[turn_index]['username'], "ha dubitato bene"
+			print("\n", players[turn_index]['username'], "ha dubitato bene")
 			doubtStatus = 0;
 			penalizatedIndex = prevIndex
 			penalization = 3
@@ -416,7 +416,7 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 			break
 	else:
 		#Dubitato male
-		print "\n", players[turn_index]['username'], "ha dubitato male"
+		print("\n", players[turn_index]['username'], "ha dubitato male")
 		doubtStatus = 1;
 		#Puo' essere che il gioco sia finito (siamo in auto-dubito e l'ultimo player ha 0 carte)
 		if int(players[prevIndex]['n_cards']) == 0:
@@ -429,7 +429,7 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	if penalizatedIndex == myIndex:  #il penalizzato inserisce le carte nella mano
 		for c in pescate:
 			hand.append(c)
-		print "Ho pescato " + str(penalization) + " carte: la mia mano"
+		print("Ho pescato " + str(penalization) + " carte: la mia mano")
 	#Tutti i giocatori aggiornano il counter delle carte del penalizzato
 	players[penalizatedIndex]['n_cards'] = str(int(players[penalizatedIndex]['n_cards']) + penalization)
 	#In ogni caso (sia dubitato bene, sia male) resetto il tavolo
@@ -442,7 +442,7 @@ def doubted(username): #il param. e' l'username di chi invia il messaggio
 	turn_index = nextPlayerIndex
 	if myIndex == turn_index:
 		my_turn = True
-	print "Adesso e' il turno di: " + players[turn_index]['username']
+	print("Adesso e' il turno di: " + players[turn_index]['username'])
 	return "",200
 
 def resetDoubt():
@@ -459,7 +459,7 @@ def try_ports():
 		return True
 	except:
 		my_port += 1
-		print "Eccezione! Provo la porta: " + str(my_port)
+		print("Eccezione! Provo la porta: " + str(my_port))
 		return False
 
 if __name__ == "__main__":
@@ -470,7 +470,7 @@ if __name__ == "__main__":
 		my_ip = sys.argv[1]
 		server_ip = sys.argv[2]
 	else:
-		print "Usage:", sys.argv[0], "<public IP><server IP>"
+		print("Usage:", sys.argv[0], "<public IP><server IP>")
 		exit(1)
 	app.debug = True
 	server_started = try_ports()
@@ -479,10 +479,10 @@ if __name__ == "__main__":
 
 	for t in enumerate():
 		if currentThread() != t and t.__class__.__name__ != "_DummyThread" and t.__class__.__name__ != "_MainThread":
-			print "try joining: " + str(t)
+			print("try joining: " + str(t))
 			#t.join()
 			if t.__class__.__name__ == "_Timer":
 				t.cancel()
-				print "timeout canceled!"
+				print("timeout canceled!")
 
 	sys.exit()

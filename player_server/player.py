@@ -25,4 +25,4 @@ class Player:
 
 if __name__ == "__main__":
 	a_player = Player("vincenzo", "0.0.0.0")
-	print a_player.username, " ", a_player.ip, " ", a_player.porta
+	print(a_player.username, " ", a_player.ip, " ", a_player.porta)

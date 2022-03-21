@@ -23,4 +23,4 @@ if __name__ == "__main__":
 	for j in range(0,20):
 		deck.append( Game_Card(j, "e_" + str(j), j) ) 
 	for c in deck:
-		print c
+		print(c)
