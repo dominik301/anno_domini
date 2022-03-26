@@ -6,6 +6,7 @@
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 <script type="text/javascript" src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='jquery-ui.min.js') }}"></script>
+<script type="text/javascript" src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
 <script type="text/javascript">
 var ip_server = location.hostname
 var player_server_port = location.port;
@@ -20,6 +21,7 @@ var n_players = 0;//nr of players
 var color = 0;//variabile per colorare le caselline
 var countdown; 
 var mustRefreshBanco = false;
+var pid = 0;
 
 //Funzione per mostrare i giochi dopo la registrazione del player
 function showGames(){
@@ -40,7 +42,7 @@ function showGames(){
 					games = data
 					if (games[0] == undefined) {
 						$('#partite').html('');
-						$('#partite').html('<h2>Nessuna partita presente</h2><input type="button" id="createGame" value="Crea partita">');
+						$('#partite').html('<h2>Keine Spiele vorhanden</h2><input type="button" id="createGame" value="Spiel erstellen">');
 						$("#createGame").click(function() {
 							$("#partite").hide();
 							$("#creap").fadeIn("slow",function(){});
@@ -48,7 +50,7 @@ function showGames(){
 					}
 					else {
 						$('#partite').html('');
-						$('#partite').html('<h2>Partite disponibili</h2><table id="gamesTable"><tr><td>Creator</td><td>N. players</td></tr></table>');
+						$('#partite').html('<h2>Spiele vorhanden</h2><table id="gamesTable"><tr><td>Creator</td><td>N. players</td></tr></table>');
 						$("#createGame").click(function() {
 							$("#partite").hide();
 							$("#creap").fadeIn("slow", function(){});
@@ -69,7 +71,7 @@ function pollingAjaxStartGame(){
 	$('#partite').html('');
 	$('#partite').css('display','none');
 	$("#partite").css('width', '460px');
-	$('#partite').html('<h2 style="margin: 6px;">Attendere inizio partita...</h2>');
+	$('#partite').html('<h2 style="margin: 6px;">Warten Sie auf den Beginn des Spiels...</h2>');
 	$('#partite').fadeIn("slow", function(){});
 	var my_delay = 2000;
 	var stopPollingSG = 0;
@@ -84,7 +86,6 @@ function pollingAjaxStartGame(){
 			url: 'http://'+ip_server+':'+ player_server_port +'/gameStatus',        
 			dataType: 'json',  
 			success: function(data) {
-				console.log("pollingAjaxStartGame");
 				setTimeout(callAjax, my_delay);
 				if(data['status'] == 1){
 					game_status = 1;
@@ -179,17 +180,16 @@ function askPlayerCards(){
 			url: 'http://'+ip_server+':'+player_server_port+'/playerCards',        
 			dataType: 'json',  
 			success: function(data) {
-				console.log(data)
 				if (game_status == 1) {
 					n_players = 0;
 					for( key in data ) {
 						n_players= n_players + 1;
 					}
-					if(n_players < 4) {
+					if(n_players < 2) {
 						stopPollingGameStatus = 1;
 						$('body').html('');
 						$('body').hide();
-						$('body').html('<div><h2 style="text-align: center; color: black;font-family: initial;font-size: 50px;line-height: 60px;">Non ci sono giocatori sufficienti per continuare la partita</h2><img src="/static/dinosaur.gif" dynsrc="/static/dinosaur.gif" loop = false style="display: block; margin:auto;"></div>');
+						$('body').html('<div><h2 style="text-align: center; color: black;font-family: initial;font-size: 50px;line-height: 60px;">Es gibt nicht genug Spieler, um das Spiel fortzusetzen</h2><img src="/static/dinosaur.gif" dynsrc="/static/dinosaur.gif" loop = false style="display: block; margin:auto;"></div>');
 						$('body').fadeIn("slow", function(){});
 						stopPollingGameStatus = 1
 						stopPollingTo = 1
@@ -207,7 +207,6 @@ function askPlayerCards(){
 
 //Funzione che mostra le date del banco
 function mostraDateBanco() {
-	console.log("Scopri banco");
 	$("#cardPile div").draggable( "disable" );
 
 	//struttura del banco
@@ -260,54 +259,7 @@ function mostraDateBanco() {
 }
 
 function chiediMano(){
-	$.ajax({
-		url: 'http://'+ip_server+':'+ player_server_port +'/mano',
-		type: "GET",
-		dataType: "json",
-		success: function (data) {
-			cards = data;
-			if (prevHandLenght != cards.length) { //Aggiorno solo quando c'è realmente bisogno
-				$('#cardPile').html('');
-				for (var i=0; i<cards.length; i++) {
-					riga = parseInt(i/7);
-					if (i%7==0) { //per ogni riga
-						if (i>0)
-							$('#cardPile').append('<div class="table-row-separator"></div>');
-						$('#cardPile').append('<div class="cardsRow" id="mycardrow'+riga+'"></div>');
-					}
-					$("#mycardrow"+riga).append('<div style="display: table-cell; width:2%; height:110px;"></div>');
-					$("#mycardrow"+riga).append('<div id="mycard'+i+'" class="primacarta" style="opacity: 0.0;"><p>'+cards[i].event+'</p></div>');
-					$("#mycard"+i).data('card_id', cards[i].card_id);
-					$("#mycard"+i).draggable({
-						containment: '#content',
-						stack: '#mycard',
-						cursor: 'move',
-						revert: true
-					});
-					$("#mycardrow"+riga).append('<div style="display: table-cell; width:2%; height:110px;"></div>');
-				}
-				//Riempio il cardPile di carte vuote se non ho raggiunto il numero (7)
-				for (var i=cards.length; i<7; i++) {
-					riga = parseInt(i/7);
-					$("#mycardrow"+riga).append('<div class="primacarta" id="mycard'+i+'" style="visibility: hidden;"></div>');
-					$("#mycardrow"+riga).append('<div style="display: table-cell; width:2%;" style="visibility: hidden;"></div>');
-				}
-				prevHandLenght = cards.length
-				
-				var nextToShow = 0;
-				$(function() {
-					fadeInMano();
-				});
-				function fadeInMano() {
-					if (nextToShow < cards.length) {
-							$("#mycard"+nextToShow).animate({opacity: 1.0});
-							nextToShow += 1;
-							setTimeout(fadeInMano, 80);
-					}
-				}
-			}
-		}
-	})
+	socket.emit('mano')
 }
 
 function pollingAjaxGameStatus() {
@@ -326,7 +278,6 @@ function pollingAjaxGameStatus() {
 					console.log(data)
 					console.log("*****")
 					if (data['status'] == "normal") { //CASO DI AGGIORNAMENTO DEL BANCO E DEL TURNO
-						console.log("Aggiorno il banco: mustRefreshBanco = " + mustRefreshBanco);
 						$('#esitoDubbio').css('opacity','0.0');
 						newBanco = data['table']
 						if (banco.length != newBanco.length || mustRefreshBanco) {
@@ -339,7 +290,6 @@ function pollingAjaxGameStatus() {
 						//Controllo anche il turno
 						jsonTurn = data['turn']
 						if (jsonTurn['winner'] != "") { //c'è un vincitore
-							console.log("AND THE WINNER IS"+jsonTurn['winner']);
 							$('body').html('');
 							$('body').css('display','none');
 							$('body').html('<div><h2 style="text-align: center; color: black;font-family: initial;font-size: 50px;line-height: 60px;">AND THE WINNER IS '+jsonTurn['winner']+'</h2><img src="/static/winner.gif" dynsrc="/static/winner.gif" loop = false style="display: block; margin:auto;"></div>');
@@ -349,14 +299,13 @@ function pollingAjaxGameStatus() {
 							return ;
 						}
 						//Nessun vincitore: il gioco continua
-						if(jsonTurn['turn'] == 1) { //E' il mio turno
-							console.log("E' il mio turno");
+						if(jsonTurn['turn_index'] == pid) { //E' il mio turno
 							chiediMano();
 							$('#cardPile').css("background-color","greenyellow");
 							color = jsonTurn['turn_index'];
 							$('#turno').html('');
 							$('#turno').css('display','none');
-							$('#turno').html('<h2 id="turnText">&Egrave; il tuo turno</h2>');
+							$('#turno').html('<h2 id="turnText">Sie sind dran</h2>');
 							$('#turno').fadeIn("slow", function(){});
 							$("#cardPile div").draggable( "enable" );
 							if (banco.length >1)
@@ -369,12 +318,12 @@ function pollingAjaxGameStatus() {
 						else { //Non è il mio turno
 							setTimeout(callAjax, 1000);
 							color = jsonTurn['turn_index'];
-							if ($('#turnText').text() != "Attendere il proprio turno...") {
+							if ($('#turnText').text() != "Warten Sie, bis Sie dran sind...") {
 								$('#cardPile').css("background-color","darkgrey");
 								$('#dubbio').attr('disabled', true);
 								$('#turno').html('');
 								$('#turno').hide();
-								$('#turno').html('<h2 id="turnText">Attendere il proprio turno...</h2>');
+								$('#turno').html('<h2 id="turnText">Warten Sie, bis Sie dran sind...</h2>');
 								$('#turno').fadeIn("slow", function(){});
 								$("#cardPile div").draggable( "disable" );
 							}
@@ -382,7 +331,6 @@ function pollingAjaxGameStatus() {
 					} //CHIUSURA CASO DI AGGIORNAMENTO DEL BANCO E DEL TURNO
 					
 					else { //CASO DI DOUBT
-						console.log("Doubted: attendo 10 secondi");
 						setTimeout(callAjax, 10000);
 						bancoPreDoubt = data['table']
 						mostraDateBanco();
@@ -390,14 +338,12 @@ function pollingAjaxGameStatus() {
 						$('#cardPile').css("background-color","darkgrey");
 						mustRefreshBanco = true;
 						if (data['doubtResult'] == 1) { //Dubitato Male
-							$('#esitoDubbio').text("Il giocatore "+data['doubter']+" ha dubitato male");
+							$('#esitoDubbio').text("Der Spieler "+data['doubter']+" hat zu Unrecht gezweifelt");
 							$('#esitoDubbio').animate({opacity: 1.0});
-							console.log("IL GIOCATORE "+data['doubter']+" HA DUBITATO MALE");
 						}
 						else { //Dubitato bene
-							$('#esitoDubbio').text("Il giocatore "+data['doubter']+" ha dubitato bene")
+							$('#esitoDubbio').text("Der Spieler "+data['doubter']+" hat richtig gezweifelt")
 							$('#esitoDubbio').animate({opacity: 1.0});
-							console.log("IL GIOCATORE "+data['doubter']+" HA DUBITATO BENE");
 						}
 					} //CHIUSURA CASO DI DOUBT
 				} //chiusura success
@@ -416,14 +362,14 @@ function handleCardDrop(event, ui) {
 	ui.draggable.position( { of: $(this), my: 'left top', at: 'left top' } );
 	ui.draggable.draggable('option', 'revert', false );
 	playCard(ui.draggable.data('card_id'), $(this).data('number'));
-	console.log($(this).data('number'));
-	console.log(ui.draggable.data('card_id'));
+	mustRefreshBanco = true;
+	$('#cardPile div').hide();
 }
 
 function joinGames(game_id) {
 	stopPollingGames = 1;
 	$.ajax({
-		url: 'http://'+ip_server+':'+ player_server_port +'/joinGame/'+game_id,
+		url: 'http://'+ip_server+':'+ player_server_port +'/joinGame/'+ $('#txtUsername').val() + '/' + game_id,
 		type: "PUT",
 		dataType: "text",
 		success: function (data) {
@@ -459,12 +405,10 @@ function pollingAjaxTimeout(){
 				url: 'http://'+ip_server+':'+ player_server_port +'/timeOut',        
 				dataType: 'json',  
 				success: function(data) {
-					console.log("pollingAjaxTimeout");
 					setTimeout(callAjax, my_delay);
 					if(data['my_timeout']){
-						console.log("Timeout");
 						$('body').html('');
-						$('body').html('<div><h2 style="text-align: center; color: black;font-family: initial;font-size: 50px;line-height: 60px;">Si &egrave; verificato un guasto</h2><img src="/static/dinosaur.gif" dynsrc="/static/dinosaur.gif" loop = false style="display: block; margin:auto;"></div>');
+						$('body').html('<div><h2 style="text-align: center; color: black;font-family: initial;font-size: 50px;line-height: 60px;">Ein Fehler ist aufgetreten</h2><img src="/static/dinosaur.gif" dynsrc="/static/dinosaur.gif" loop = false style="display: block; margin:auto;"></div>');
 						stopPollingTo = 1;
 						stopPollingGameStatus = 1;
 					}
@@ -477,6 +421,7 @@ function pollingAjaxTimeout(){
 }
 
 function startCountdown() {
+	clearInterval(countdown);
 	$("#countdownText").html("55");
 	countdown = setInterval("updateCountdown();", 1000);
 	$("#countdownBox").css('color','green');
@@ -515,18 +460,18 @@ function resetCountdown() {
 </head>
 <body>
  <div id="form">
-  <p class="formTitle">Registrazione al servizio<br /></p>
+  <p class="formTitle">Anmeldung beim Dienst<br /></p>
   <div id="subform">
-    <label>Nome: </label>
+    <label>Name: </label>
     <input type="text" name="nome" id="txtUsername">
-	<input type="button" value="Registrati" id="createP">
+	<input type="button" value="Anmelden" id="createP">
   </div>
   <p id="errCreateP" style="text-align: center; display: none;"></p>
  </div>
  <div id="creap" style="display: none;">
-	 <h2>Creazione nuova partita</h2>
-    <label>Numero di giocatori: </label><input type='text' id='n_players'>
-    <input type='button' id='createG' value='Crea gioco'>
+	 <h2>Ein neues Spiel erstellen</h2>
+    <label>Anzahl der Spieler: </label><input type='text' id='n_players'>
+    <input type='button' id='createG' value='Spiel erstellen'>
  </div>
 <div id="partite" style="display: none;" align="center">
 </div>
@@ -539,7 +484,7 @@ function resetCountdown() {
   <div id="clear" style="clear: both"></div>
   </div>
   <div id="cardPile" style="display: none;"> </div>
-  <input type="button" id ="dubbio" value="Dubbio" align="center" style="display: none; font-size: large; margin-top: 15px">
+  <input type="button" id ="dubbio" value="Zweifel" align="center" style="display: none; font-size: large; margin-top: 15px">
   <div id="cardSlots" style="display: none;"> </div>
  </div>
  <div id="esitoDubbio" align="center" style="opacity: 0.0; display: none;"><h2>&nbsp;</h2></div>
@@ -547,6 +492,7 @@ function resetCountdown() {
 	 <p id="countdownText"></p>
  </div>
  <script>
+	 var socket = io.connect('http://' + document.domain + ':' + location.port);
  
 $("#createP").click(function() {
 	var name = $('#txtUsername').val();  
@@ -559,32 +505,31 @@ $("#createP").click(function() {
 		$('#errCreateP').fadeIn("slow", function(){});
 		return ;
 	}
-	$.ajax({
-		url: 'http://'+ip_server+':'+ player_server_port +'/createPlayer/'+name,
-		type: "POST",
-		dataType: "text",
-		success: function (data) {
-			console.log(data);
-			$("#form").hide();
-			showGames();
-			$("#partite").fadeIn("slow", function(){});
-		},
-		error: function(xhr, textStatus, errorThrown) {
-			$('#errCreateP').html("Error: "+xhr.responseText);
-			$('#errCreateP').fadeIn("slow", function(){});
-			if( textStatus == "error" ) {
-				$('#txtUsername').css({'background': '-webkit-linear-gradient(top, #F08080, #F08080'});
-				$('#txtUsername').css({'background': '-moz-linear-gradient(top, #F08080, #F08080'});
-				$('#txtUsername').css({'background': '-ms-linear-gradient(top, #F08080, #F08080'});
-				$('#txtUsername').css({'background': '-o-linear-gradient(top, #F08080, #F08080'});
-			}
-		}
-	})
+	socket.emit('createPlayer', name)
 });
+
+
+socket.on('createSuccess', function(data) {
+	$("#form").hide();
+	showGames();
+	$("#partite").fadeIn("slow", function(){});
+})
+
+socket.on('createErr', function(data) {
+	$('#errCreateP').html("Error: " + data);
+	$('#errCreateP').fadeIn("slow", function(){});
+	if( false ) {
+		$('#txtUsername').css({'background': '-webkit-linear-gradient(top, #F08080, #F08080'});
+		$('#txtUsername').css({'background': '-moz-linear-gradient(top, #F08080, #F08080'});
+		$('#txtUsername').css({'background': '-ms-linear-gradient(top, #F08080, #F08080'});
+		$('#txtUsername').css({'background': '-o-linear-gradient(top, #F08080, #F08080'});
+	}
+})
+
 
 $("#createG").click(function() {
     var nplayers = $("#n_players").val();
-    if (isNaN(nplayers) || nplayers < 4) {
+    if (isNaN(nplayers) || nplayers < 2) {
 		$("#n_players").css({'background': '-webkit-linear-gradient(top, #F08080, #F08080'});
 		$("#n_players").css({'background': '-moz-linear-gradient(top, #F08080, #F08080'});
 		$("#n_players").css({'background': '-ms-linear-gradient(top, #F08080, #F08080'});
@@ -592,7 +537,7 @@ $("#createG").click(function() {
 		return ;
 	}
     $.ajax({
-    url: 'http://'+ip_server+':'+ player_server_port +'/createGame/'+nplayers,
+    url: 'http://'+ip_server+':'+ player_server_port +'/createGame/' + $('#txtUsername').val() + '/'+ nplayers,
     type: "POST",
     dataType: "text",
     success: function (data) {
@@ -615,15 +560,93 @@ $("#createG").click(function() {
 $("#dubbio").click(function() {
     $.ajax({
     url: 'http://'+location.hostname+':'+ player_server_port +'/doubt',
-    type: "PUT",
-    dataType: "text",
-    success: function (data) {
-		$('#dubbio').attr('disabled', true);
-		stopPollingGameStatus = 0;
-		pollingAjaxGameStatus();
-		resetCountdown();
-    }
+    type: "PUT"
   })
+});
+
+socket.on('rcvGamesList', function(gamesToSend) {
+	$.post('http://'+ip_server+':'+ player_server_port +'/rcvGamesList', gamesToSend);
+})
+socket.on('startGame', function(p_list) {
+	var _plist = JSON.parse(p_list)
+	for (var i in _plist) {
+		if (_plist[i].username == $('#txtUsername').val()) {
+			pid = i;
+		}
+	}
+	$.ajax({
+		url: 'http://'+ip_server+':'+ player_server_port +'/startGame',
+		type: "PUT",
+		data: p_list,
+		contentType: "application/json"
+	});
+})
+socket.on('playedCard', function(_url) {
+	$.ajax({
+		url: 'http://'+ip_server+':'+ player_server_port +'/playedCard' + _url,
+		type: "PUT"
+	});
+})
+socket.on('bancoOrDoubt', function(data) {
+	mtable = JSON.parse(data);
+	setTimeout(pollingAjaxGameStatus, 10000);
+	bancoPreDoubt = mtable.table
+	mostraDateBanco();
+	chiediMano(); //Nell'eventualità che debba pescare
+	$('#cardPile').css("background-color","darkgrey");
+	stopPollingGameStatus = 0;
+	mustRefreshBanco = true;
+	if (data.doubtResult == 1) { //Dubitato Male
+		$('#esitoDubbio').text("Der Spieler "+mtable.doubter+" hat zu Unrecht angezweifelt");
+		$('#esitoDubbio').animate({opacity: 1.0});
+	}
+	else { //Dubitato bene
+		$('#esitoDubbio').text("Der Spieler "+mtable.doubter+" hat gut gezweifelt")
+		$('#esitoDubbio').animate({opacity: 1.0});
+	}
+})
+socket.on('mano', function(data) {
+	cards = JSON.parse(data);
+	if (prevHandLenght != cards.length) { //Aggiorno solo quando c'è realmente bisogno
+		$('#cardPile').html('');
+		for (var i=0; i<cards.length; i++) {
+			riga = parseInt(i/7);
+			if (i%7==0) { //per ogni riga
+				if (i>0)
+					$('#cardPile').append('<div class="table-row-separator"></div>');
+				$('#cardPile').append('<div class="cardsRow" id="mycardrow'+riga+'"></div>');
+			}
+			$("#mycardrow"+riga).append('<div style="display: table-cell; width:2%; height:110px;"></div>');
+			$("#mycardrow"+riga).append('<div id="mycard'+i+'" class="primacarta" style="opacity: 0.0;"><p>'+cards[i].event+'</p></div>');
+			$("#mycard"+i).data('card_id', cards[i].card_id);
+			$("#mycard"+i).draggable({
+				containment: '#content',
+				stack: '#mycard',
+				cursor: 'move',
+				revert: true
+			});
+			$("#mycardrow"+riga).append('<div style="display: table-cell; width:2%; height:110px;"></div>');
+		}
+		//Riempio il cardPile di carte vuote se non ho raggiunto il numero (7)
+		for (var i=cards.length; i<7; i++) {
+			riga = parseInt(i/7);
+			$("#mycardrow"+riga).append('<div class="primacarta" id="mycard'+i+'" style="visibility: hidden;"></div>');
+			$("#mycardrow"+riga).append('<div style="display: table-cell; width:2%;" style="visibility: hidden;"></div>');
+		}
+		prevHandLenght = cards.length
+		
+		var nextToShow = 0;
+		$(function() {
+			fadeInMano();
+		});
+		function fadeInMano() {
+			if (nextToShow < cards.length) {
+					$("#mycard"+nextToShow).animate({opacity: 1.0});
+					nextToShow += 1;
+					setTimeout(fadeInMano, 80);
+			}
+		}
+	}
 });
 
 </script>
