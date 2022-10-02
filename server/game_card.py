@@ -5,7 +5,7 @@ class Game_Card():
 	"""A game card reppresentation"""
 
 	def __init__(self,year=-1, event=None, card_id=-1):
-		if (year >= 0 and year <= 2013) and event != None and card_id > -1:
+		if (year >= 2020 and year <= 2048) and event != None and card_id > -1:
 			self.year = year
 			self.event = event
 			self.card_id = card_id

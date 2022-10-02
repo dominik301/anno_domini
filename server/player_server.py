@@ -61,6 +61,24 @@ index = 0
 app = Flask(__name__, static_folder = "static")
 io = SocketIO(app, async_mode=None)
 
+
+def reset():
+	global gamesList, table, tablePreDoubt, players, game_id, hands, winner, doubtp, doubtStatus, turn_index, timeOut, _games_, _players_, index
+	gamesList = []
+	table = []
+	tablePreDoubt = []
+	players = []
+	game_id = 0
+	hands = {}
+	winner = ""
+	doubtp = ""
+	doubtStatus = 0
+	turn_index = 0
+	timeOut = {}
+	_games_ = {}
+	_players_ = {}
+	index = 0
+
 def _timer(plus):
 	if plus:
 		return Timer(70.0, time_out)
@@ -77,6 +95,7 @@ def time_out():
 	players.remove(players[turn_index])
 	if len(players) < 2:
 		print("Zu wenige Spieler, das Spiel kann nicht weitergehen")
+		reset()
 		return
 	if turn_index >= len(players): #Nel caso in cui ha fatto crash l'ultimo della lista
 		turn_index = turn_index % len(players)
@@ -103,7 +122,7 @@ def hello():
 #Polling dalla GUI per controllare se il timer e' esaurito
 @app.route("/timeOut")
 def myTimeOut():
-	if timeOut[turn_index]:
+	if turn_index in timeOut and timeOut[turn_index]:
 		return jsonify({"my_timeout": True})
 	else:
 		return jsonify({"my_timeout": False})
@@ -279,6 +298,7 @@ def playedCard(username, year, event, card_id, position):
 			if returned[0]=="End":
 				winner = players[winner_index]['username']
 				print("\nIl gioco e' finito! Il vincitore e' " + winner + "\n")
+				reset()
 				return "", 200
 		else:
 			turn_index = ((turn_index + 1) % len(players))

@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-<title>Anno Domini</title>
+<title>Anno Futuri</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 <script type="text/javascript" src="{{ url_for('static', filename='jquery.min.js') }}"></script>
@@ -50,13 +50,13 @@ function showGames(){
 					}
 					else {
 						$('#partite').html('');
-						$('#partite').html('<h2>Spiele vorhanden</h2><table id="gamesTable"><tr><td>Creator</td><td>N. players</td></tr></table>');
+						$('#partite').html('<h2>Spiele vorhanden</h2><table id="gamesTable"><tr><td>Ersteller</td><td>Spielerzahl</td></tr></table>');
 						$("#createGame").click(function() {
 							$("#partite").hide();
 							$("#creap").fadeIn("slow", function(){});
 						});
 						for ( var i=0; i<games.length; i++ ) 
-						  $('#gamesTable tr:last').after("<tr><td>"+games[i].creator.username+"</td><td>"+games[i].player_n+"</td><td><input type='button' id='join' value='Join' onclick='joinGames("+games[i].game_id+")'></td></tr>");
+						  $('#gamesTable tr:last').after("<tr><td>"+games[i].creator.username+"</td><td>"+games[i].player_n+"</td><td><input type='button' id='join' value='Beitreten' onclick='joinGames("+games[i].game_id+")'></td></tr>");
 					}
 				} // chiusura stopPollingGames!=1
 			} //chiusura success
@@ -382,13 +382,8 @@ function playCard(card_id,position){
 	$.ajax({
 		url: 'http://'+ip_server+':'+player_server_port+'/playCard/'+card_id+'/'+position,
 		type: "PUT",
-		dataType: "text",
-		success: function (data) {
-			stopPollingGameStatus = 0;
-			pollingAjaxGameStatus();
-		}
+		dataType: "text"
 	});
-	chiediMano()
 }
 
 //Polling per il timeout
@@ -457,6 +452,14 @@ function resetCountdown() {
 }
 
 </script>
+<style>
+	body {
+	  background-image: url('https://cdn.pixabay.com/photo/2019/02/09/11/03/globe-3984876_960_720.jpg');
+	  background-repeat: no-repeat;
+	  background-attachment: fixed;
+	  background-size: cover;
+	}
+</style> 
 </head>
 <body>
  <div id="form">
@@ -470,8 +473,8 @@ function resetCountdown() {
  </div>
  <div id="creap" style="display: none;">
 	 <h2>Ein neues Spiel erstellen</h2>
-    <label>Anzahl der Spieler: </label><input type='text' id='n_players'>
-    <input type='button' id='createG' value='Spiel erstellen'>
+    <label>Anzahl der Spieler: </label><input type="text" id="n_players">
+    <input type="button" id="createG" value="Spiel erstellen">
  </div>
 <div id="partite" style="display: none;" align="center">
 </div>
@@ -487,7 +490,6 @@ function resetCountdown() {
   <input type="button" id ="dubbio" value="Zweifel" align="center" style="display: none; font-size: large; margin-top: 15px">
   <div id="cardSlots" style="display: none;"> </div>
  </div>
- <div id="esitoDubbio" align="center" style="opacity: 0.0; display: none;"><h2>&nbsp;</h2></div>
  <div id="countdownBox" style="display:none;">
 	 <p id="countdownText"></p>
  </div>
@@ -584,8 +586,13 @@ socket.on('startGame', function(p_list) {
 socket.on('playedCard', function(_url) {
 	$.ajax({
 		url: 'http://'+ip_server+':'+ player_server_port +'/playedCard' + _url,
-		type: "PUT"
+		type: "PUT",
+		success: function (data) {
+			stopPollingGameStatus = 0;
+			pollingAjaxGameStatus();
+		}
 	});
+	chiediMano()
 })
 socket.on('bancoOrDoubt', function(data) {
 	mtable = JSON.parse(data);
