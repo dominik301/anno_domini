@@ -274,9 +274,9 @@ function pollingAjaxGameStatus() {
 				url: 'http://'+ip_server+':'+player_server_port+'/bancoOrDoubt',
 				dataType: 'json',  
 				success: function(data) {
-					console.log("*****")
+					/*console.log("*****")
 					console.log(data)
-					console.log("*****")
+					console.log("*****")*/
 					if (data['status'] == "normal") { //CASO DI AGGIORNAMENTO DEL BANCO E DEL TURNO
 						$('#esitoDubbio').css('opacity','0.0');
 						newBanco = data['table']
@@ -417,7 +417,7 @@ function pollingAjaxTimeout(){
 
 function startCountdown() {
 	clearInterval(countdown);
-	$("#countdownText").html("55");
+	$("#countdownText").html("85");
 	countdown = setInterval("updateCountdown();", 1000);
 	$("#countdownBox").css('color','green');
 	$("#countdownBox").fadeIn("slow", function(){});

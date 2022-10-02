@@ -81,9 +81,9 @@ def reset():
 
 def _timer(plus):
 	if plus:
-		return Timer(70.0, time_out)
+		return Timer(100.0, time_out)
 	else:
-		return Timer(60.0, time_out)
+		return Timer(90.0, time_out)
 
 def time_out():
 	global turn_index
